@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+game.db*
+# Рабочая база и служебные файлы SQLite
+data/*.db
+data/*.db-*
+data/*.db-journal
+
+# Локальные резервные копии
+backups/

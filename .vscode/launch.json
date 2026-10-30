@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Запустить Anime Cards",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": [
+        "main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "justMyCode": true
+    }
+  ]
+}
