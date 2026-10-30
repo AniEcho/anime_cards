@@ -360,3 +360,6 @@ def finish_puzzle(body: dict, authorization: str | None = Header(default=None)):
         card = c.execute('SELECT * FROM cards WHERE id=?', (card_id,)).fetchone()
         c.execute('INSERT INTO inventory(user_id, card_id, count) VALUES(?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, card_id))
         return {'status': 'won', 'card': card_dict(card)}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
