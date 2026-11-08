@@ -13,13 +13,8 @@
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { 
-      box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent; 
-      touch-action: manipulation; /* Убирает 300мс задержку нажатия на iOS/Android */
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
-    /* Жестко фиксируем экран, убираем горизонтальный скролл и зум на всех вкладках */
     html, body { 
       margin: 0; 
       padding: 0; 
@@ -37,7 +32,7 @@
     main { 
       max-width: 650px; 
       margin: 0 auto; 
-      padding: 18px 14px 40px; 
+      padding: 18px 14px 70px; 
       width: 100%;
       max-width: 100vw;
       overflow-x: hidden;
@@ -74,22 +69,9 @@
     .filter-menu.active { display: flex; }
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
-
-    /* Мгновенный отклик кнопок без задержек */
-    button, .game-btn, .filter-chip {
-      touch-action: manipulation;
-      transition: transform 0.08s ease, opacity 0.15s ease, background-color 0.2s ease;
-    }
-    button:active, .game-btn:active, .filter-chip:active, .set-row:active {
-      transform: scale(0.95) !important;
-    }
-    button.loading, .game-btn.loading {
-      opacity: 0.6;
-      pointer-events: none;
-      cursor: wait;
-    }
     
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
+    button:active { transform: scale(0.98); }
     button:disabled { opacity: .5; cursor: default; }
     .primary { background: linear-gradient(135deg, #5a2a6e 0%, #3a1a4a 100%); border-color: #8e44ad; color: #fff; box-shadow: 0 4px 15px rgba(90, 42, 110, 0.4); }
     .wide { width: 100%; margin: 8px 0; display: block; }
@@ -543,23 +525,6 @@
       `;
     }
 
-    async function handleGameAction(buttonElement, actionCallback) {
-      if (!buttonElement || buttonElement.classList.contains('loading')) return;
-      
-      buttonElement.classList.add('loading');
-      
-      try {
-        await actionCallback();
-      } catch (err) {
-        console.error('Ошибка игрового действия:', err);
-        alert('Не удалось выполнить действие. Проверь соединение с интернетом.');
-      } finally {
-        if (buttonElement) {
-          buttonElement.classList.remove('loading');
-        }
-      }
-    }
-
     function show(next) {
       if (busy) return;
       if (tab === 'games' && puzzleSession) {
@@ -798,6 +763,8 @@
         </div>
       `;
 
+      let isOpening = false;
+
       const updateGameTimers = () => {
         if (!profile) return;
 
@@ -815,13 +782,15 @@
           
           if (isFreeReady) {
             freeWait.innerHTML = `<span style="color:#de8aff; font-size: 16px;">Нажми, чтобы открыть!</span>`;
-            freeCard.onclick = (e) => {
-              handleGameAction(freeCard, async () => {
+            freeCard.onclick = () => {
+              if (isOpening) return; 
+              isOpening = true;
+              run(async () => {
                 const r = await api('free', {});
                 await sync(); 
                 prize(r.card);
                 games(); 
-              });
+              }).finally(() => { isOpening = false; });
             };
           } else {
             freeCard.onclick = null;
@@ -842,11 +811,7 @@
           puzzleBtn.style.filter = isPuzzleReady ? 'none' : 'grayscale(80%) brightness(0.8)';
           puzzleBtn.style.opacity = isPuzzleReady ? '1' : '0.7';
           puzzleBtn.style.transform = isPuzzleReady ? 'scale(1)' : 'scale(0.98)';
-          puzzleBtn.onclick = () => { 
-            if (isPuzzleReady) {
-              handleGameAction(puzzleBtn, () => startPuzzleGame());
-            }
-          };
+          puzzleBtn.onclick = () => { if (isPuzzleReady) startPuzzleGame(); };
         }
         
         if (puzzleWait) {
@@ -874,11 +839,7 @@
           quotesBtn.style.filter = isQuotesReady ? 'none' : 'grayscale(80%) brightness(0.8)';
           quotesBtn.style.opacity = isQuotesReady ? '1' : '0.7';
           quotesBtn.style.transform = isQuotesReady ? 'scale(1)' : 'scale(0.98)';
-          quotesBtn.onclick = () => { 
-            if (isQuotesReady) {
-              handleGameAction(quotesBtn, () => startQuotesGame());
-            }
-          };
+          quotesBtn.onclick = () => { if (isQuotesReady) startQuotesGame(); };
         }
         
         if (quotesWait) {
@@ -903,9 +864,11 @@
     }
 
     async function startQuotesGame() {
-      session = await api('game/quotes/start', {});
-      await sync();
-      renderSession();
+      await run(async () => {
+        session = await api('game/quotes/start', {});
+        await sync();
+        renderSession();
+      });
     }
 
     function renderSession() {
@@ -941,19 +904,29 @@
     }
 
     async function startPuzzleGame() {
-      const data = await api('game/puzzle/start', {});
-      puzzleSession = data;
-      
-      puzzleState = {
-        pieces: data.pieces,
-        gridSize: data.grid_size,
-        deadline: data.deadline,
-        server_time: data.server_time,
-        items: []
-      };
-      
-      await sync(); 
-      renderPuzzle();
+      const btn = $('puzzle-btn');
+      if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+
+      await run(async () => {
+        try {
+          const data = await api('game/puzzle/start', {});
+          puzzleSession = data;
+          
+          puzzleState = {
+            pieces: data.pieces,
+            gridSize: data.grid_size,
+            deadline: data.deadline,
+            server_time: data.server_time,
+            items: []
+          };
+          
+          await sync(); 
+          renderPuzzle();
+        } catch (e) { 
+          if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
+          error(e); 
+        }
+      });
     }
 
     function renderPuzzle() {
