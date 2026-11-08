@@ -20,24 +20,30 @@
     .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
     .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
-    .dash-controls-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
-    .dash-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .brand { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
-    .brand-accent { color: #b775ff; text-shadow: 0 0 10px rgba(183, 117, 255, 0.5); }
-    .dash-stats { font-size: 12px; color: #8a8299; font-weight: 600; }
-    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 4px; border: 1px solid #3a304a; flex-shrink: 0; }
-    .tab-switcher button { padding: 6px 14px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-    .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
-    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
-    .filter-bar::-webkit-scrollbar { display: none; } /* Скрываем скроллбар у фильтров на мобилках */
+    
+    .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    @media (min-width: 520px) {
+      .dash-controls-row { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+    
+    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; flex: 1; margin: 0; }
     .filter-dropdown-wrap { position: relative; }
-    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+    
+    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; white-space: nowrap; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
-    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; }
+    
+    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
+    .btn-reset:active { transform: scale(0.95); }
+
     .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
     .filter-menu.active { display: flex; }
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
+    
+    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 3px; border: 1px solid #3a304a; flex-shrink: 0; width: fit-content; align-self: flex-end; }
+    @media (min-width: 520px) {
+      .tab-switcher { align-self: auto; margin-left: auto; }
+    }
     
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
@@ -109,7 +115,7 @@
     .fab-rating { font-size: 14px; font-weight: 900; color: #fbbf24; }
     .fab-cards { font-size: 11px; font-weight: 700; color: #b775ff; background: rgba(183, 117, 255, 0.2); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(183,117,255,0.4);}
 
-    /* Модальное окно награды */
+    /* Модальное окно награды - Горизонтальное */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 12, 16, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 12px; }
     .modal-overlay.active { display: flex; }
     
@@ -120,7 +126,6 @@
     
     .reward-title { font-size: 22px; font-weight: 900; color: #fbbf24; margin: 0 0 16px 0; text-shadow: 0 0 15px rgba(251,191,36,0.4); text-align: center; }
     
-    /* Жестко фиксируем горизонтальное расположение (как на ПК) */
     .reward-body { display: flex; flex-direction: row; align-items: center; width: 100%; gap: 16px; }
     
     .reward-left { width: 140px; flex-shrink: 0; }
@@ -149,13 +154,13 @@
       padding: 0;
       box-sizing: border-box;
       margin-top: 10px;
-      margin-bottom: 80px; /* Оставляем место для разбросанных кусочков снизу */
+      margin-bottom: 80px;
     }
     
     .puzzle-area {
       position: relative;
       width: 100%;
-      max-width: 300px; /* Чуть уменьшили, чтобы на телефоне было больше места */
+      max-width: 300px;
       aspect-ratio: 1 / 1; 
       background: rgba(0, 0, 0, 0.4);
       border: 1px dashed rgba(183, 117, 255, 0.5);
@@ -219,18 +224,6 @@
       box-shadow: none; 
       border-radius: 0; 
     }
-
-    /* ==========================================
-       СТИЛИ ДЛЯ НЕДОСТУПНЫХ КНОПОК ИГР
-       ========================================== */
-    .game-card-disabled {
-      filter: grayscale(100%) !important; 
-      opacity: 0.5 !important; 
-      transform: scale(0.9) !important; 
-      pointer-events: none !important; 
-      cursor: default !important;
-      transition: all 0.3s ease !important;
-    }
   </style>
 </head>
 <body>
@@ -286,15 +279,15 @@
       <div id="collection-controls" class="dash-controls-row" style="display: none;">
         <div class="filter-bar" id="filter-bar">
           <div class="filter-dropdown-wrap">
-            <button class="filter-chip" onclick="toggleFilterDropdown('rarity')" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;"><span id="label-rarity">Все редкости</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('rarity')"><span id="label-rarity">Все редкости</span> ▾</button>
             <div class="filter-menu" id="menu-rarity"></div>
           </div>
           <div class="filter-dropdown-wrap">
-            <button class="filter-chip" onclick="toggleFilterDropdown('anime')" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;"><span id="label-anime">Все аниме</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('anime')"><span id="label-anime">Все аниме</span> ▾</button>
             <div class="filter-menu" id="menu-anime"></div>
           </div>
-          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;">Только повторки</button>
-          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none; font-size: 11px; width: 28px; height: 28px;">✕</button>
+          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()">Только повторки</button>
+          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none;">✕</button>
         </div>
         
         <div class="tab-switcher" id="tab-switcher">
@@ -339,7 +332,7 @@
               <div style="flex: 1;"><div class="reward-label">В коллекции</div><div class="reward-value" id="reward-count"></div></div>
             </div>
           </div>
-          <button onclick="closeReward()" class="primary wide" style="margin-top: 20px; padding: 14px; font-size: 16px; border-radius: 12px;">Забрать</button>
+          <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
         </div>
       </div>
     </div>
@@ -393,14 +386,14 @@
         
         if (left === 0) {
           el.textContent = readyText;
-          el.classList.add('ready'); // Включаем зеленый цвет
+          el.classList.add('ready');
         } else {
           const h = Math.floor(left / 3600);
           const m = Math.floor((left % 3600) / 60);
           const s = left % 60;
           const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
           el.textContent = str;
-          el.classList.remove('ready'); // Возвращаем фиолетовый
+          el.classList.remove('ready');
         }
       };
 
@@ -413,11 +406,9 @@
       profile = await api('me');
       const initial = profile.name.charAt(0).toUpperCase();
       
-      // Обновляем шапку профиля
       if ($('header-avatar')) $('header-avatar').textContent = initial;
       if ($('header-name')) $('header-name').textContent = profile.name;
       
-      // --- ЛОГИКА РЕЙТИНГА (С ЗАЩИТОЙ ОТ ПЕРЕНОСА) ---
       if ($('header-rating')) {
         let phrase = '';
         if (profile.rank === 1 && Math.random() < 0.2) phrase = ' — воу ну ты и низко(';
@@ -433,7 +424,6 @@
         $('header-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>${phraseHtml}`;
       }
       
-      // Обновляем статистику коллекции
       if ($('stat-cards')) $('stat-cards').textContent = `Собранных карт: ${profile.unique} / ${profile.cards.length}`;
       if ($('stat-animes')) {
         const animeStats = {};
@@ -447,7 +437,6 @@
         $('stat-animes').textContent = `Собранных аниме: ${completedAnimes} / ${totalAnimes}`;
       }
       
-      // Обновляем профиль в правом нижнем углу (FAB)
       if ($('fab-avatar')) $('fab-avatar').textContent = initial;
       if ($('fab-name')) $('fab-name').textContent = profile.name;
        if ($('fab-rating')) {
@@ -492,13 +481,10 @@
 
     function show(next) {
       if (busy) return;
-      // --- ДОБАВИТЬ ЭТОТ БЛОК ---
       if (tab === 'games' && puzzleSession) {
-        // Если мы выходим из игры, принудительно завершаем её на сервере
         api('game/puzzle/finish', { session_id: puzzleSession.session_id }).catch(() => {});
         puzzleSession = null;
         puzzleState = null;
-        // Синхронизируем профиль, чтобы кнопка сразу стала серой
         sync();
       }
       tab = next;
@@ -512,14 +498,13 @@
       const collectionControls = $('collection-controls');
       const timersHeader = $('timers-header');
       
-      // Показываем таймеры только в коллекции и сетах
       if (tab === 'collection') {
         if (collectionControls) collectionControls.style.display = 'flex';
-        if (timersHeader) timersHeader.style.display = 'flex'; // Показываем таймеры
+        if (timersHeader) timersHeader.style.display = 'flex';
         switchTab('mine'); 
       } else {
         if (collectionControls) collectionControls.style.display = 'none';
-        if (timersHeader) timersHeader.style.display = 'none'; // Скрываем таймеры на других вкладках
+        if (timersHeader) timersHeader.style.display = 'none';
         if (tab === 'games') games();
         else if (tab === 'trades') showStub('Обмены', 'Здесь можно будет обмениваться картами с другими игроками.');
         else if (tab === 'leaderboard') leaderboardView();
@@ -546,7 +531,6 @@
           else if (item.rank === 2) rankStyle = 'color: #cbd5e1; font-size: 22px; font-weight: 900; text-shadow: 0 0 12px rgba(203, 213, 225, 1), 0 0 20px rgba(203, 213, 225, 0.5);';
           else if (item.rank === 3) rankStyle = 'color: #d49a43; font-size: 20px; font-weight: 900; text-shadow: 0 0 8px rgba(212, 154, 67, 0.8);';
           
-          // Цвет рейтинга справа теперь БЕЛЫЙ
           return `<div class="set-row" style="padding: 12px 16px; ${item.is_me ? 'border-color: #b775ff; background: rgba(183, 117, 255, 0.1);' : ''}"><div style="display: flex; align-items: center; gap: 16px;"><div style="${rankStyle} width: 30px; text-align: center; font-family: 'Rajdhani', sans-serif;">${item.rank}</div><div style="font-weight: 700; color: #fff; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${esc(item.name)} ${item.is_me ? '<span style="font-size:10px; color:#b775ff;">(Вы)</span>' : ''}</div></div><div style="font-weight: 900; color: #fff; font-size: 16px;">${item.rating.toLocaleString('ru-RU')}</div></div>`;
         }).join('');
         $('view').innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;"><div><h2 style="margin:0;">Рейтинг</h2><p class="muted" style="margin:4px 0 0 0;">Топ-50 игроков по рейтингу</p></div></div><div class="sets-list">${html}</div>`;
@@ -740,7 +724,6 @@
 
         const now = Date.now() / 1000 + (profile.server_time - profile.client_time);
         
-        // --- 1. БЕСПЛАТНАЯ КАРТА ---
         const freeLeft = Math.ceil(Math.max(0, profile.free_at - now));
         const isFreeReady = freeLeft <= 0;
         const freeCard = $('free-card-btn');
@@ -773,7 +756,6 @@
           }
         }
 
-        // --- 2. ПАЗЛ ---
         const puzzleLeft = Math.ceil(Math.max(0, (profile.puzzle_at || 0) - now));
         const isPuzzleReady = puzzleLeft <= 0;
         const puzzleBtn = $('puzzle-btn');
@@ -797,13 +779,11 @@
             const m = Math.floor((puzzleLeft % 3600) / 60);
             const s = puzzleLeft % 60;
             const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            // Делаем такой же стиль, как у бесплатной карты
             puzzleWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${str}</span>`;
             puzzleWait.style.color = '#8a8299';
           }
         }
 
-        // --- 3. ЦИТАТЫ ---
         const quotesLeft = Math.ceil(Math.max(0, (profile.quotes_at || 0) - now));
         const isQuotesReady = quotesLeft <= 0;
         const quotesBtn = $('quotes-btn');
@@ -827,7 +807,6 @@
             const m = Math.floor((quotesLeft % 3600) / 60);
             const s = quotesLeft % 60;
             const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            // Делаем такой же стиль, как у бесплатной карты
             quotesWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${str}</span>`;
             quotesWait.style.color = '#8a8299';
           }
@@ -841,7 +820,6 @@
     async function startQuotesGame() {
       await run(async () => {
         session = await api('game/quotes/start', {});
-        // ВАЖНО: Обновляем профиль, чтобы таймер наверху сразу пошел
         await sync();
         renderSession();
       });
@@ -879,11 +857,7 @@
       });
     }
 
-    // ==========================================
-    // ПАЗЛ
-    // ==========================================
     async function startPuzzleGame() {
-      // Визуально сразу делаем кнопку неактивной
       const btn = $('puzzle-btn');
       if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
 
@@ -900,9 +874,7 @@
             items: []
           };
           
-          // ВАЖНО: Обновляем профиль, чтобы таймер наверху сразу пошел
           await sync(); 
-          
           renderPuzzle();
         } catch (e) { 
           if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
@@ -965,29 +937,21 @@
         const targetCol = i % gridSize;
         const targetRow = Math.floor(i / gridSize);
         
-        const targetX = targetCol * pWidth;
-        const targetY = targetRow * pHeight;
-        
-        // --- ОБНОВЛЕННЫЙ СПАВН КУСОЧКОВ (В ПРЕДЕЛАХ ЭКРАНА) ---
         let startX, startY;
         const side = Math.floor(Math.random() * 3);
         
         if (side === 0) { 
-          // Слева
           startX = -10 - (Math.random() * 10); 
           startY = Math.random() * 80; 
         }
         else if (side === 1) { 
-          // Справа
           startX = 100 + (Math.random() * 10); 
           startY = Math.random() * 80; 
         }
         else { 
-          // Снизу, прямо под полем сбора
           startX = Math.random() * 80; 
           startY = 100 + 10 + (Math.random() * 15); 
         }
-        // ---------------------------------------------------------
         
         el.style.left = startX + '%';
         el.style.top = startY + '%';
@@ -996,7 +960,7 @@
         el.addEventListener('touchstart', startDrag, { passive: false });
         
         area.appendChild(el);
-        puzzleState.items.push({ el, targetX, targetY, placed: false, originalIndex: i });
+        puzzleState.items.push({ el, targetX: targetCol * pWidth, targetY: targetRow * pHeight, placed: false, originalIndex: i });
       }
       
       const offset = server_time - Date.now()/1000;
@@ -1222,7 +1186,6 @@
     }
 
     function prize(c) {
-      // Ищем карточку в профиле по её ID, чтобы узнать точное количество без undefined
       const ownedCard = profile.cards.find(item => Number(item.id) === Number(c.id));
       const count = ownedCard ? ownedCard.count : 1;
       
@@ -1240,17 +1203,14 @@
     async function closeReward(e) { 
       if (e && e.target !== e.currentTarget) return; 
       $('reward-modal').classList.remove('active'); 
-      
       await sync(); 
-      
-      // Если мы на вкладке игр, просто обновляем таймеры на месте
       if (tab === 'games') {
         games();
       }
     }
     async function sync() { 
       await refresh(); 
-      profile.client_time = Date.now() / 1000; // ЭТА СТРОКА ОБЯЗАТЕЛЬНА
+      profile.client_time = Date.now() / 1000;
       updateCooldowns(); 
     }
     
