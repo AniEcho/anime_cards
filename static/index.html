@@ -180,9 +180,11 @@
     
     .puzzle-area { 
       position: relative; 
-      width: 100%; 
-      max-width: 280px; 
-      aspect-ratio: 1 / 1; 
+      width: 100% !important; 
+      max-width: 280px !important; 
+      width: 280px !important;
+      height: 280px !important;
+      aspect-ratio: 1 / 1 !important; 
       background: rgba(0, 0, 0, 0.4); 
       border: 1px dashed rgba(183, 117, 255, 0.5); 
       border-radius: 12px; 
@@ -996,7 +998,7 @@
         }
       }, 200);
     }
-
+    
     function startDrag(e) {
       if (!puzzleState) return;
       const el = e.currentTarget;
@@ -1007,7 +1009,6 @@
       
       if (item.locked) return;
       
-      // Если элемент был на поле, освобождаем ячейку
       if (item.placedCell) {
         item.placedCell.occupiedBy = null;
         item.placedCell = null;
@@ -1018,21 +1019,26 @@
       el.classList.remove('placed');
       el.classList.add('dragging');
       
-      // ВАЖНО: Переносим элемент в puzzle-area, чтобы координаты считались от него
-      const area = $('puzzle-area');
-      area.appendChild(el);
+      // Переносим элемент в обертку .puzzle-wrapper, чтобы он свободно летал над всем полем
+      const wrapper = document.querySelector('.puzzle-wrapper');
+      if (!wrapper) return;
+      wrapper.appendChild(el);
       
-      const rect = el.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const rect = el.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
       
+      // Точный расчет смещения пальца относительно кусочка в ленте
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      // Устанавливаем абсолютные пиксели, чтобы элемент не прыгал
-      el.style.left = (clientX - dragOffsetX) + 'px';
-      el.style.top = (clientY - dragOffsetY) + 'px';
-      
+      // Фиксируем исходные пиксельные размеры кусочка при отрыве
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+      el.style.left = (rect.left - wrapperRect.left) + 'px';
+      el.style.top = (rect.top - wrapperRect.top) + 'px';
+
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('touchmove', onDrag, { passive: false });
       document.addEventListener('mouseup', stopDrag);
@@ -1046,32 +1052,33 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const areaRect = $('puzzle-area').getBoundingClientRect();
+      const wrapper = document.querySelector('.puzzle-wrapper');
+      const area = $('puzzle-area');
+      if (!wrapper || !area) return;
       
-      // Считаем позицию относительно поля пазла в пикселях
-      const newLeft = clientX - dragOffsetX - areaRect.left;
-      const newTop = clientY - dragOffsetY - areaRect.top;
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const areaRect = area.getBoundingClientRect();
       
-      dragElement.style.left = newLeft + 'px';
-      dragElement.style.top = newTop + 'px';
+      // Плавное движение вслед за пальцем
+      const x = clientX - dragOffsetX - wrapperRect.left;
+      const y = clientY - dragOffsetY - wrapperRect.top;
+      
+      dragElement.style.left = x + 'px';
+      dragElement.style.top = y + 'px';
 
-      // Подсветка ячейки под курсором
       const gridSize = puzzleState.gridSize;
-      const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
-      
-      const leftPct = (newLeft / areaRect.width) * 100;
-      const topPct = (newTop / areaRect.height) * 100;
-      
-      const centerX = leftPct + pWidth / 2;
-      const centerY = topPct + pHeight / 2;
+      const leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
+      const topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
+
+      const centerX = leftPct + (100 / gridSize) / 2;
+      const centerY = topPct + (100 / gridSize) / 2;
       
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
       
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        if (dist < pWidth * 0.6) {
+        if (dist < (100 / gridSize) * 0.7) {
           hoveredCell = cell;
           break;
         }
@@ -1098,21 +1105,22 @@
       const index = Number(el.dataset.index);
       const item = puzzleState.items[index];
       
-      const areaRect = $('puzzle-area').getBoundingClientRect();
+      const area = $('puzzle-area');
+      const tray = $('puzzle-tray');
+      if (!area || !tray) return;
+
+      const areaRect = area.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       
-      // Считаем центр элемента относительно поля
       const centerX = ((elRect.left + elRect.width / 2 - areaRect.left) / areaRect.width) * 100;
       const centerY = ((elRect.top + elRect.height / 2 - areaRect.top) / areaRect.height) * 100;
       
       const gridSize = puzzleState.gridSize;
       const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
       
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        // Если центр кусочка близко к центру ячейки
         if (dist < pWidth * 0.8) {
           hoveredCell = cell;
           break;
@@ -1122,23 +1130,26 @@
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
 
       if (hoveredCell) {
-        // Если в ячейке уже есть элемент, выкидываем его в ленту
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
           if (!otherItem.locked) {
             otherItem.placed = false;
             otherItem.placedCell = null;
+            tray.appendChild(otherItem.el);
             otherItem.el.className = 'puzzle-piece';
             otherItem.el.style.left = '';
             otherItem.el.style.top = '';
-            $('puzzle-tray').appendChild(otherItem.el);
+            otherItem.el.style.width = '';
+            otherItem.el.style.height = '';
           }
         }
         
-        // Ставим кусочек в ячейку (в процентах)
         el.style.left = (hoveredCell.col * pWidth) + '%';
-        el.style.top = (hoveredCell.row * pHeight) + '%';
+        el.style.top = (hoveredCell.row * pWidth) + '%';
+        el.style.width = pWidth + '%';
+        el.style.height = pWidth + '%';
         el.className = 'puzzle-piece placed';
+        area.appendChild(el);
         
         item.placed = true;
         item.placedCell = hoveredCell;
@@ -1152,194 +1163,15 @@
         
         checkWin();
       } else {
-        // Возвращаем в ленту, если бросили мимо
         el.className = 'puzzle-piece';
         el.style.left = '';
         el.style.top = '';
-        $('puzzle-tray').appendChild(el);
+        el.style.width = '';
+        el.style.height = '';
+        tray.appendChild(el);
       }
     }
 
-    function startDrag(e) {
-      if (!puzzleState) return;
-      const el = e.currentTarget;
-      e.preventDefault();
-      
-      const index = Number(el.dataset.index);
-      const item = puzzleState.items[index];
-      
-      if (item.locked) return;
-      
-      if (item.placedCell) {
-        el.classList.remove('placed');
-      }
-      
-      dragElement = el;
-      el.classList.add('dragging');
-      
-      const rect = el.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
-      dragOffsetX = clientX - rect.left;
-      dragOffsetY = clientY - rect.top;
-      
-      document.addEventListener('mousemove', onDrag);
-      document.addEventListener('touchmove', onDrag, { passive: false });
-      document.addEventListener('mouseup', stopDrag);
-      document.addEventListener('touchend', stopDrag);
-    }
-
-    function onDrag(e) {
-      if (!dragElement) return;
-      e.preventDefault();
-      
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
-      const areaRect = $('puzzle-area').getBoundingClientRect();
-      const gridSize = puzzleState.gridSize;
-      
-      let leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
-      let topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
-      
-      dragElement.style.left = leftPct + '%';
-      dragElement.style.top = topPct + '%';
-
-      const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
-      
-      const centerX = leftPct + pWidth / 2;
-      const centerY = topPct + pHeight / 2;
-      
-      puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
-      
-      let hoveredCell = null;
-      for (const cell of puzzleState.cells) {
-        const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        if (dist < pWidth * 0.6) {
-          hoveredCell = cell;
-          break;
-        }
-      }
-      
-      if (hoveredCell) {
-        hoveredCell.el.classList.add('highlight');
-      }
-    }
-
-    function stopDrag() {
-      if (!dragElement) return;
-      
-      const el = dragElement;
-      dragElement = null;
-      el.classList.remove('dragging');
-      
-      document.removeEventListener('mousemove', onDrag);
-      document.removeEventListener('touchmove', onDrag);
-      document.removeEventListener('mouseup', stopDrag);
-      document.removeEventListener('touchend', stopDrag);
-      
-      if (!puzzleState) return;
-      const index = Number(el.dataset.index);
-      const item = puzzleState.items[index];
-      
-      const currentLeft = parseFloat(el.style.left) || 0;
-      const currentTop = parseFloat(el.style.top) || 0;
-      const gridSize = puzzleState.gridSize;
-      const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
-      
-      const centerX = currentLeft + pWidth / 2;
-      const centerY = currentTop + pHeight / 2;
-      
-      let hoveredCell = null;
-      for (const cell of puzzleState.cells) {
-        const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        if (dist < pWidth * 0.8) {
-          hoveredCell = cell;
-          break;
-        }
-      }
-      
-      if (hoveredCell) {
-        if (hoveredCell.occupiedBy) {
-          const otherItem = hoveredCell.occupiedBy;
-          
-          if (otherItem.locked) {
-            if (item.placedCell) {
-              el.style.left = (item.placedCell.col * pWidth) + '%';
-              el.style.top = (item.placedCell.row * pHeight) + '%';
-              el.classList.add('placed');
-            }
-            return;
-          }
-          
-          if (otherItem === item) {
-             el.style.left = (hoveredCell.col * pWidth) + '%';
-             el.style.top = (hoveredCell.row * pHeight) + '%';
-             el.classList.add('placed');
-          } else {
-            if (item.placedCell) {
-              const oldCell = item.placedCell;
-              otherItem.el.style.left = (oldCell.col * pWidth) + '%';
-              otherItem.el.style.top = (oldCell.row * pHeight) + '%';
-              otherItem.el.classList.add('placed'); 
-              oldCell.occupiedBy = otherItem;
-              otherItem.placedCell = oldCell;
-              
-              const otherCorrectIndex = oldCell.row * gridSize + oldCell.col;
-              if (otherItem.originalIndex === otherCorrectIndex) {
-                otherItem.locked = true;
-                otherItem.el.style.cursor = 'default';
-              }
-            } else {
-              otherItem.el.style.left = Math.random() * 80 + '%';
-              otherItem.el.style.top = 110 + '%'; 
-              otherItem.el.classList.remove('placed');
-              otherItem.placed = false;
-              otherItem.placedCell = null;
-            }
-            
-            el.style.left = (hoveredCell.col * pWidth) + '%';
-            el.style.top = (hoveredCell.row * pHeight) + '%';
-            el.classList.add('placed');
-            item.placed = true;
-            item.placedCell = hoveredCell;
-            hoveredCell.occupiedBy = item;
-          }
-        } else {
-          if (item.placedCell) {
-            item.placedCell.occupiedBy = null;
-          }
-          
-          el.style.left = (hoveredCell.col * pWidth) + '%';
-          el.style.top = (hoveredCell.row * pHeight) + '%';
-          el.classList.add('placed');
-          item.placed = true;
-          item.placedCell = hoveredCell;
-          hoveredCell.occupiedBy = item;
-        }
-        
-        if (item.placedCell) {
-            const correctIndex = item.placedCell.row * gridSize + item.placedCell.col;
-            if (item.originalIndex === correctIndex) {
-              item.locked = true;
-              el.style.cursor = 'default';
-            }
-        }
-        
-        puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
-        checkWin();
-        
-      } else {
-        if (item.placedCell) {
-           el.style.left = (item.placedCell.col * pWidth) + '%';
-           el.style.top = (item.placedCell.row * pHeight) + '%';
-           el.classList.add('placed');
-        }
-      }
-    }
     
     function checkWin() {
       if (!puzzleState) return;
