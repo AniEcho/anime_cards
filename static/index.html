@@ -15,24 +15,26 @@
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
+    /* Жестко фиксируем экран, убираем горизонтальный скролл и зум на всех вкладках */
     html, body { 
       margin: 0; 
       padding: 0; 
-      background: #141824; 
+      background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); 
       color: #e0dce8; 
       font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; 
       overscroll-behavior-y: none; 
       min-height: 100vh;
       width: 100%;
       max-width: 100vw;
-      overflow-x: hidden;
+      overflow-x: hidden; /* Запрещает сдвиг экрана вбок */
       position: relative;
     }
     
     main { 
       max-width: 650px; 
       margin: 0 auto; 
-      padding: 18px 14px 70px; 
+      padding: 18px 14px 120px; 
+      padding-top: max(18px, env(safe-area-inset-top)); 
       width: 100%;
       max-width: 100vw;
       overflow-x: hidden;
@@ -217,9 +219,9 @@
       overflow-x: auto;
       overflow-y: hidden;
       width: 100%;
-      max-width: 350px; 
+      max-width: 350px; /* Увеличили ширину ленты */
       margin-top: 16px;
-      padding: 16px 20px; 
+      padding: 16px 20px; /* Сделали панель выше и добавили больше воздуха по бокам */
       background: rgba(20, 16, 26, 0.95);
       border: 1px solid rgba(183, 117, 255, 0.35);
       border-radius: 18px;
@@ -237,6 +239,7 @@
       border-radius: 3px;
     }
 
+    /* Размер кусочков оставляем аккуратным — 55px */
     .puzzle-piece {
       position: relative;
       width: 55px !important;
@@ -255,6 +258,7 @@
       transition: filter 0.2s;
     }
     
+    /* Когда кусочек перетаскивается или на поле */
     .puzzle-piece.dragging {
       position: absolute !important;
       z-index: 1000;
@@ -386,19 +390,7 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) { 
-      tg.ready(); 
-      tg.expand(); 
-      tg.setHeaderColor('#0a0c10'); 
-      tg.setBackgroundColor('#0a0c10'); 
-      
-      // Если пользователь закрывает мини-апп посреди игры
-      window.addEventListener('unload', () => {
-        if (puzzleSession) {
-          navigator.sendBeacon('/api/game/puzzle/cancel', JSON.stringify({ session_id: puzzleSession.session_id }));
-        }
-      });
-    }
+    if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0c10'); tg.setBackgroundColor('#0a0c10'); }
     const auth = tg?.initData ? 'tma ' + tg.initData : 'dev';
 
     let profile, tab = 'collection', session = null, ticker = null, busy = false;
@@ -539,22 +531,19 @@
 
     function show(next) {
       if (busy) return;
-      
-      // Если уходим с вкладки игр во время активной сессии пазла — отменяем сессию (кд сработает, карту не дадим)
       if (tab === 'games' && puzzleSession) {
+        // Раньше тут вызывался finish и начислялась карта!
+        // Теперь вызываем cancel, чтобы скинуть сессию и не давать карту:
         api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
         puzzleSession = null;
         puzzleState = null;
+        sync();
       }
-      // Аналогично для цитат, если пользователь ушел посреди раундов
-      if (tab === 'games' && session) {
-        api('game/quotes/cancel', { session_id: session.id }).catch(() => {}).catch(() => {});
-        session = null;
-      }
-
       tab = next;
       clearInterval(ticker);
       clearInterval(puzzleTicker);
+      session = null;
+      puzzleState = null;
       $('result').hidden = true;
       document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
       
@@ -573,7 +562,6 @@
         else if (tab === 'leaderboard') leaderboardView();
         else if (tab === 'shop') showStub('Магазин', 'Здесь появятся паки с картами и другие товары.');
       }
-      sync();
     }
 
     function showStub(title, description) {
@@ -923,32 +911,31 @@
 
     async function startPuzzleGame() {
       const btn = $('puzzle-btn');
-      if (btn && btn.classList.contains('loading')) return;
-      if (btn) btn.classList.add('loading');
+      if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
 
-      try {
-        const data = await api('game/puzzle/start', {});
-        puzzleSession = data;
-        
-        puzzleState = {
-          pieces: data.pieces,
-          gridSize: data.grid_size,
-          deadline: data.deadline,
-          server_time: data.server_time,
-          items: []
-        };
-        
-        await sync(); // Сразу синхронизируем профиль, чтобы таймер игры на главном экране игр ушел в КД
-        renderPuzzle();
-      } catch (e) {
-        alert(e.message || 'Не удалось запустить игру');
-        games();
-      } finally {
-        if (btn) btn.classList.remove('loading');
-      }
+      await run(async () => {
+        try {
+          const data = await api('game/puzzle/start', {});
+          puzzleSession = data;
+          
+          puzzleState = {
+            pieces: data.pieces,
+            gridSize: data.grid_size,
+            deadline: data.deadline,
+            server_time: data.server_time,
+            items: []
+          };
+          
+          await sync(); 
+          renderPuzzle();
+        } catch (e) { 
+          if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
+          error(e); 
+        }
+      });
     }
 
-    function renderPuzzle() {
+     function renderPuzzle() {
       clearInterval(puzzleTicker);
       const view = $('view');
       const { pieces, gridSize, deadline, server_time } = puzzleState;
@@ -992,6 +979,7 @@
       }
       area.appendChild(grid);
 
+      // Перемешиваем индексы для случайного порядка в ленте
       const indices = Array.from({ length: pieces.length }, (_, i) => i);
       indices.sort(() => Math.random() - 0.5);
 
@@ -1003,6 +991,7 @@
         el.className = 'puzzle-piece';
         el.dataset.index = i;
         
+        // Фоновое изображение для кусочка (чтобы он отображал свою часть картинки)
         el.style.objectFit = 'cover';
         const targetCol = i % gridSize;
         const targetRow = Math.floor(i / gridSize);
@@ -1045,6 +1034,7 @@
       
       if (item.locked) return;
       
+      // Если элемент был на поле, освобождаем ячейку
       if (item.placedCell) {
         item.placedCell.occupiedBy = null;
         item.placedCell = null;
@@ -1055,26 +1045,18 @@
       el.classList.remove('placed');
       el.classList.add('dragging');
       
-      const wrapper = document.querySelector('.puzzle-wrapper');
-      if (!wrapper) return;
+      // Переносим элемент в контейнер main, чтобы он свободно перемещался поверх всего
+      document.body.appendChild(el);
       
+      const rect = el.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const rect = el.getBoundingClientRect();
-      const wrapperRect = wrapper.getBoundingClientRect();
       
-      // Фиксируем смещение пальца относительно самого кусочка
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      // Переносим элемент в обертку, чтобы он позиционировался внутри нее
-      wrapper.appendChild(el);
-      
-      // Сразу ставим его на то место, где он был в пикселях относительно wrapper
-      el.style.width = rect.width + 'px';
-      el.style.height = rect.height + 'px';
-      el.style.left = (rect.left - wrapperRect.left) + 'px';
-      el.style.top = (rect.top - wrapperRect.top) + 'px';
+      el.style.width = (100 / puzzleState.gridSize) + '%';
+      el.style.height = (100 / puzzleState.gridSize) + '%';
 
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('touchmove', onDrag, { passive: false });
@@ -1089,23 +1071,14 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const wrapper = document.querySelector('.puzzle-wrapper');
-      const area = $('puzzle-area');
-      if (!wrapper || !area) return;
-      
-      const wrapperRect = wrapper.getBoundingClientRect();
-      const areaRect = area.getBoundingClientRect();
-      
-      // Двигаем элемент вслед за пальцем внутри wrapper
-      const x = clientX - dragOffsetX - wrapperRect.left;
-      const y = clientY - dragOffsetY - wrapperRect.top;
-      
-      dragElement.style.left = x + 'px';
-      dragElement.style.top = y + 'px';
-
+      const areaRect = $('puzzle-area').getBoundingClientRect();
       const gridSize = puzzleState.gridSize;
-      const leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
-      const topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
+      
+      let leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
+      let topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
+      
+      dragElement.style.left = (clientX - dragOffsetX) + 'px';
+      dragElement.style.top = (clientY - dragOffsetY) + 'px';
 
       const centerX = leftPct + (100 / gridSize) / 2;
       const centerY = topPct + (100 / gridSize) / 2;
@@ -1142,11 +1115,7 @@
       const index = Number(el.dataset.index);
       const item = puzzleState.items[index];
       
-      const area = $('puzzle-area');
-      const tray = $('puzzle-tray');
-      if (!area || !tray) return;
-
-      const areaRect = area.getBoundingClientRect();
+      const areaRect = $('puzzle-area').getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       
       const centerX = ((elRect.left + elRect.width / 2 - areaRect.left) / areaRect.width) * 100;
@@ -1154,6 +1123,7 @@
       
       const gridSize = puzzleState.gridSize;
       const pWidth = 100 / gridSize;
+      const pHeight = 100 / gridSize;
       
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
@@ -1167,22 +1137,22 @@
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
 
       if (hoveredCell) {
+        // Если в целевой ячейке уже кто-то есть, вытесняем его обратно в ленту
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
           if (!otherItem.locked) {
             otherItem.placed = false;
             otherItem.placedCell = null;
-            tray.appendChild(otherItem.el);
+            $('puzzle-tray').appendChild(otherItem.el);
             otherItem.el.className = 'puzzle-piece';
-            otherItem.el.style.left = '';
-            otherItem.el.style.top = '';
           }
         }
         
+        // Ставим текущий элемент в ячейку
         el.style.left = (hoveredCell.col * pWidth) + '%';
-        el.style.top = (hoveredCell.row * pWidth) + '%';
+        el.style.top = (hoveredCell.row * pHeight) + '%';
         el.className = 'puzzle-piece placed';
-        area.appendChild(el);
+        $('puzzle-area').appendChild(el);
         
         item.placed = true;
         item.placedCell = hoveredCell;
@@ -1196,10 +1166,192 @@
         
         checkWin();
       } else {
+        // Возвращаем в нижнюю ленту, если бросили мимо поля
         el.className = 'puzzle-piece';
         el.style.left = '';
         el.style.top = '';
-        tray.appendChild(el);
+        $('puzzle-tray').appendChild(el);
+      }
+    }
+
+    function startDrag(e) {
+      if (!puzzleState) return;
+      const el = e.currentTarget;
+      e.preventDefault();
+      
+      const index = Number(el.dataset.index);
+      const item = puzzleState.items[index];
+      
+      if (item.locked) return;
+      
+      if (item.placedCell) {
+        el.classList.remove('placed');
+      }
+      
+      dragElement = el;
+      el.classList.add('dragging');
+      
+      const rect = el.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      dragOffsetX = clientX - rect.left;
+      dragOffsetY = clientY - rect.top;
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
+    }
+
+    function onDrag(e) {
+      if (!dragElement) return;
+      e.preventDefault();
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const areaRect = $('puzzle-area').getBoundingClientRect();
+      const gridSize = puzzleState.gridSize;
+      
+      let leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
+      let topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
+      
+      dragElement.style.left = leftPct + '%';
+      dragElement.style.top = topPct + '%';
+
+      const pWidth = 100 / gridSize;
+      const pHeight = 100 / gridSize;
+      
+      const centerX = leftPct + pWidth / 2;
+      const centerY = topPct + pHeight / 2;
+      
+      puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
+      
+      let hoveredCell = null;
+      for (const cell of puzzleState.cells) {
+        const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
+        if (dist < pWidth * 0.6) {
+          hoveredCell = cell;
+          break;
+        }
+      }
+      
+      if (hoveredCell) {
+        hoveredCell.el.classList.add('highlight');
+      }
+    }
+
+    function stopDrag() {
+      if (!dragElement) return;
+      
+      const el = dragElement;
+      dragElement = null;
+      el.classList.remove('dragging');
+      
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchend', stopDrag);
+      
+      if (!puzzleState) return;
+      const index = Number(el.dataset.index);
+      const item = puzzleState.items[index];
+      
+      const currentLeft = parseFloat(el.style.left) || 0;
+      const currentTop = parseFloat(el.style.top) || 0;
+      const gridSize = puzzleState.gridSize;
+      const pWidth = 100 / gridSize;
+      const pHeight = 100 / gridSize;
+      
+      const centerX = currentLeft + pWidth / 2;
+      const centerY = currentTop + pHeight / 2;
+      
+      let hoveredCell = null;
+      for (const cell of puzzleState.cells) {
+        const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
+        if (dist < pWidth * 0.8) {
+          hoveredCell = cell;
+          break;
+        }
+      }
+      
+      if (hoveredCell) {
+        if (hoveredCell.occupiedBy) {
+          const otherItem = hoveredCell.occupiedBy;
+          
+          if (otherItem.locked) {
+            if (item.placedCell) {
+              el.style.left = (item.placedCell.col * pWidth) + '%';
+              el.style.top = (item.placedCell.row * pHeight) + '%';
+              el.classList.add('placed');
+            }
+            return;
+          }
+          
+          if (otherItem === item) {
+             el.style.left = (hoveredCell.col * pWidth) + '%';
+             el.style.top = (hoveredCell.row * pHeight) + '%';
+             el.classList.add('placed');
+          } else {
+            if (item.placedCell) {
+              const oldCell = item.placedCell;
+              otherItem.el.style.left = (oldCell.col * pWidth) + '%';
+              otherItem.el.style.top = (oldCell.row * pHeight) + '%';
+              otherItem.el.classList.add('placed'); 
+              oldCell.occupiedBy = otherItem;
+              otherItem.placedCell = oldCell;
+              
+              const otherCorrectIndex = oldCell.row * gridSize + oldCell.col;
+              if (otherItem.originalIndex === otherCorrectIndex) {
+                otherItem.locked = true;
+                otherItem.el.style.cursor = 'default';
+              }
+            } else {
+              otherItem.el.style.left = Math.random() * 80 + '%';
+              otherItem.el.style.top = 110 + '%'; 
+              otherItem.el.classList.remove('placed');
+              otherItem.placed = false;
+              otherItem.placedCell = null;
+            }
+            
+            el.style.left = (hoveredCell.col * pWidth) + '%';
+            el.style.top = (hoveredCell.row * pHeight) + '%';
+            el.classList.add('placed');
+            item.placed = true;
+            item.placedCell = hoveredCell;
+            hoveredCell.occupiedBy = item;
+          }
+        } else {
+          if (item.placedCell) {
+            item.placedCell.occupiedBy = null;
+          }
+          
+          el.style.left = (hoveredCell.col * pWidth) + '%';
+          el.style.top = (hoveredCell.row * pHeight) + '%';
+          el.classList.add('placed');
+          item.placed = true;
+          item.placedCell = hoveredCell;
+          hoveredCell.occupiedBy = item;
+        }
+        
+        if (item.placedCell) {
+            const correctIndex = item.placedCell.row * gridSize + item.placedCell.col;
+            if (item.originalIndex === correctIndex) {
+              item.locked = true;
+              el.style.cursor = 'default';
+            }
+        }
+        
+        puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
+        checkWin();
+        
+      } else {
+        if (item.placedCell) {
+           el.style.left = (item.placedCell.col * pWidth) + '%';
+           el.style.top = (item.placedCell.row * pHeight) + '%';
+           el.classList.add('placed');
+        }
       }
     }
     
