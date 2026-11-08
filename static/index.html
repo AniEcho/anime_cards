@@ -17,35 +17,38 @@
     html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); color: #e0dce8; font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; overscroll-behavior-y: none; min-height: 100vh; }
     main { max-width: 650px; margin: 0 auto; padding: 18px 14px 120px; padding-top: max(18px, env(safe-area-inset-top)); }
     
-    /* Верхняя панель (Dashboard) */
+    /* Верхняя панель */
     .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
     .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
     
-    /* Сетка фильтров и переключателя (2 ровные строки) */
-    .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 2px; }
-    
+    /* Блок управления внизу шапки */
+    .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 4px; }
+
     .filter-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
     .filter-grid-bottom { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; }
     
-    .filter-dropdown-wrap { position: relative; width: 100%; }
-    
-    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 4px; transition: 0.2s; white-space: nowrap; width: 100%; }
+    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 4px; transition: 0.2s; width: 100%; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
-    
-    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
+
+    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; height: 36px; padding: 0 12px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; gap: 4px; flex-shrink: 0; transition: 0.2s; }
     .btn-reset:active { transform: scale(0.95); }
 
-    .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
+    .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 220px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
     .filter-menu.active { display: flex; }
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
     
-    /* Родной переключатель (Мои / Сеты) */
-    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 3px; border: 1px solid #3a304a; flex-shrink: 0; }
-    .tab-switcher button { padding: 5px 12px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+    /* Полноразмерный и красивый переключатель Мои / Сеты */
+    .tab-switcher { display: flex; background: #1e1a26; border-radius: 14px; padding: 4px; border: 1px solid #3a304a; width: 100%; }
+    .tab-switcher button { flex: 1; padding: 8px 12px; border: none; background: transparent; color: #8a8299; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: center; }
     .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
+
+    /* Панель фильтров */
+    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; width: 100%; }
+    .filter-dropdown-wrap { position: relative; flex: 1; min-width: 130px; }
     
+
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
     button:disabled { opacity: .5; cursor: default; }
@@ -159,8 +162,8 @@
   <main>
      <header class="top-dashboard">
       
-      <!-- ВЕРХНЯЯ СТРОКА: ПРОФИЛЬ СЛЕВА, СТАТИСТИКА СПРАВА -->
-      <div class="dash-profile-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <!-- ПРОФИЛЬ -->
+      <div class="dash-profile-row">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
           <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">?</div>
           <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
@@ -179,7 +182,7 @@
       </div>
 
       <!-- ТАЙМЕРЫ -->
-      <div id="timers-header" class="dash-timers-block" style="display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15);">
+      <div id="timers-header" class="dash-timers-block">
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; background: rgba(183,117,255,0.05); border-radius: 8px; border: 1px solid rgba(183,117,255,0.1);">
           <span style="font-size: 10px; font-weight: 700; color: #8a8299; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Бесплатная карта</span>
           <span id="cd-free" style="font-size: 13px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
@@ -196,14 +199,17 @@
           </div>
         </div>
       </div>
-      
-      <style>
-        #cd-free, #cd-puzzle, #cd-quotes { color: #b775ff; }
-        #cd-free.ready, #cd-puzzle.ready, #cd-quotes.ready { color: #77cd91; }
-      </style>
 
-      <!-- НИЖНЯЯ СТРОКА: ФИЛЬТРЫ И ПЕРЕКЛЮЧАТЕЛЬ -->
+      <!-- УПРАВЛЕНИЕ: ПЕРЕКЛЮЧАТЕЛЬ СВЕРХУ, ФИЛЬТРЫ ПОД НИМ -->
       <div id="collection-controls" class="dash-controls-row" style="display: none;">
+        
+        <!-- Большой и удобный переключатель вкладок -->
+        <div class="tab-switcher" id="tab-switcher">
+          <button id="tab-mine" onclick="switchTab('mine')">Мои карты</button>
+          <button id="tab-sets" onclick="switchTab('sets')">Сеты аниме</button>
+        </div>
+
+        <!-- Панель фильтров -->
         <div class="filter-bar" id="filter-bar">
           <div class="filter-dropdown-wrap">
             <button class="filter-chip" onclick="toggleFilterDropdown('rarity')"><span id="label-rarity">Все редкости</span> ▾</button>
@@ -213,15 +219,10 @@
             <button class="filter-chip" onclick="toggleFilterDropdown('anime')"><span id="label-anime">Все аниме</span> ▾</button>
             <div class="filter-menu" id="menu-anime"></div>
           </div>
-          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()">Только повторки</button>
-          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none;">✕</button>
+          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()" style="flex: auto; width: auto; justify-content: center;">Только повторки</button>
+          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none;">✕ Сбросить</button>
         </div>
-        
-        <!-- Возвращен оригинальный переключатель без лишней обводки -->
-        <div class="tab-switcher" id="tab-switcher">
-          <button id="tab-mine" onclick="switchTab('mine')">Мои</button>
-          <button id="tab-sets" onclick="switchTab('sets')">Сеты</button>
-        </div>
+
       </div>
     </header>
     <div id="notice" hidden></div>
