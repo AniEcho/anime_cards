@@ -17,23 +17,23 @@
     html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); color: #e0dce8; font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; overscroll-behavior-y: none; min-height: 100vh; }
     main { max-width: 650px; margin: 0 auto; padding: 18px 14px 120px; padding-top: max(18px, env(safe-area-inset-top)); }
     
+    /* Верхняя панель (Dashboard) */
     .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
     .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
     
-    /* Компактный ряд для фильтров и кнопки сброса */
-    .dash-controls-row { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    @media (min-width: 520px) {
-      .dash-controls-row { flex-direction: row; align-items: center; justify-content: space-between; }
-    }
+    /* Сетка фильтров и переключателя (2 ровные строки) */
+    .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 2px; }
     
-    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; flex: 1; }
-    .filter-dropdown-wrap { position: relative; }
+    .filter-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+    .filter-grid-bottom { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; }
     
-    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; white-space: nowrap; }
+    .filter-dropdown-wrap { position: relative; width: 100%; }
+    
+    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 4px; transition: 0.2s; white-space: nowrap; width: 100%; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
     
-    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
+    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
     .btn-reset:active { transform: scale(0.95); }
 
     .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
@@ -41,9 +41,9 @@
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
     
-    /* Исправленный переключатель (как на ПК) */
-    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 4px; border: 1px solid #3a304a; width: fit-content; }
-    .tab-switcher button { padding: 6px 14px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    /* Родной переключатель (Мои / Сеты) */
+    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 3px; border: 1px solid #3a304a; flex-shrink: 0; }
+    .tab-switcher button { padding: 5px 12px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
     .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
     
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
@@ -52,7 +52,7 @@
     .primary { background: linear-gradient(135deg, #5a2a6e 0%, #3a1a4a 100%); border-color: #8e44ad; color: #fff; box-shadow: 0 4px 15px rgba(90, 42, 110, 0.4); }
     .wide { width: 100%; margin: 8px 0; display: block; }
     
-    /* Сетка карточек - 2 колонки для мобилок */
+    /* Сетка карточек */
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
 
     #notice { padding: 12px; background: rgba(183, 117, 255, 0.1); color: #de8aff; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 12px; margin-bottom: 16px; font-size: 13px; }
@@ -62,7 +62,7 @@
     .timer { color: #de8aff; margin: 12px 0; font-size: 14px; font-weight: bold; }
     footer { margin-top: 24px; color: #5a5066; font-size: 12px; text-align: center; }
 
-    /* Стили самих карточек */
+    /* Стили карточек */
     .card, .set-card { background: #16121c; border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     .portrait, .set-card-img { aspect-ratio: 1 / 1.2; display: flex; align-items: flex-start; justify-content: center; position: relative; overflow: hidden; background: #0a0c10; }
     .card-bg, .set-card-bg { position: absolute; top: -10%; left: -10%; right: -10%; bottom: -10%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.4); z-index: 0; }
@@ -144,87 +144,15 @@
     .reward-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #8a8299; margin-bottom: 1px; }
     .reward-value { font-size: 14px; font-weight: 700; color: #fff; }
 
-    /* ==========================================
-       ПАЗЛ
-       ========================================== */
-    .puzzle-wrapper {
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 0;
-      box-sizing: border-box;
-      margin-top: 10px;
-      margin-bottom: 80px;
-    }
-    
-    .puzzle-area {
-      position: relative;
-      width: 100%;
-      max-width: 300px;
-      aspect-ratio: 1 / 1; 
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px dashed rgba(183, 117, 255, 0.5);
-      border-radius: 12px;
-      overflow: visible; 
-      touch-action: none;
-      z-index: 1;
-      box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
-    }
-
-    .puzzle-grid {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none; 
-      z-index: 0; 
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-    }
-
-    .puzzle-cell {
-      box-sizing: border-box;
-      border: 1px solid rgba(183, 117, 255, 0.15); 
-      background: rgba(183, 117, 255, 0.02);
-      transition: all 0.2s ease;
-    }
-    
-    .puzzle-cell.highlight {
-      background: rgba(183, 117, 255, 0.2);
-      border-color: rgba(183, 117, 255, 0.8);
-      box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5);
-    }
-
-    .puzzle-piece {
-      position: absolute;
-      cursor: grab;
-      z-index: 10;
-      touch-action: none;
-      background: transparent;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-drag: none;
-      border-radius: 4px; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(183, 117, 255, 0.5);
-      transition: left 0.2s ease-out, top 0.2s ease-out, filter 0.2s;
-    }
-    
-    .puzzle-piece.dragging {
-      z-index: 1000;
-      cursor: grabbing;
-      filter: drop-shadow(0 0 15px #b775ff);
-      transition: none; 
-      box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 0 2px #b775ff;
-    }
-    
-    .puzzle-piece.placed {
-      z-index: 5;
-      cursor: default;
-      filter: none;
-      box-shadow: none; 
-      border-radius: 0; 
-    }
+    /* Механика Пазла */
+    .puzzle-wrapper { position: relative; width: 100%; display: flex; justify-content: center; padding: 0; box-sizing: border-box; margin-top: 10px; margin-bottom: 80px; }
+    .puzzle-area { position: relative; width: 100%; max-width: 300px; aspect-ratio: 1 / 1; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(183, 117, 255, 0.5); border-radius: 12px; overflow: visible; touch-action: none; z-index: 1; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
+    .puzzle-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; display: flex; flex-wrap: wrap; align-content: flex-start; }
+    .puzzle-cell { box-sizing: border-box; border: 1px solid rgba(183, 117, 255, 0.15); background: rgba(183, 117, 255, 0.02); transition: all 0.2s ease; }
+    .puzzle-cell.highlight { background: rgba(183, 117, 255, 0.2); border-color: rgba(183, 117, 255, 0.8); box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5); }
+    .puzzle-piece { position: absolute; cursor: grab; z-index: 10; touch-action: none; background: transparent; margin: 0; padding: 0; user-select: none; -webkit-user-drag: none; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(183, 117, 255, 0.5); transition: left 0.2s ease-out, top 0.2s ease-out, filter 0.2s; }
+    .puzzle-piece.dragging { z-index: 1000; cursor: grabbing; filter: drop-shadow(0 0 15px #b775ff); transition: none; box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 0 2px #b775ff; }
+    .puzzle-piece.placed { z-index: 5; cursor: default; filter: none; box-shadow: none; border-radius: 0; }
   </style>
 </head>
 <body>
@@ -482,7 +410,9 @@
     function show(next) {
       if (busy) return;
       if (tab === 'games' && puzzleSession) {
-        api('game/puzzle/finish', { session_id: puzzleSession.session_id }).catch(() => {});
+        // Раньше тут вызывался finish и начислялась карта!
+        // Теперь вызываем cancel, чтобы скинуть сессию и не давать карту:
+        api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
         puzzleSession = null;
         puzzleState = null;
         sync();
