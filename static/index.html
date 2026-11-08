@@ -386,7 +386,19 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0c10'); tg.setBackgroundColor('#0a0c10'); }
+    if (tg) { 
+      tg.ready(); 
+      tg.expand(); 
+      tg.setHeaderColor('#0a0c10'); 
+      tg.setBackgroundColor('#0a0c10'); 
+      
+      // Если пользователь закрывает мини-апп посреди игры
+      window.addEventListener('unload', () => {
+        if (puzzleSession) {
+          navigator.sendBeacon('/api/game/puzzle/cancel', JSON.stringify({ session_id: puzzleSession.session_id }));
+        }
+      });
+    }
     const auth = tg?.initData ? 'tma ' + tg.initData : 'dev';
 
     let profile, tab = 'collection', session = null, ticker = null, busy = false;
@@ -527,17 +539,22 @@
 
     function show(next) {
       if (busy) return;
+      
+      // Если уходим с вкладки игр во время активной сессии пазла — отменяем сессию (кд сработает, карту не дадим)
       if (tab === 'games' && puzzleSession) {
         api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
         puzzleSession = null;
         puzzleState = null;
-        sync();
       }
+      // Аналогично для цитат, если пользователь ушел посреди раундов
+      if (tab === 'games' && session) {
+        api('game/quotes/cancel', { session_id: session.id }).catch(() => {}).catch(() => {});
+        session = null;
+      }
+
       tab = next;
       clearInterval(ticker);
       clearInterval(puzzleTicker);
-      session = null;
-      puzzleState = null;
       $('result').hidden = true;
       document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
       
@@ -556,6 +573,7 @@
         else if (tab === 'leaderboard') leaderboardView();
         else if (tab === 'shop') showStub('Магазин', 'Здесь появятся паки с картами и другие товары.');
       }
+      sync();
     }
 
     function showStub(title, description) {
@@ -905,28 +923,29 @@
 
     async function startPuzzleGame() {
       const btn = $('puzzle-btn');
-      if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+      if (btn && btn.classList.contains('loading')) return;
+      if (btn) btn.classList.add('loading');
 
-      await run(async () => {
-        try {
-          const data = await api('game/puzzle/start', {});
-          puzzleSession = data;
-          
-          puzzleState = {
-            pieces: data.pieces,
-            gridSize: data.grid_size,
-            deadline: data.deadline,
-            server_time: data.server_time,
-            items: []
-          };
-          
-          await sync(); 
-          renderPuzzle();
-        } catch (e) { 
-          if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
-          error(e); 
-        }
-      });
+      try {
+        const data = await api('game/puzzle/start', {});
+        puzzleSession = data;
+        
+        puzzleState = {
+          pieces: data.pieces,
+          gridSize: data.grid_size,
+          deadline: data.deadline,
+          server_time: data.server_time,
+          items: []
+        };
+        
+        await sync(); // Сразу синхронизируем профиль, чтобы таймер игры на главном экране игр ушел в КД
+        renderPuzzle();
+      } catch (e) {
+        alert(e.message || 'Не удалось запустить игру');
+        games();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
     }
 
     function renderPuzzle() {
@@ -1036,11 +1055,14 @@
       el.classList.remove('placed');
       el.classList.add('dragging');
       
-      document.body.appendChild(el);
+      // Переносим в обертку пазла, чтобы координаты считались правильно
+      const wrapper = document.querySelector('.puzzle-wrapper');
+      if (wrapper) wrapper.appendChild(el);
       
-      const rect = el.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const rect = el.getBoundingClientRect();
+      const parentRect = wrapper.getBoundingClientRect();
       
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
@@ -1061,14 +1083,21 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const areaRect = $('puzzle-area').getBoundingClientRect();
+      const area = $('puzzle-area');
+      if (!area) return;
+      const areaRect = area.getBoundingClientRect();
+      const wrapperRect = dragElement.parentElement.getBoundingClientRect();
+      
+      // Перемещаем элемент плавно за пальцем
+      const x = clientX - dragOffsetX - wrapperRect.left;
+      const y = clientY - dragOffsetY - wrapperRect.top;
+      
+      dragElement.style.left = x + 'px';
+      dragElement.style.top = y + 'px';
+
       const gridSize = puzzleState.gridSize;
-      
-      let leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
-      let topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
-      
-      dragElement.style.left = (clientX - dragOffsetX) + 'px';
-      dragElement.style.top = (clientY - dragOffsetY) + 'px';
+      const leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
+      const topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
 
       const centerX = leftPct + (100 / gridSize) / 2;
       const centerY = topPct + (100 / gridSize) / 2;
@@ -1105,7 +1134,11 @@
       const index = Number(el.dataset.index);
       const item = puzzleState.items[index];
       
-      const areaRect = $('puzzle-area').getBoundingClientRect();
+      const area = $('puzzle-area');
+      const tray = $('puzzle-tray');
+      if (!area || !tray) return;
+
+      const areaRect = area.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       
       const centerX = ((elRect.left + elRect.width / 2 - areaRect.left) / areaRect.width) * 100;
@@ -1113,7 +1146,6 @@
       
       const gridSize = puzzleState.gridSize;
       const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
       
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
@@ -1132,15 +1164,17 @@
           if (!otherItem.locked) {
             otherItem.placed = false;
             otherItem.placedCell = null;
-            $('puzzle-tray').appendChild(otherItem.el);
+            tray.appendChild(otherItem.el);
             otherItem.el.className = 'puzzle-piece';
+            otherItem.el.style.left = '';
+            otherItem.el.style.top = '';
           }
         }
         
         el.style.left = (hoveredCell.col * pWidth) + '%';
-        el.style.top = (hoveredCell.row * pHeight) + '%';
+        el.style.top = (hoveredCell.row * pWidth) + '%';
         el.className = 'puzzle-piece placed';
-        $('puzzle-area').appendChild(el);
+        area.appendChild(el);
         
         item.placed = true;
         item.placedCell = hoveredCell;
@@ -1157,7 +1191,7 @@
         el.className = 'puzzle-piece';
         el.style.left = '';
         el.style.top = '';
-        $('puzzle-tray').appendChild(el);
+        tray.appendChild(el);
       }
     }
     
