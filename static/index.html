@@ -17,7 +17,8 @@
     html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); color: #e0dce8; font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; overscroll-behavior-y: none; min-height: 100vh; }
     main { max-width: 650px; margin: 0 auto; padding: 18px 14px 120px; padding-top: max(18px, env(safe-area-inset-top)); }
     
-    .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    .dash-top-row { display: flex; justify-content: space-between; align-items: center; }
+    .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
+    .dash-top-row { display: flex; justify-content: space-between; align-items: center; }
     .brand { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
     .brand-accent { color: #b775ff; text-shadow: 0 0 10px rgba(183, 117, 255, 0.5); }
     .dash-stats { font-size: 12px; color: #8a8299; font-weight: 600; }
@@ -26,7 +27,7 @@
     .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
     .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .filter-dropdown-wrap { position: relative; }
-    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
     .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; }
     .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
@@ -39,7 +40,9 @@
     button:disabled { opacity: .5; cursor: default; }
     .primary { background: linear-gradient(135deg, #5a2a6e 0%, #3a1a4a 100%); border-color: #8e44ad; color: #fff; box-shadow: 0 4px 15px rgba(90, 42, 110, 0.4); }
     .wide { width: 100%; margin: 8px 0; display: block; }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+    
+    /* Сетка карточек - 2 колонки для мобилок */
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
 
     #notice { padding: 12px; background: rgba(183, 117, 255, 0.1); color: #de8aff; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 12px; margin-bottom: 16px; font-size: 13px; }
     #result { margin-top: 14px; padding: 14px; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 12px; white-space: pre-line; background: #1a1225; }
@@ -48,17 +51,18 @@
     .timer { color: #de8aff; margin: 12px 0; font-size: 14px; font-weight: bold; }
     footer { margin-top: 24px; color: #5a5066; font-size: 12px; text-align: center; }
 
-    .card, .set-card { background: #16121c; border-radius: 10px; overflow: hidden; position: relative; display: flex; flex-direction: column; transition: transform 0.2s; }
-    .portrait, .set-card-img { aspect-ratio: 1 / 1.25; display: flex; align-items: flex-start; justify-content: center; position: relative; overflow: hidden; }
+    /* Стили самих карточек */
+    .card, .set-card { background: #16121c; border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .portrait, .set-card-img { aspect-ratio: 1 / 1.2; display: flex; align-items: flex-start; justify-content: center; position: relative; overflow: hidden; background: #0a0c10; }
     .card-bg, .set-card-bg { position: absolute; top: -10%; left: -10%; right: -10%; bottom: -10%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.4); z-index: 0; }
     .portrait img, .set-card-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
     
-    .info, .set-card-info { padding: 10px 8px; background: #16121c; display: flex; flex-direction: column; gap: 4px; z-index: 2; border-top: 1px solid rgba(183, 117, 255, 0.1); min-height: 100px; justify-content: flex-start; }
+    .info, .set-card-info { padding: 12px 10px; background: #16121c; display: flex; flex-direction: column; gap: 4px; z-index: 2; border-top: 1px solid rgba(183, 117, 255, 0.1); min-height: 95px; justify-content: flex-start; }
     
-    .name { font-weight: 700; font-size: 11px; color: #fff; margin: 0; line-height: 1.2; }
-    .set-card-name { font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tag, .set-card-rarity { font-size: 7px; text-transform: uppercase; padding: 2px 4px; border: 1px solid currentColor; border-radius: 4px; align-self: flex-start; font-weight: bold; }
-    .points, .set-card-points { color: #fbbf24; margin-top: 2px; font-size: 11px; font-weight: 900; display: flex; align-items: center; gap: 3px; }
+    .name { font-weight: 700; font-size: 14px; color: #fff; margin: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .set-card-name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tag, .set-card-rarity { font-size: 9px; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; border-radius: 4px; align-self: flex-start; font-weight: bold; }
+    .points, .set-card-points { color: #fbbf24; margin-top: 2px; font-size: 13px; font-weight: 900; display: flex; align-items: center; gap: 3px; }
     .missing { opacity: 0.4; }
     .missing .portrait img, .missing .set-card-img img { filter: grayscale(100%); opacity: 0.2; }
     
@@ -70,11 +74,14 @@
     .rarity-Мифическая { border: 1px solid #b775ff; box-shadow: 0 0 20px rgba(183, 117, 255, 0.8), inset 0 0 10px rgba(183, 117, 255, 0.2); }
     .holo-effect { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(183,117,255,0.15) 30%, rgba(255,255,255,0) 60%); background-size: 200% 200%; animation: holoMove 4s infinite linear; mix-blend-mode: overlay; }
     @keyframes holoMove { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
+    
     .sets-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
     .set-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1e1a26; border-radius: 12px; cursor: pointer; border: 1px solid #3a304a; transition: all 0.2s; }
     .set-row-title { font-weight: 600; font-size: 15px; color: #fff; }
     .set-row-progress { font-weight: 900; font-size: 14px; }
-    .set-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
+    .set-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+
+    /* Плавающая кнопка (FAB) */
     .fab-main { position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); border: 2px solid #de8aff; box-shadow: 0 0 20px rgba(183, 117, 255, 0.6); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: transform 0.3s; }
     .fab-main.active { transform: rotate(45deg); }
     .fab-avatar { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; }
@@ -85,7 +92,6 @@
     .fab-btn svg { width: 20px; height: 20px; fill: #de8aff; }
     .fab-menu.active .fab-btn { opacity: 1; transform: translate(0, 0) scale(1); pointer-events: auto; }
     
-    /* Равная дуга кнопок */
     .fab-menu.active .fab-btn[data-tab="collection"] { transform: translate(-20px, -250px); }
     .fab-menu.active .fab-btn[data-tab="games"] { transform: translate(-90px, -230px); }
     .fab-menu.active .fab-btn[data-tab="trades"] { transform: translate(-160px, -180px); }
@@ -99,18 +105,18 @@
     .fab-rating { font-size: 14px; font-weight: 900; color: #fbbf24; }
     .fab-cards { font-size: 11px; font-weight: 700; color: #b775ff; background: rgba(183, 117, 255, 0.2); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(183,117,255,0.4);}
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 12, 16, 0.9); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    /* Модальное окно награды */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 12, 16, 0.9); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .modal-overlay.active { display: flex; }
-    .reward-content { background: #1a1225; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 24px; width: 95%; max-width: 500px; padding: 36px 30px 30px; display: flex; flex-direction: column; position: relative; }
-    .reward-close { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: #8a8299; font-size: 28px; cursor: pointer; }
-    .reward-title { font-size: 34px; font-weight: 900; color: #fbbf24; text-align: center; margin: 0 0 24px 0; }
-    .reward-body { display: flex; gap: 24px; align-items: flex-start; }
-    @media (max-width: 499px) { .reward-body { flex-direction: column; align-items: center; } .reward-left { width: 170px; margin-bottom: 24px; } .reward-right { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; } }
-    @media (min-width: 500px) { .reward-left { width: 180px; flex-shrink: 0; } .reward-right { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; } }
-    .reward-points { font-size: 20px; color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 16px; width: 100%; text-align: center; }
-    .reward-info-block { display: flex; flex-direction: column; gap: 14px; }
-    .reward-label { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: #8a8299; margin-bottom: 4px; }
-    .reward-value { font-size: 20px; font-weight: 700; color: #fff; }
+    .reward-content { background: #1a1225; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 24px; width: 100%; max-width: 340px; padding: 30px 20px; display: flex; flex-direction: column; position: relative; align-items: center; text-align: center; }
+    .reward-close { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #8a8299; font-size: 24px; cursor: pointer; }
+    .reward-title { font-size: 28px; font-weight: 900; color: #fbbf24; margin: 0 0 20px 0; text-shadow: 0 0 15px rgba(251,191,36,0.4); }
+    .reward-left { width: 140px; margin-bottom: 16px; flex-shrink: 0; }
+    .reward-right { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .reward-points { font-size: 18px; color: #fff; margin-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 16px; width: 100%; }
+    .reward-info-block { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .reward-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8a8299; margin-bottom: 4px; }
+    .reward-value { font-size: 18px; font-weight: 700; color: #fff; }
 
     /* ==========================================
        ПАЗЛ
@@ -120,15 +126,16 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
-      padding: 0 15px;
+      padding: 0;
       box-sizing: border-box;
+      margin-top: 10px;
+      margin-bottom: 80px; /* Оставляем место для разбросанных кусочков снизу */
     }
     
     .puzzle-area {
       position: relative;
       width: 100%;
-      max-width: 340px;
+      max-width: 300px; /* Чуть уменьшили, чтобы на телефоне было больше места */
       aspect-ratio: 1 / 1; 
       background: rgba(0, 0, 0, 0.4);
       border: 1px dashed rgba(183, 117, 255, 0.5);
@@ -197,10 +204,10 @@
        СТИЛИ ДЛЯ НЕДОСТУПНЫХ КНОПОК ИГР
        ========================================== */
     .game-card-disabled {
-      filter: grayscale(100%) !important; /* Убираем цвета */
-      opacity: 0.5 !important; /* Делаем полупрозрачными */
-      transform: scale(0.9) !important; /* Уменьшаем размер */
-      pointer-events: none !important; /* Отключаем клики */
+      filter: grayscale(100%) !important; 
+      opacity: 0.5 !important; 
+      transform: scale(0.9) !important; 
+      pointer-events: none !important; 
       cursor: default !important;
       transition: all 0.3s ease !important;
     }
@@ -384,14 +391,13 @@
 
     async function refresh() {
       profile = await api('me');
-      // ДОБАВИТЬ СЮДА:
       const initial = profile.name.charAt(0).toUpperCase();
       
       // Обновляем шапку профиля
       if ($('header-avatar')) $('header-avatar').textContent = initial;
       if ($('header-name')) $('header-name').textContent = profile.name;
       
-      // --- НОВАЯ ЛОГИКА РЕЙТИНГА ---
+      // --- ЛОГИКА РЕЙТИНГА (С ЗАЩИТОЙ ОТ ПЕРЕНОСА) ---
       if ($('header-rating')) {
         let phrase = '';
         if (profile.rank === 1 && Math.random() < 0.2) phrase = ' — воу ну ты и низко(';
@@ -403,8 +409,8 @@
         else if (profile.rank === 2) { rankColor = '#cbd5e1'; rankGlow = 'text-shadow: 0 0 10px rgba(203, 213, 225, 0.6);'; }
         else if (profile.rank === 3) { rankColor = '#d49a43'; rankGlow = 'text-shadow: 0 0 10px rgba(212, 154, 67, 0.6);'; }
 
-        // Рейтинг теперь БЕЛЫЙ, а место ЦВЕТНОЕ
-        $('header-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>${phrase}`;
+        let phraseHtml = phrase ? `<span style="color: #8a8299; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 120px; vertical-align: middle; margin-left: 4px;">${phrase}</span>` : '';
+        $('header-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>${phraseHtml}`;
       }
       
       // Обновляем статистику коллекции
@@ -434,11 +440,6 @@
         $('fab-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>`;
       }
       if ($('fab-cards')) $('fab-cards').textContent = `${profile.unique} / ${profile.cards.length}`;
-      
-      if (false) {
-        $('notice').hidden = false;
-        $('notice').textContent = 'Тестовый режим. Для публичного запуска отключи DEV_MODE.';
-      }
       
       updateCooldowns();
     }
@@ -947,12 +948,26 @@
         const targetX = targetCol * pWidth;
         const targetY = targetRow * pHeight;
         
+        // --- ОБНОВЛЕННЫЙ СПАВН КУСОЧКОВ (В ПРЕДЕЛАХ ЭКРАНА) ---
         let startX, startY;
         const side = Math.floor(Math.random() * 3);
         
-        if (side === 0) { startX = -pWidth - 10; startY = Math.random() * (100 - pHeight); }
-        else if (side === 1) { startX = 100 + 10; startY = Math.random() * (100 - pHeight); }
-        else { startX = Math.random() * (100 - pWidth); startY = 100 + 10; }
+        if (side === 0) { 
+          // Слева
+          startX = -10 - (Math.random() * 10); 
+          startY = Math.random() * 80; 
+        }
+        else if (side === 1) { 
+          // Справа
+          startX = 100 + (Math.random() * 10); 
+          startY = Math.random() * 80; 
+        }
+        else { 
+          // Снизу, прямо под полем сбора
+          startX = Math.random() * 80; 
+          startY = 100 + 10 + (Math.random() * 15); 
+        }
+        // ---------------------------------------------------------
         
         el.style.left = startX + '%';
         el.style.top = startY + '%';
