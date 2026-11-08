@@ -21,18 +21,19 @@
     .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
     
-    .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    /* Компактный ряд для фильтров и кнопки сброса */
+    .dash-controls-row { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     @media (min-width: 520px) {
       .dash-controls-row { flex-direction: row; align-items: center; justify-content: space-between; }
     }
     
-    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; flex: 1; margin: 0; }
+    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; flex: 1; }
     .filter-dropdown-wrap { position: relative; }
     
-    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; white-space: nowrap; }
+    .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; white-space: nowrap; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
     
-    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
+    .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
     .btn-reset:active { transform: scale(0.95); }
 
     .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
@@ -40,10 +41,10 @@
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
     
-    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 3px; border: 1px solid #3a304a; flex-shrink: 0; width: fit-content; align-self: flex-end; }
-    @media (min-width: 520px) {
-      .tab-switcher { align-self: auto; margin-left: auto; }
-    }
+    /* Исправленный переключатель (как на ПК) */
+    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 4px; border: 1px solid #3a304a; width: fit-content; }
+    .tab-switcher button { padding: 6px 14px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
     
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
@@ -231,11 +232,9 @@
      <header class="top-dashboard">
       
       <!-- ВЕРХНЯЯ СТРОКА: ПРОФИЛЬ СЛЕВА, СТАТИСТИКА СПРАВА -->
-      <div class="dash-profile-row">
-        
+      <div class="dash-profile-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
           <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">?</div>
-          
           <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
             <div id="header-name" style="font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Загрузка...</div>
             <div style="font-size: 12px; font-weight: 700; color: #fff; display: flex; gap: 4px; align-items: center; white-space: nowrap;">
@@ -252,7 +251,7 @@
       </div>
 
       <!-- ТАЙМЕРЫ -->
-      <div id="timers-header" class="dash-timers-block">
+      <div id="timers-header" class="dash-timers-block" style="display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15);">
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; background: rgba(183,117,255,0.05); border-radius: 8px; border: 1px solid rgba(183,117,255,0.1);">
           <span style="font-size: 10px; font-weight: 700; color: #8a8299; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Бесплатная карта</span>
           <span id="cd-free" style="font-size: 13px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
@@ -290,9 +289,10 @@
           <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none;">✕</button>
         </div>
         
+        <!-- Возвращен оригинальный переключатель без лишней обводки -->
         <div class="tab-switcher" id="tab-switcher">
-          <button id="tab-mine" onclick="switchTab('mine')" style="font-size: 11px; font-weight: 600; padding: 5px 10px;">Мои</button>
-          <button id="tab-sets" onclick="switchTab('sets')" style="font-size: 11px; font-weight: 600; padding: 5px 10px;">Сеты</button>
+          <button id="tab-mine" onclick="switchTab('mine')">Мои</button>
+          <button id="tab-sets" onclick="switchTab('sets')">Сеты</button>
         </div>
       </div>
     </header>
