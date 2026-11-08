@@ -18,14 +18,18 @@
     main { max-width: 650px; margin: 0 auto; padding: 18px 14px 120px; padding-top: max(18px, env(safe-area-inset-top)); }
     
     .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
+    .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
+    .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
+    .dash-controls-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
     .dash-top-row { display: flex; justify-content: space-between; align-items: center; }
     .brand { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
     .brand-accent { color: #b775ff; text-shadow: 0 0 10px rgba(183, 117, 255, 0.5); }
     .dash-stats { font-size: 12px; color: #8a8299; font-weight: 600; }
-    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 4px; border: 1px solid #3a304a; width: fit-content; margin-left: auto; }
+    .tab-switcher { display: flex; background: #1e1a26; border-radius: 20px; padding: 4px; border: 1px solid #3a304a; flex-shrink: 0; }
     .tab-switcher button { padding: 6px 14px; border: none; background: transparent; color: #8a8299; border-radius: 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
     .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
-    .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+    .filter-bar::-webkit-scrollbar { display: none; } /* Скрываем скроллбар у фильтров на мобилках */
     .filter-dropdown-wrap { position: relative; }
     .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
@@ -231,45 +235,44 @@
 </head>
 <body>
   <main>
-     <header class="top-dashboard" style="gap: 10px; padding: 14px;">
+     <header class="top-dashboard">
       
-      <!-- ВЕРХНЯЯ СТРОКА: АВАТАР, НИК, РЕЙТИНГ, СТАТИСТИКА -->
-      <div id="profile-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <!-- ВЕРХНЯЯ СТРОКА: ПРОФИЛЬ СЛЕВА, СТАТИСТИКА СПРАВА -->
+      <div class="dash-profile-row">
         
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div id="header-avatar" style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0;">?</div>
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">?</div>
           
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <div id="header-name" style="font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2;">Загрузка...</div>
-            <div style="font-size: 13px; font-weight: 700; color: #fff; display: flex; gap: 6px; align-items: center;">
+          <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
+            <div id="header-name" style="font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Загрузка...</div>
+            <div style="font-size: 12px; font-weight: 700; color: #fff; display: flex; gap: 4px; align-items: center; white-space: nowrap;">
               <span id="header-rating">#0 — 0</span>
             </div>
           </div>
         </div>
 
-        <div style="text-align: right; display: flex; flex-direction: column; gap: 2px;">
-          <div style="font-size: 14px; font-weight: 700; color: #e0dce8; text-transform: uppercase; letter-spacing: 0.5px;">Коллекция</div>
-          <div id="stat-cards" style="font-size: 12px; font-weight: 500; color: #8a8299;">Собранных карт: 0 / 0</div>
-          <div id="stat-animes" style="font-size: 12px; font-weight: 500; color: #8a8299;">Собранных аниме: 0 / 0</div>
+        <div style="text-align: right; display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;">
+          <div style="font-size: 13px; font-weight: 700; color: #e0dce8; text-transform: uppercase; letter-spacing: 0.5px;">Коллекция</div>
+          <div id="stat-cards" style="font-size: 11px; font-weight: 500; color: #8a8299;">Собранных карт: 0 / 0</div>
+          <div id="stat-animes" style="font-size: 11px; font-weight: 500; color: #8a8299;">Собранных аниме: 0 / 0</div>
         </div>
       </div>
 
-      <!-- ТАЙМЕРЫ (БУДЕМ ПРЯТАТЬ) -->
-      <div id="timers-header" style="display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15);">
-        
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; background: rgba(183,117,255,0.05); border-radius: 8px; border: 1px solid rgba(183,117,255,0.1);">
-          <span style="font-size: 11px; font-weight: 700; color: #8a8299; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Бесплатная карта</span>
-          <span id="cd-free" style="font-size: 14px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
+      <!-- ТАЙМЕРЫ -->
+      <div id="timers-header" class="dash-timers-block">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; background: rgba(183,117,255,0.05); border-radius: 8px; border: 1px solid rgba(183,117,255,0.1);">
+          <span style="font-size: 10px; font-weight: 700; color: #8a8299; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Бесплатная карта</span>
+          <span id="cd-free" style="font-size: 13px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
         </div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <span style="font-size: 11px; font-weight: 600; color: #8a8299; text-transform: uppercase;">Пазл</span>
-            <span id="cd-puzzle" style="font-size: 13px; font-weight: 800; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 10px; font-weight: 600; color: #8a8299; text-transform: uppercase;">Пазл</span>
+            <span id="cd-puzzle" style="font-size: 12px; font-weight: 800; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <span style="font-size: 11px; font-weight: 600; color: #8a8299; text-transform: uppercase;">Цитаты</span>
-            <span id="cd-quotes" style="font-size: 13px; font-weight: 800; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 10px; font-weight: 600; color: #8a8299; text-transform: uppercase;">Цитаты</span>
+            <span id="cd-quotes" style="font-size: 12px; font-weight: 800; white-space: nowrap; transition: color 0.25s ease;">Загрузка...</span>
           </div>
         </div>
       </div>
@@ -279,23 +282,24 @@
         #cd-free.ready, #cd-puzzle.ready, #cd-quotes.ready { color: #77cd91; }
       </style>
 
-      <!-- ПЕРЕКЛЮЧАТЕЛЬ И ФИЛЬТРЫ -->
-      <div id="collection-controls" style="display: none; flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-        <div class="filter-bar" id="filter-bar" style="margin: 0; flex: 1; display: flex; gap: 6px; flex-wrap: wrap;">
+      <!-- НИЖНЯЯ СТРОКА: ФИЛЬТРЫ И ПЕРЕКЛЮЧАТЕЛЬ -->
+      <div id="collection-controls" class="dash-controls-row" style="display: none;">
+        <div class="filter-bar" id="filter-bar">
           <div class="filter-dropdown-wrap">
-            <button class="filter-chip" onclick="toggleFilterDropdown('rarity')" style="font-size: 12px; font-weight: 600; padding: 6px 10px;"><span id="label-rarity">Все редкости</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('rarity')" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;"><span id="label-rarity">Все редкости</span> ▾</button>
             <div class="filter-menu" id="menu-rarity"></div>
           </div>
           <div class="filter-dropdown-wrap">
-            <button class="filter-chip" onclick="toggleFilterDropdown('anime')" style="font-size: 12px; font-weight: 600; padding: 6px 10px;"><span id="label-anime">Все аниме</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('anime')" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;"><span id="label-anime">Все аниме</span> ▾</button>
             <div class="filter-menu" id="menu-anime"></div>
           </div>
-          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()" style="font-size: 12px; font-weight: 600; padding: 6px 10px;">Только повторки</button>
-          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none; font-size: 12px;">✕</button>
+          <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()" style="font-size: 11px; font-weight: 600; padding: 5px 8px; white-space: nowrap;">Только повторки</button>
+          <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none; font-size: 11px; width: 28px; height: 28px;">✕</button>
         </div>
-        <div class="tab-switcher" id="tab-switcher" style="margin-left: auto;">
-          <button id="tab-mine" onclick="switchTab('mine')" style="font-size: 12px; font-weight: 600; padding: 6px 12px;">Мои</button>
-          <button id="tab-sets" onclick="switchTab('sets')" style="font-size: 12px; font-weight: 600; padding: 6px 12px;">Сеты</button>
+        
+        <div class="tab-switcher" id="tab-switcher">
+          <button id="tab-mine" onclick="switchTab('mine')" style="font-size: 11px; font-weight: 600; padding: 5px 10px;">Мои</button>
+          <button id="tab-sets" onclick="switchTab('sets')" style="font-size: 11px; font-weight: 600; padding: 5px 10px;">Сеты</button>
         </div>
       </div>
     </header>
