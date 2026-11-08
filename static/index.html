@@ -180,11 +180,9 @@
     
     .puzzle-area { 
       position: relative; 
-      width: 100% !important; 
-      max-width: 280px !important; 
-      width: 280px !important;
-      height: 280px !important;
-      aspect-ratio: 1 / 1 !important; 
+      width: 280px !important; 
+      height: 280px !important; 
+      max-width: 100%; 
       background: rgba(0, 0, 0, 0.4); 
       border: 1px dashed rgba(183, 117, 255, 0.5); 
       border-radius: 12px; 
@@ -1019,25 +1017,20 @@
       el.classList.remove('placed');
       el.classList.add('dragging');
       
-      // Переносим элемент в обертку .puzzle-wrapper, чтобы он свободно летал над всем полем
-      const wrapper = document.querySelector('.puzzle-wrapper');
-      if (!wrapper) return;
-      wrapper.appendChild(el);
+      // Возвращаем привязку к document.body для свободного перемещения по всему экрану без сдвигов
+      document.body.appendChild(el);
       
+      const rect = el.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const rect = el.getBoundingClientRect();
-      const wrapperRect = wrapper.getBoundingClientRect();
       
-      // Точный расчет смещения пальца относительно кусочка в ленте
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      // Фиксируем исходные пиксельные размеры кусочка при отрыве
       el.style.width = rect.width + 'px';
       el.style.height = rect.height + 'px';
-      el.style.left = (rect.left - wrapperRect.left) + 'px';
-      el.style.top = (rect.top - wrapperRect.top) + 'px';
+      el.style.left = (clientX - dragOffsetX) + 'px';
+      el.style.top = (clientY - dragOffsetY) + 'px';
 
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('touchmove', onDrag, { passive: false });
@@ -1052,21 +1045,14 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const wrapper = document.querySelector('.puzzle-wrapper');
-      const area = $('puzzle-area');
-      if (!wrapper || !area) return;
-      
-      const wrapperRect = wrapper.getBoundingClientRect();
-      const areaRect = area.getBoundingClientRect();
-      
-      // Плавное движение вслед за пальцем
-      const x = clientX - dragOffsetX - wrapperRect.left;
-      const y = clientY - dragOffsetY - wrapperRect.top;
-      
-      dragElement.style.left = x + 'px';
-      dragElement.style.top = y + 'px';
+      dragElement.style.left = (clientX - dragOffsetX) + 'px';
+      dragElement.style.top = (clientY - dragOffsetY) + 'px';
 
+      const area = $('puzzle-area');
+      if (!area) return;
+      const areaRect = area.getBoundingClientRect();
       const gridSize = puzzleState.gridSize;
+      
       const leftPct = ((clientX - dragOffsetX - areaRect.left) / areaRect.width) * 100;
       const topPct = ((clientY - dragOffsetY - areaRect.top) / areaRect.height) * 100;
 
