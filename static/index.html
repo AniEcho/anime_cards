@@ -1055,20 +1055,26 @@
       el.classList.remove('placed');
       el.classList.add('dragging');
       
-      // Переносим в обертку пазла, чтобы координаты считались правильно
       const wrapper = document.querySelector('.puzzle-wrapper');
-      if (wrapper) wrapper.appendChild(el);
+      if (!wrapper) return;
       
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       const rect = el.getBoundingClientRect();
-      const parentRect = wrapper.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
       
+      // Фиксируем смещение пальца относительно самого кусочка
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      el.style.width = (100 / puzzleState.gridSize) + '%';
-      el.style.height = (100 / puzzleState.gridSize) + '%';
+      // Переносим элемент в обертку, чтобы он позиционировался внутри нее
+      wrapper.appendChild(el);
+      
+      // Сразу ставим его на то место, где он был в пикселях относительно wrapper
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+      el.style.left = (rect.left - wrapperRect.left) + 'px';
+      el.style.top = (rect.top - wrapperRect.top) + 'px';
 
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('touchmove', onDrag, { passive: false });
@@ -1083,12 +1089,14 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
+      const wrapper = document.querySelector('.puzzle-wrapper');
       const area = $('puzzle-area');
-      if (!area) return;
-      const areaRect = area.getBoundingClientRect();
-      const wrapperRect = dragElement.parentElement.getBoundingClientRect();
+      if (!wrapper || !area) return;
       
-      // Перемещаем элемент плавно за пальцем
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const areaRect = area.getBoundingClientRect();
+      
+      // Двигаем элемент вслед за пальцем внутри wrapper
       const x = clientX - dragOffsetX - wrapperRect.left;
       const y = clientY - dragOffsetY - wrapperRect.top;
       
