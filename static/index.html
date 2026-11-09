@@ -253,8 +253,9 @@
       z-index: 9999;
       pointer-events: none; 
       filter: drop-shadow(0 10px 20px rgba(0,0,0,0.9));
-      transform: scale(1.1); 
-      margin: 0; padding: 0;
+      transform: scale(1.05); 
+      margin: 0 !important; 
+      padding: 0 !important;
     }
     
     /* Кусочек на поле */
@@ -1011,7 +1012,7 @@
       
       if (item.locked) return;
       
-      // Если кусочек уже стоял на поле, освобождаем ячейку
+      // Если кусочек уже стоял на поле — освобождаем ячейку
       if (item.placedCell) {
         item.placedCell.occupiedBy = null;
         item.placedCell = null;
@@ -1019,25 +1020,26 @@
       }
       
       dragElement = el;
-      el.classList.remove('placed');
-      el.classList.add('dragging');
       
+      // 1. Считываем РЕАЛЬНЫЕ экранные координаты элемента ДО его переноса в body
       const rect = el.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      // Точно фиксируем смещение курсора относительно левого верхнего угла элемента
+      // 2. Смещение курсора относительно левого верхнего угла самого кусочка
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      // Переносим элемент в body, чтобы он летал поверх всего интерфейса
-      document.body.appendChild(el);
-      
-      // Фиксируем размеры и начальные координаты строго под курсором/пальцем
+      // 3. Задаем размеры и точные абсолютные координаты ДО добавления в body
       el.style.width = rect.width + 'px';
       el.style.height = rect.height + 'px';
       el.style.left = (clientX - dragOffsetX) + 'px';
       el.style.top = (clientY - dragOffsetY) + 'px';
+      
+      // 4. Переносим в body и добавляем класс dragging
+      document.body.appendChild(el);
+      el.classList.remove('placed');
+      el.classList.add('dragging');
       
       document.addEventListener('mousemove', onDrag);
       document.addEventListener('touchmove', onDrag, { passive: false });
@@ -1052,7 +1054,7 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      // Двигаем элемент строго вслед за курсором с учетом начального смещения
+      // Двигаем ровно за курсором
       dragElement.style.left = (clientX - dragOffsetX) + 'px';
       dragElement.style.top = (clientY - dragOffsetY) + 'px';
 
@@ -1061,7 +1063,6 @@
       const areaRect = area.getBoundingClientRect();
       const gridSize = puzzleState.gridSize;
       
-      // Вычисляем текущий центр перетаскиваемого кусочка относительно игрового поля в процентах
       const pieceRect = dragElement.getBoundingClientRect();
       const centerX = ((pieceRect.left + pieceRect.width / 2 - areaRect.left) / areaRect.width) * 100;
       const centerY = ((pieceRect.top + pieceRect.height / 2 - areaRect.top) / areaRect.height) * 100;
@@ -1071,8 +1072,7 @@
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        // Увеличиваем радиус срабатывания подсветки (до 1.0 от ширины ячейки), чтобы игроку было проще попасть
-        if (dist < (100 / gridSize) * 1.0) {
+        if (dist < (100 / gridSize) * 0.9) {
           hoveredCell = cell;
           break;
         }
@@ -1103,7 +1103,6 @@
       const areaRect = area.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       
-      // Вычисляем центр кусочка относительно поля в процентах
       const centerX = ((elRect.left + elRect.width / 2 - areaRect.left) / areaRect.width) * 100;
       const centerY = ((elRect.top + elRect.height / 2 - areaRect.top) / areaRect.height) * 100;
       
@@ -1113,8 +1112,7 @@
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        // Расширяем зону привязки при отпускании, чтобы кусок не улетал обратно в ленту при попытке поставить его в ячейку
-        if (dist < pWidth * 1.1) {
+        if (dist < pWidth * 1.0) {
           hoveredCell = cell;
           break;
         }
@@ -1123,7 +1121,7 @@
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
 
       if (hoveredCell) {
-        // Если ячейка уже занята другим кусочком, возвращаем тот кусочек в ленту
+        // Возвращаем старый кусок в ленту, если ячейка занята
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
           if (!otherItem.locked) {
@@ -1138,7 +1136,7 @@
           }
         }
         
-        // Привязываем текущий кусок к сетке поля
+        // Помещаем кусок на поле
         el.style.left = (hoveredCell.col * pWidth) + '%';
         el.style.top = (hoveredCell.row * pWidth) + '%';
         el.style.width = pWidth + '%';
@@ -1159,7 +1157,7 @@
         
         checkWin();
       } else {
-        // Если бросили мимо поля, возвращаем элемент в ленту и сбрасываем inline-стили
+        // Сбрасываем стили и возвращаем в ленту
         el.className = 'puzzle-piece';
         el.style.left = '';
         el.style.top = '';
