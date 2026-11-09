@@ -111,6 +111,11 @@ def identity(authorization):
         user = json.loads(data['user'])
         if not isinstance(user.get('id'), int) or isinstance(user['id'], bool):
             raise ValueError()
+        
+        # ДОБАВЛЯЕМ photo_url (если он есть, иначе пустая строка)
+        if 'photo_url' not in user:
+            user['photo_url'] = ''
+            
         return user
     except (ValueError, KeyError, TypeError):
         raise HTTPException(401, 'Вход недействителен или устарел. Переоткрой приложение.')
@@ -172,16 +177,18 @@ def me(authorization: str | None = Header(default=None)):
         quotes_at = (last_quotes['started_at'] + QUOTES_COOLDOWN) if last_quotes and last_quotes['started_at'] else 0
 
         return {
-            'name':user['name'], 'dev':DEV_MODE, 
-            'rating':sum(x['count']*x['points'] for x in cards), 
-            'rank': rank, # <-- ВОТ ЭТО ПОЛЕ НУЖНО ДОБАВИТЬ
-            'total':sum(x['count'] for x in cards), 
-            'unique':sum(x['count']>0 for x in cards), 
-            'cards':cards, 
-            'free_at':user['last_free']+FREE_SECONDS, 
+            'name': user['name'], 
+            'photo_url': user.get('photo_url', ''), # <--- ДОБАВЛЕНО
+            'dev': DEV_MODE, 
+            'rating': sum(x['count']*x['points'] for x in cards), 
+            'rank': rank,
+            'total': sum(x['count'] for x in cards), 
+            'unique': sum(x['count']>0 for x in cards), 
+            'cards': cards, 
+            'free_at': user['last_free'] + FREE_SECONDS, 
             'puzzle_at': puzzle_at,
             'quotes_at': quotes_at,
-            'server_time':time.time()
+            'server_time': time.time()
         }
 
 @app.get('/api/leaderboard')

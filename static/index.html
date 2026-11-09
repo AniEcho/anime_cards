@@ -299,7 +299,7 @@
       <!-- ПРОФИЛЬ -->
       <div class="dash-profile-row">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-          <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;">?</div>
+          <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden;"></div>
           <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
             <div id="header-name" style="font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Загрузка...</div>
             <div style="font-size: 12px; font-weight: 700; color: #fff; display: flex; gap: 4px; align-items: center; white-space: nowrap;">
@@ -373,7 +373,7 @@
     <button class="fab-btn" data-tab="leaderboard" data-label="Рейтинг" onclick="show('leaderboard'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg></button>
     <button class="fab-btn" data-tab="shop" data-label="Магазин" onclick="show('shop'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></button>
   </div>
-  <div class="fab-main" id="fab-main" onclick="toggleFab()"><div class="fab-avatar" id="fab-avatar">?</div></div>
+  <div class="fab-main" id="fab-main" onclick="toggleFab()"><div class="fab-avatar" id="fab-avatar" style="overflow: hidden;">?</div></div>
   <div class="fab-profile" id="fab-profile">
     <div class="fab-profile-name" id="fab-name">Загрузка…</div>
     <div class="fab-profile-stats"><span class="fab-rating" id="fab-rating">#0 — 0</span><span class="fab-cards" id="fab-cards">0/0</span></div>
@@ -464,9 +464,23 @@
 
     async function refresh() {
       profile = await api('me');
-      const initial = profile.name.charAt(0).toUpperCase();
       
-      if ($('header-avatar')) $('header-avatar').textContent = initial;
+      // --- ЛОГИКА АВАТАРКИ ---
+      const initial = profile.name.charAt(0).toUpperCase();
+      const photoUrl = profile.photo_url;
+      
+      // Функция для создания HTML аватарки
+      const getAvatarHtml = (size, fontSize) => {
+        if (photoUrl) {
+          return `<img src="${esc(photoUrl)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
+        }
+        return `<div style="width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: ${fontSize}px; font-weight: 700; color: #fff;">${initial}</div>`;
+      };
+
+      // Обновляем шапку профиля
+      if ($('header-avatar')) {
+        $('header-avatar').innerHTML = getAvatarHtml(40, 18);
+      }
       if ($('header-name')) $('header-name').textContent = profile.name;
       
       if ($('header-rating')) {
@@ -497,7 +511,10 @@
         $('stat-animes').textContent = `Собранных аниме: ${completedAnimes} / ${totalAnimes}`;
       }
       
-      if ($('fab-avatar')) $('fab-avatar').textContent = initial;
+      // Обновляем FAB
+      if ($('fab-avatar')) {
+        $('fab-avatar').innerHTML = getAvatarHtml(64, 28);
+      }
       if ($('fab-name')) $('fab-name').textContent = profile.name;
        if ($('fab-rating')) {
         let rankColor = '#b775ff';
