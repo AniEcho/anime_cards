@@ -672,12 +672,21 @@
     }
 
     function selectAnswerCard(cardId) {
-      if (selectedTradeCards.includes(cardId)) selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
-      else {
-        const cardInfo = profile.cards.find(c => c.id === cardId);
-        const countSelected = selectedTradeCards.filter(id => id === cardId).length;
-        if (cardInfo && countSelected < cardInfo.count) selectedTradeCards.push(cardId);
+      const cardInfo = profile.cards.find(c => c.id === cardId);
+      if (!cardInfo) return;
+      
+      // Считаем, сколько раз эта карта уже выбрана
+      const countSelected = selectedTradeCards.filter(id => id === cardId).length;
+      
+      if (countSelected >= cardInfo.count) {
+        // Если выбрали максимум, что есть (например, 3 из 3) — сбрасываем выбор этой карты
+        selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
+      } else {
+        // Иначе добавляем ещё одну копию
+        selectedTradeCards.push(cardId);
       }
+      
+      // Перерисовываем сетку, чтобы обновились бейджи с цифрами (1, 2, 3)
       renderTradeInventory('trade-my-inventory-grid', false);
     }
 
