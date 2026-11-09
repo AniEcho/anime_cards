@@ -1140,41 +1140,39 @@
 
       const area = $('puzzle-area');
       const tray = $('puzzle-tray');
-
       if (!area || !tray) return;
 
-      puzzleState.cells.forEach(cell => {
-        cell.el.classList.remove('highlight');
-      });
+      puzzleState.cells.forEach(cell => cell.el.classList.remove('highlight'));
+
+      const gridSize = puzzleState.gridSize;
+      const cellSize = 100 / gridSize;
+      
+      // Вычисляем размер кусочка для ленты (чтобы он не был маленьким)
+      const pieceSize = Math.floor((Math.min(window.innerWidth - 80, 300)) / gridSize);
 
       if (hoveredCell) {
-        const gridSize = puzzleState.gridSize;
-        const cellSize = 100 / gridSize;
-        
         // Если ячейка занята другим кусочком
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
           
-          // Если старый кусочек НЕ залочен (т.е. не стоит на своем правильном месте)
           if (!otherItem.locked) {
-            // Меняем их местами!
-            // Если наш кусочек был где-то на поле, ставим туда старый
+            // СВАП: Если наш кусочек пришел с поля, меняем их местами
             if (item.placedCell) {
               const oldCell = item.placedCell;
               
+              // Ставим старый кусочек на место нашего
               otherItem.el.className = 'puzzle-piece placed';
               otherItem.el.style.left = (oldCell.col * cellSize) + '%';
               otherItem.el.style.top = (oldCell.row * cellSize) + '%';
               otherItem.el.style.width = cellSize + '%';
               otherItem.el.style.height = cellSize + '%';
-              
               area.appendChild(otherItem.el);
               
               otherItem.placed = true;
               otherItem.placedCell = oldCell;
               oldCell.occupiedBy = otherItem;
               
-              // Проверяем, встал ли он на свое правильное место
+              // Проверяем, встал ли он на правильное место
               const otherCorrectIndex = oldCell.row * gridSize + oldCell.col;
               if (otherItem.originalIndex === otherCorrectIndex) {
                 otherItem.locked = true;
@@ -1187,18 +1185,17 @@
               otherItem.el.className = 'puzzle-piece';
               otherItem.el.style.left = '';
               otherItem.el.style.top = '';
-              otherItem.el.style.width = '';
-              otherItem.el.style.height = '';
+              otherItem.el.style.width = pieceSize + 'px';
+              otherItem.el.style.height = pieceSize + 'px';
               tray.appendChild(otherItem.el);
             }
           } else {
-            // Если старый кусочек залочен (стоит на правильном месте), мы не можем его сдвинуть.
-            // Возвращаем наш кусочек обратно в ленту.
+            // Если старый залочен — возвращаем наш кусочек в ленту
             el.className = 'puzzle-piece';
             el.style.left = '';
             el.style.top = '';
-            el.style.width = '';
-            el.style.height = '';
+            el.style.width = pieceSize + 'px';
+            el.style.height = pieceSize + 'px';
             tray.appendChild(el);
             
             hoveredCell = null;
@@ -1228,14 +1225,14 @@
 
         checkWin();
       } else {
-        // Если бросили мимо поля
+        // Если бросили мимо поля, возвращаем в ленту с нормальным размером
         el.classList.remove('dragging');
         el.className = 'puzzle-piece';
 
         el.style.left = '';
         el.style.top = '';
-        el.style.width = '';
-        el.style.height = '';
+        el.style.width = pieceSize + 'px';
+        el.style.height = pieceSize + 'px';
 
         tray.appendChild(el);
       }
