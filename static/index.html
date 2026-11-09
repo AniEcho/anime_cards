@@ -364,50 +364,6 @@
     <div id="result" hidden></div>
     <footer>Карты и цитаты в комплекте — тестовые. Анимаций нет.</footer>
   </main>
-
-  <!-- МОДАЛКА ДЛЯ СОЗДАНИЯ ОБМЕНА -->
-  <div id="trade-create-modal" class="modal-overlay" onclick="closeTradeModal(event)">
-    <div class="reward-content" style="max-width: 400px;" onclick="event.stopPropagation()">
-      <button class="reward-close" onclick="closeTradeModal()">✕</button>
-      <h2 class="reward-title" style="color: #b775ff;">Новый обмен</h2>
-      
-      <div style="width: 100%; text-align: left; margin-bottom: 10px;">
-        <label class="reward-label">Ник получателя (в Telegram)</label>
-        <input type="text" id="trade-target-name" placeholder="@username" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0c10; border: 1px solid #3a304a; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none;">
-      </div>
-
-      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <label class="reward-label">Ваши карты (нажмите, чтобы выбрать)</label>
-        <span id="trade-selected-count" style="font-size: 12px; color: #b775ff; font-weight: bold;">Выбрано: 0</span>
-      </div>
-
-      <div id="trade-inventory-grid" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; width: 100%;">
-        <!-- Тут будут карточки -->
-      </div>
-
-      <button id="btn-send-trade" class="primary wide" style="margin-top: 15px;" onclick="submitTrade()">Предложить обмен</button>
-    </div>
-  </div>
-
-  <!-- МОДАЛКА ДЛЯ ОТВЕТА НА ОБМЕН -->
-  <div id="trade-answer-modal" class="modal-overlay" onclick="closeTradeModal(event)">
-    <div class="reward-content" style="max-width: 400px;" onclick="event.stopPropagation()">
-      <button class="reward-close" onclick="closeTradeModal()">✕</button>
-      <h2 class="reward-title" style="color: #fbbf24; font-size: 20px;">Ответ на обмен</h2>
-      <p id="trade-sender-name" style="margin: 0 0 10px 0; font-size: 14px; color: #8a8299;">От: @user</p>
-      
-      <div class="reward-label">Вам предлагают:</div>
-      <div id="trade-offered-cards" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; width: 100%; margin-bottom: 15px;"></div>
-
-      <div class="reward-label">Выберите карту взамен:</div>
-      <div id="trade-my-inventory-grid" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; width: 100%;"></div>
-
-      <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
-        <button class="wide" style="background: #2a1012; border-color: #9b4c51; color: #ffc2c7; flex: 1; margin: 0;" onclick="declineTrade()">Отклонить</button>
-        <button class="primary wide" style="flex: 1; margin: 0;" onclick="acceptTrade()">Принять</button>
-      </div>
-    </div>
-  </div>
   
   <div class="fab-overlay" id="fab-overlay" onclick="toggleFab(false)"></div>
   <div class="fab-menu" id="fab-menu">
@@ -878,52 +834,139 @@
     // ==========================================
     // ОБМЕНЫ
     // ==========================================
+    let currentTradeState = 'list'; // 'list', 'create', 'answer'
+    let activeTradeToAnswer = null;
+
     async function tradesView() {
+      currentTradeState = 'list';
+      renderTradesScreen();
+    }
+
+    async function renderTradesScreen() {
       const view = $('view');
-      view.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;">
-          <div>
-            <h2 style="margin:0;">Обмены</h2>
-            <p class="muted" style="margin:4px 0 0 0;">Предлагайте карты и получайте новые</p>
-          </div>
-        </div>
-        <button class="primary wide" onclick="openCreateTrade()">Создать обмен</button>
-        <h3 style="margin-top: 20px; margin-bottom: 10px;">Входящие предложения</h3>
-        <div id="incoming-trades-list"><p class="muted">Загрузка...</p></div>
-      `;
       
-      try {
-        const data = await api('trades/incoming');
-        const list = data.trades;
-        const container = $('incoming-trades-list');
-        
-        if (list.length === 0) {
-          container.innerHTML = `<p class="muted" style="text-align:center; margin-top: 20px;">У вас нет входящих предложений.</p>`;
-          return;
-        }
-        
-        container.innerHTML = list.map(t => `
-          <div class="set-row" style="flex-direction: column; align-items: stretch; gap: 10px; cursor: pointer;" onclick="openAnswerTrade(${t.trade_id}, '${esc(t.sender_name)}')">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-weight: 700; color: #fff;">От: ${esc(t.sender_name)}</div>
-              <div style="font-size: 12px; color: #b775ff;">Посмотреть ➔</div>
-            </div>
-            <div style="display: flex; gap: 8px; overflow-x: auto;">
-              ${t.cards.map(c => `<div style="font-size: 12px; padding: 4px 8px; background: #2a2533; border-radius: 6px; color: ${colors[c.rarity]}; border: 1px solid ${colors[c.rarity]};">${esc(c.name)}</div>`).join('')}
+      if (currentTradeState === 'list') {
+        view.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;">
+            <div>
+              <h2 style="margin:0;">Обмены</h2>
+              <p class="muted" style="margin:4px 0 0 0;">Предлагайте карты и получайте новые</p>
             </div>
           </div>
-        `).join('');
-      } catch(e) {
-        $('incoming-trades-list').innerHTML = '<p class="muted" style="color:#ff6b6b;">Ошибка загрузки.</p>';
+          <button class="primary wide" onclick="startCreateTrade()" style="margin-bottom: 20px;">Создать обмен</button>
+          <h3 style="margin-top: 10px; margin-bottom: 10px;">Входящие предложения</h3>
+          <div id="incoming-trades-list"><p class="muted" style="text-align:center;">Загрузка...</p></div>
+        `;
+        
+        try {
+          const data = await api('trades/incoming');
+          const list = data.trades;
+          const container = $('incoming-trades-list');
+          
+          if (list.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 30px 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed #3a304a;"><p class="muted" style="margin:0;">У вас нет входящих предложений.</p></div>`;
+            return;
+          }
+          
+          container.innerHTML = list.map(t => `
+            <div class="set-row" style="flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; cursor: pointer; border-color: ${t.cards.length > 0 ? colors[t.cards[0].rarity] : '#3a304a'};" onclick="startAnswerTrade(${t.trade_id})">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: 700; color: #fff; font-size: 16px;">От: ${esc(t.sender_name)}</div>
+                <div style="font-size: 13px; color: #b775ff; font-weight: bold;">Посмотреть ➔</div>
+              </div>
+              <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+                ${t.cards.map(c => `<div style="min-width: 60px; padding: 4px; border-radius: 6px; background: #16121c; border: 1px solid ${colors[c.rarity]}; text-align: center; font-size: 10px; font-weight: bold; color: ${colors[c.rarity]};">${esc(c.name)}</div>`).join('')}
+              </div>
+            </div>
+          `).join('');
+        } catch(e) {
+          $('incoming-trades-list').innerHTML = '<p style="color:#ff6b6b; text-align:center;">Ошибка загрузки.</p>';
+        }
+      }
+      
+      else if (currentTradeState === 'create') {
+        view.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <button onclick="tradesView()" style="background: #1e1a26; border: 1px solid #3a304a; padding: 8px 12px; border-radius: 8px; font-size: 14px;">← Назад</button>
+            <h2 style="margin:0;">Новый обмен</h2>
+          </div>
+
+          <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
+            <label class="reward-label" style="font-size: 11px;">Ник получателя</label>
+            <input type="text" id="trade-target-name" placeholder="@username" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0c10; border: 1px solid #3a304a; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-top: 6px;">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin:0; font-size: 16px;">Выберите карты</h3>
+            <span id="trade-selected-count" style="font-size: 13px; color: #b775ff; font-weight: bold; background: rgba(183,117,255,0.1); padding: 4px 8px; border-radius: 6px;">Выбрано: 0</span>
+          </div>
+
+          <div id="trade-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
+          <div id="trade-error-msg" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
+
+          <button class="primary wide" onclick="submitTrade()" style="position: sticky; bottom: 80px; z-index: 50; box-shadow: 0 4px 20px rgba(183,117,255,0.4);">Предложить обмен</button>
+        `;
+        renderTradeInventory('trade-inventory-grid', true);
+      }
+      
+      else if (currentTradeState === 'answer' && activeTradeToAnswer) {
+        view.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <button onclick="tradesView()" style="background: #1e1a26; border: 1px solid #3a304a; padding: 8px 12px; border-radius: 8px; font-size: 14px;">← Назад</button>
+            <h2 style="margin:0;">Ответ на обмен</h2>
+          </div>
+
+          <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
+            <div style="font-size: 14px; color: #8a8299; margin-bottom: 8px;">От: <span style="color: #fff; font-weight: bold;">${esc(activeTradeToAnswer.sender_name)}</span></div>
+            <div class="reward-label">Вам предлагают:</div>
+            <div style="display: flex; gap: 8px; overflow-x: auto; margin-top: 8px;">
+              ${activeTradeToAnswer.cards.map(c => `
+                <div style="min-width: 70px; width: 70px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid ${colors[c.rarity]}; background: #16121c;">
+                   ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover; object-position: top;">` : `<div style="width: 100%; aspect-ratio: 1/1.2; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9px; padding: 4px;">${esc(c.name)}</div>`}
+                   <div style="padding: 4px; text-align: center;">
+                     <div style="font-size: 9px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
+                     <div style="font-size: 9px; color: ${colors[c.rarity]}; font-weight: bold;">${c.rarity}</div>
+                   </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin:0; font-size: 16px;">Выберите карту взамен</h3>
+          </div>
+
+          <div id="trade-my-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
+          
+          <div id="trade-answer-error" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
+
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <button class="wide" style="background: #2a1012; border-color: #9b4c51; color: #ffc2c7; flex: 1; margin: 0;" onclick="declineTrade()">Отклонить</button>
+            <button class="primary wide" style="flex: 1; margin: 0;" onclick="acceptTrade()">Принять</button>
+          </div>
+        `;
+        renderTradeInventory('trade-my-inventory-grid', false);
       }
     }
 
-    function openCreateTrade() {
+    function startCreateTrade() {
       selectedTradeCards = [];
-      $('trade-target-name').value = '';
-      $('trade-selected-count').textContent = 'Выбрано: 0';
-      renderTradeInventory('trade-inventory-grid', true);
-      $('trade-create-modal').classList.add('active');
+      currentTradeState = 'create';
+      renderTradesScreen();
+    }
+
+    async function startAnswerTrade(tradeId) {
+      try {
+        const data = await api('trades/incoming');
+        const trade = data.trades.find(t => t.trade_id === tradeId);
+        if (!trade) return;
+        
+        activeTradeToAnswer = trade;
+        currentTradeId = tradeId;
+        selectedTradeCards = [];
+        currentTradeState = 'answer';
+        renderTradesScreen();
+      } catch(e) { alert('Ошибка загрузки обмена'); }
     }
 
     function renderTradeInventory(containerId, isCreating) {
@@ -935,30 +978,27 @@
       cards.sort((a, b) => (rarityWeight[b.rarity] || 0) - (rarityWeight[a.rarity] || 0));
       
       if (cards.length === 0) {
-        container.innerHTML = '<p class="muted" style="font-size:12px;">Нет карт для обмена.</p>';
+        container.innerHTML = '<p class="muted" style="font-size:14px; grid-column: 1/-1; text-align:center; padding: 20px;">Нет карт для обмена.</p>';
         return;
       }
 
       container.innerHTML = cards.map(c => {
-        const isSelected = selectedTradeCards.includes(c.id);
+        const selectedCount = selectedTradeCards.filter(id => id === c.id).length;
+        const isSelected = selectedCount > 0;
         const borderColor = colors[c.rarity] || '#aaa';
         
-        // Для ответа на обмен мы не даем выбрать больше 1 карты (или можно сделать мультивыбор - тут сделаем одиночный, чтобы не усложнять)
-        let clickAction = "";
-        if (isCreating) {
-          clickAction = `onclick="toggleTradeCard(${c.id})"`;
-        } else {
-          clickAction = `onclick="selectAnswerCard(${c.id})"`;
-        }
+        let clickAction = isCreating ? `onclick="toggleTradeCard(${c.id})"` : `onclick="selectAnswerCard(${c.id})"`;
 
         return `
-          <div ${clickAction} style="min-width: 80px; width: 80px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 2px solid ${isSelected ? '#b775ff' : borderColor}; background: #16121c; cursor: pointer; opacity: ${isSelected ? '1' : '0.8'}; transition: 0.2s; position: relative;">
-            ${isSelected ? '<div style="position: absolute; top: 4px; right: 4px; background: #b775ff; color: #fff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">✓</div>' : ''}
-            ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover; object-position: top;">` : `<div style="width: 100%; aspect-ratio: 1/1.2; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 4px;">${esc(c.name)}</div>`}
-            <div style="padding: 4px; text-align: center;">
-              <div style="font-size: 10px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
-              <div style="font-size: 10px; color: ${borderColor}; font-weight: bold;">${c.rarity}</div>
-              <div style="font-size: 10px; color: #8a8299;">x${c.count}</div>
+          <div ${clickAction} style="border-radius: 10px; overflow: hidden; border: 2px solid ${isSelected ? '#b775ff' : borderColor}; background: #16121c; cursor: pointer; opacity: ${isSelected ? '1' : '0.8'}; transition: 0.2s; position: relative; box-shadow: ${isSelected ? '0 0 15px rgba(183,117,255,0.4)' : 'none'};">
+            ${isSelected ? `<div style="position: absolute; top: 6px; right: 6px; background: #b775ff; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">${selectedCount}</div>` : ''}
+            <div style="position: relative; width: 100%; aspect-ratio: 1/1.2; background: #0a0c10;">
+              ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; padding: 6px; font-weight: bold; color: #fff;">${esc(c.name)}</div>`}
+            </div>
+            <div style="padding: 8px 6px; text-align: center; background: #16121c;">
+              <div style="font-size: 12px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
+              <div style="font-size: 10px; color: ${borderColor}; font-weight: bold; margin-top: 2px;">${c.rarity}</div>
+              <div style="font-size: 11px; color: #8a8299; margin-top: 2px;">Осталось: ${c.count - selectedCount}</div>
             </div>
           </div>
         `;
@@ -966,89 +1006,74 @@
     }
 
     function toggleTradeCard(cardId) {
-      const idx = selectedTradeCards.indexOf(cardId);
-      if (idx > -1) {
-        selectedTradeCards.splice(idx, 1);
+      const cardInfo = profile.cards.find(c => c.id === cardId);
+      const countSelected = selectedTradeCards.filter(id => id === cardId).length;
+      
+      if (countSelected >= cardInfo.count) {
+        selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
       } else {
-        // Проверяем, не выбрали ли мы уже все копии этой карты
-        const cardInfo = profile.cards.find(c => c.id === cardId);
-        const countSelected = selectedTradeCards.filter(id => id === cardId).length;
-        if (cardInfo && countSelected < cardInfo.count) {
-          selectedTradeCards.push(cardId);
-        }
+        selectedTradeCards.push(cardId);
       }
+      
       $('trade-selected-count').textContent = `Выбрано: ${selectedTradeCards.length}`;
       renderTradeInventory('trade-inventory-grid', true);
     }
 
     async function submitTrade() {
       const target = $('trade-target-name').value.trim();
-      if (!target) return alert('Введите ник получателя');
-      if (selectedTradeCards.length === 0) return alert('Выберите хотя бы одну карту');
+      const errDiv = $('trade-error-msg');
+      errDiv.style.display = 'none';
+
+      if (!target) { errDiv.textContent = 'Введите ник получателя!'; errDiv.style.display = 'block'; return; }
+      if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите хотя бы одну карту!'; errDiv.style.display = 'block'; return; }
 
       try {
-        await run(async () => {
-          await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
-          closeTradeModal();
-          await sync();
-          alert('Предложение отправлено!');
-        });
-      } catch (e) { error(e); }
-    }
-
-    async function openAnswerTrade(tradeId, senderName) {
-      currentTradeId = tradeId;
-      selectedTradeCards = [];
-      $('trade-sender-name').textContent = 'От: ' + senderName;
-      
-      // Загружаем данные обмена, чтобы показать карты
-      const data = await api('trades/incoming');
-      const trade = data.trades.find(t => t.trade_id === tradeId);
-      
-      if (trade) {
-        $('trade-offered-cards').innerHTML = trade.cards.map(c => `
-          <div style="min-width: 80px; width: 80px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid ${colors[c.rarity] || '#aaa'}; background: #16121c;">
-             ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover; object-position: top;">` : `<div style="width: 100%; aspect-ratio: 1/1.2; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 4px;">${esc(c.name)}</div>`}
-             <div style="padding: 4px; text-align: center;">
-               <div style="font-size: 10px; font-weight: bold; color: #fff;">${esc(c.name)}</div>
-               <div style="font-size: 10px; color: ${colors[c.rarity]}; font-weight: bold;">${c.rarity}</div>
-             </div>
-          </div>
-        `).join('');
+        await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
+        await sync();
+        currentTradeState = 'list';
+        renderTradesScreen();
+        // Красивое уведомление
+        $('notice').hidden = false;
+        $('notice').textContent = 'Обмен успешно отправлен!';
+        setTimeout(() => { $('notice').hidden = true; }, 3000);
+      } catch (e) { 
+        errDiv.textContent = e.message;
+        errDiv.style.display = 'block';
       }
-      
-      renderTradeInventory('trade-my-inventory-grid', false);
-      $('trade-answer-modal').classList.add('active');
     }
 
     function selectAnswerCard(cardId) {
-      selectedTradeCards = [cardId]; // Выбираем только одну карту
+      selectedTradeCards = [cardId];
       renderTradeInventory('trade-my-inventory-grid', false);
     }
 
     async function acceptTrade() {
-      if (selectedTradeCards.length === 0) return alert('Выберите карту взамен');
+      const errDiv = $('trade-answer-error');
+      errDiv.style.display = 'none';
+
+      if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите карту взамен!'; errDiv.style.display = 'block'; return; }
       
       try {
-        await run(async () => {
-          await api('trades/answer', { trade_id: currentTradeId, receiver_cards: selectedTradeCards });
-          closeTradeModal();
-          await sync();
-          alert('Обмен успешно завершен!');
-          tradesView(); // Обновляем список
-        });
-      } catch (e) { error(e); }
+        await api('trades/answer', { trade_id: currentTradeId, receiver_cards: selectedTradeCards });
+        await sync();
+        currentTradeState = 'list';
+        renderTradesScreen();
+        
+        $('notice').hidden = false;
+        $('notice').textContent = 'Обмен успешно завершен!';
+        setTimeout(() => { $('notice').hidden = true; }, 3000);
+      } catch (e) { 
+        errDiv.textContent = e.message;
+        errDiv.style.display = 'block';
+      }
     }
 
     async function declineTrade() {
       try {
-        await run(async () => {
-          await api('trades/decline', { trade_id: currentTradeId });
-          closeTradeModal();
-          alert('Обмен отклонен.');
-          tradesView(); // Обновляем список
-        });
-      } catch (e) { error(e); }
+        await api('trades/decline', { trade_id: currentTradeId });
+        currentTradeState = 'list';
+        renderTradesScreen();
+      } catch (e) { alert('Ошибка: ' + e.message); }
     }
 
     function closeTradeModal(e) {

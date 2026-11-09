@@ -433,7 +433,8 @@ def create_trade(body: TradeCreate, authorization: str | None = Header(default=N
         uid = player(c, authorization)
         
         # Ищем получателя по имени
-        receiver = c.execute('SELECT id, name FROM users WHERE name = ?', (body.receiver_username.lstrip('@'),)).fetchone()
+        search_name = body.receiver_username.strip().lstrip('@')
+        receiver = c.execute('SELECT id, name FROM users WHERE LOWER(name) = LOWER(?)', (search_name,)).fetchone()
         if not receiver:
             raise HTTPException(404, 'Игрок с таким ником не найден (он должен был хотя бы раз зайти в игру)')
         if receiver['id'] == uid:
