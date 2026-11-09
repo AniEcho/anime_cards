@@ -59,7 +59,7 @@ def db():
 
 def initialize():
     with db() as c:
-        c.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, last_free REAL NOT NULL DEFAULT 0)')
+        c.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, last_free REAL NOT NULL DEFAULT 0, photo_url TEXT DEFAULT '')')
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
@@ -123,7 +123,8 @@ def identity(authorization):
 def player(c, authorization):
     user = identity(authorization)
     name = str(user.get('first_name') or user.get('username') or 'Игрок')[:100]
-    c.execute('INSERT INTO users(id,name) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name', (user['id'],name))
+    photo = user.get('photo_url', '')
+    c.execute('INSERT INTO users(id,name,photo_url) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, photo_url=excluded.photo_url', (user['id'],name,photo))
     return user['id']
 
 def card_dict(row):
@@ -202,8 +203,9 @@ def me(authorization: str | None = Header(default=None)):
 def leaderboard(authorization: str | None = Header(default=None)):
     with db() as c:
         uid = player(c, authorization)
+        # Достаем photo_url из таблицы users
         query = '''
-            SELECT u.id, u.name, 
+            SELECT u.id, u.name, u.photo_url, 
                    SUM(CASE cards.rarity
                        WHEN 'Обычная' THEN 100 WHEN 'Необычная' THEN 250
                        WHEN 'Редкая' THEN 500 WHEN 'Эпическая' THEN 750
@@ -218,7 +220,7 @@ def leaderboard(authorization: str | None = Header(default=None)):
         result = []
         for i, row in enumerate(rows):
             result.append({
-                'rank': i + 1, 'name': row['name'],
+                'rank': i + 1, 'name': row['name'], 'photo_url': row['photo_url'] or '',
                 'rating': row['rating'], 'is_me': row['id'] == uid
             })
         return {'leaderboard': result}
