@@ -452,13 +452,12 @@ def incoming_trades(authorization: str | None = Header(default=None)):
     with db() as c:
         uid = player(c, authorization)
         rows = c.execute('''
-            SELECT t.id as trade_id, u.name as sender_name, u.photo_url as sender_photo, t.sender_cards
+            SELECT t.id as trade_id, u.name as sender_name, u.username as sender_username, u.photo_url as sender_photo, t.sender_cards
             FROM trades t
             JOIN users u ON t.sender_id = u.id
             WHERE t.receiver_id = ? AND t.status = 'pending'
             ORDER BY t.created_at DESC
         ''', (uid,)).fetchall()
-        
         result = []
         for r in rows:
             d = dict(r)
