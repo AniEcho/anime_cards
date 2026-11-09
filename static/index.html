@@ -15,94 +15,50 @@
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
-    /* Жестко фиксируем экран, убираем горизонтальный скролл и зум на всех вкладках */
-    html, body { 
-      margin: 0; 
-      padding: 0; 
-      background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); 
-      color: #e0dce8; 
-      font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; 
-      overscroll-behavior-y: none; 
-      min-height: 100vh;
-      width: 100%;
-      max-width: 100vw;
-      overflow-x: hidden; /* Запрещает сдвиг экрана вбок */
-      position: relative;
-    }
-    
-    main { 
-      max-width: 650px; 
-      margin: 0 auto; 
-      padding: 18px 14px 120px; 
-      padding-top: max(18px, env(safe-area-inset-top)); 
-      width: 100%;
-      max-width: 100vw;
-      overflow-x: hidden;
-    }
-    
-    /* Верхняя панель */
+    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #141824 0%, #0a0c10 100%); color: #e0dce8; font-family: 'Rajdhani', system-ui, -apple-system, sans-serif; overscroll-behavior-y: none; min-height: 100vh; width: 100%; max-width: 100vw; overflow-x: hidden; position: relative; }
+    main { max-width: 650px; margin: 0 auto; padding: 18px 14px 120px; padding-top: max(18px, env(safe-area-inset-top)); width: 100%; max-width: 100vw; overflow-x: hidden; }
     .top-dashboard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; margin-bottom: 16px; background: rgba(30, 26, 38, 0.6); border: 1px solid rgba(183, 117, 255, 0.2); border-radius: 16px; backdrop-filter: blur(10px); position: relative; z-index: 10; }    
     .dash-profile-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .dash-timers-block { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(183,117,255,0.15); }
-
-    /* Стили таймеров для идеальной ровности и зеленого цвета готовности */
     .timer-text { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; color: #b775ff; transition: color 0.25s ease; }
     .timer-text.ready { color: #77cd91 !important; }
-    
-    /* Блок управления */
     .dash-controls-row { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 4px; }
-    
-    /* Переключатель Мои / Сеты */
     .tab-switcher { display: flex; background: #1e1a26; border-radius: 14px; padding: 4px; border: 1px solid #3a304a; width: 100%; }
     .tab-switcher button { flex: 1; padding: 8px 12px; border: none; background: transparent; color: #8a8299; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: center; }
     .tab-switcher button.active { background: #b775ff; color: #fff; box-shadow: 0 0 10px rgba(183, 117, 255, 0.4); }
-
-    /* Панель фильтров */
     .filter-bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; width: 100%; }
     .filter-dropdown-wrap { position: relative; flex: 1; min-width: 130px; }
-    
     .filter-chip { background: #1e1a26; border: 1px solid #3a304a; color: #e0dce8; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 4px; transition: 0.2s; width: 100%; }
     .filter-chip.active { border-color: #b775ff; color: #fff; background: rgba(183, 117, 255, 0.15); }
-    
     .btn-reset { background: #2a1012; border: 1px solid #9b4c51; color: #ffc2c7; height: 36px; padding: 0 12px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; gap: 4px; flex-shrink: 0; transition: 0.2s; }
     .btn-reset:active { transform: scale(0.95); }
-
     .filter-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; width: 220px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; max-height: 50vh; overflow-y: auto; }
     .filter-menu.active { display: flex; }
     .filter-option { padding: 8px 10px; cursor: pointer; border-radius: 6px; color: #8a8299; font-size: 13px; }
     .filter-option.active { background: #3a1a4a; color: #fff; }
-    
     button, select { font-family: 'Rajdhani', inherit; font-weight: 600; font-size: 16px; color: #e0dce8; background: #1e1a26; border: 1px solid #3a304a; border-radius: 12px; padding: 12px; cursor: pointer; outline: none; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
     button:disabled { opacity: .5; cursor: default; }
     .primary { background: linear-gradient(135deg, #5a2a6e 0%, #3a1a4a 100%); border-color: #8e44ad; color: #fff; box-shadow: 0 4px 15px rgba(90, 42, 110, 0.4); }
     .wide { width: 100%; margin: 8px 0; display: block; }
-    
-    /* Сетка карточек */
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
-
     #notice { padding: 12px; background: rgba(183, 117, 255, 0.1); color: #de8aff; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 12px; margin-bottom: 16px; font-size: 13px; }
     #result { margin-top: 14px; padding: 14px; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 12px; white-space: pre-line; background: #1a1225; }
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
     .quote { font-size: 18px; line-height: 1.5; padding: 18px; background: #1e1a26; border-left: 4px solid #b775ff; border-radius: 0 12px 12px 0; }
     .timer { color: #de8aff; margin: 12px 0; font-size: 14px; font-weight: bold; }
     footer { margin-top: 24px; color: #5a5066; font-size: 12px; text-align: center; }
-
-    /* Стили карточек */
     .card, .set-card { background: #16121c; border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     .portrait, .set-card-img { aspect-ratio: 1 / 1.2; display: flex; align-items: flex-start; justify-content: center; position: relative; overflow: hidden; background: #0a0c10; }
     .card-bg, .set-card-bg { position: absolute; top: -10%; left: -10%; right: -10%; bottom: -10%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.4); z-index: 0; }
     .portrait img, .set-card-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-    
     .info, .set-card-info { padding: 12px 10px; background: #16121c; display: flex; flex-direction: column; gap: 4px; z-index: 2; border-top: 1px solid rgba(183, 117, 255, 0.1); min-height: 95px; justify-content: flex-start; }
-    
     .name { font-weight: 700; font-size: 14px; color: #fff; margin: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .set-card-name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tag, .set-card-rarity { font-size: 9px; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; border-radius: 4px; align-self: flex-start; font-weight: bold; }
     .points, .set-card-points { color: #fbbf24; margin-top: 2px; font-size: 13px; font-weight: 900; display: flex; align-items: center; gap: 3px; }
     .missing { opacity: 0.4; }
     .missing .portrait img, .missing .set-card-img img { filter: grayscale(100%); opacity: 0.2; }
-    
     .rarity-Обычная { border: 1px solid #5a5066; }
     .rarity-Необычная { border: 1px solid #4a7c59; box-shadow: 0 0 8px rgba(74, 124, 89, 0.3); }
     .rarity-Редкая { border: 1px solid #4a6c9c; box-shadow: 0 0 10px rgba(74, 108, 156, 0.4); }
@@ -111,14 +67,11 @@
     .rarity-Мифическая { border: 1px solid #b775ff; box-shadow: 0 0 20px rgba(183, 117, 255, 0.8), inset 0 0 10px rgba(183, 117, 255, 0.2); }
     .holo-effect { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(183,117,255,0.15) 30%, rgba(255,255,255,0) 60%); background-size: 200% 200%; animation: holoMove 4s infinite linear; mix-blend-mode: overlay; }
     @keyframes holoMove { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
-    
     .sets-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
     .set-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1e1a26; border-radius: 12px; cursor: pointer; border: 1px solid #3a304a; transition: all 0.2s; }
     .set-row-title { font-weight: 600; font-size: 15px; color: #fff; }
     .set-row-progress { font-weight: 900; font-size: 14px; }
     .set-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
-
-    /* Плавающая кнопка (FAB) */
     .fab-main { position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); border: 2px solid #de8aff; box-shadow: 0 0 20px rgba(183, 117, 255, 0.6); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: transform 0.3s; }
     .fab-main.active { transform: rotate(45deg); }
     .fab-avatar { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; }
@@ -128,21 +81,17 @@
     .fab-btn { position: absolute; bottom: 10px; right: 10px; width: 44px; height: 44px; border-radius: 50%; background: #1e1a26; border: 1px solid #b775ff; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer; opacity: 0; transform: translate(0, 0) scale(0.5); transition: all 0.3s; pointer-events: none; }
     .fab-btn svg { width: 20px; height: 20px; fill: #de8aff; }
     .fab-menu.active .fab-btn { opacity: 1; transform: translate(0, 0) scale(1); pointer-events: auto; }
-    
     .fab-menu.active .fab-btn[data-tab="collection"] { transform: translate(-20px, -250px); }
     .fab-menu.active .fab-btn[data-tab="games"] { transform: translate(-90px, -230px); }
     .fab-menu.active .fab-btn[data-tab="trades"] { transform: translate(-160px, -180px); }
     .fab-menu.active .fab-btn[data-tab="leaderboard"] { transform: translate(-210px, -110px); }
     .fab-menu.active .fab-btn[data-tab="shop"] { transform: translate(-230px, -30px); }
-    
     .fab-profile { position: fixed; bottom: 110px; right: 20px; display: flex; flex-direction: column; align-items: flex-end; z-index: 100; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s; max-width: 200px; background: rgba(22, 18, 28, 0.95); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(183, 117, 255, 0.5); box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
     .fab-profile.active { opacity: 1; transform: translateY(0); }
     .fab-profile-name { font-size: 18px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .fab-profile-stats { display: flex; gap: 8px; margin-top: 4px; width: 100%; justify-content: flex-end; }
     .fab-rating { font-size: 14px; font-weight: 900; color: #fbbf24; }
     .fab-cards { font-size: 11px; font-weight: 700; color: #b775ff; background: rgba(183, 117, 255, 0.2); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(183,117,255,0.4);}
-
-    /* Модальное окно награды */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 12, 16, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 12px; }
     .modal-overlay.active { display: flex; }
     .reward-content { background: #1a1225; border: 1px solid rgba(183, 117, 255, 0.3); border-radius: 20px; width: 100%; max-width: 480px; padding: 24px 20px; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
@@ -163,165 +112,42 @@
     .reward-info-block { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-bottom: 14px; }
     .reward-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #8a8299; margin-bottom: 1px; }
     .reward-value { font-size: 14px; font-weight: 700; color: #fff; }
-
-    /* ===== КОНТЕЙНЕР ПАЗЛА ===== */
-
-    .puzzle-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 10px;
-      box-sizing: border-box;
-      margin-top: 10px;
-      margin-bottom: 60px;
-    }
-
-    /* ===== ПОЛЕ СБОРКИ ===== */
-
-    .puzzle-area {
-      position: relative;
-      width: 100%;
-      max-width: 320px;
-      aspect-ratio: 1 / 1;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px dashed rgba(183, 117, 255, 0.5);
-      border-radius: 12px;
-      overflow: hidden;
-      touch-action: none;
-      z-index: 1;
-      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
-    }
-
-    /* ===== СЕТКА ЯЧЕЕК ===== */
-
-    .puzzle-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 0;
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-    }
-
-    .puzzle-cell {
-      box-sizing: border-box;
-      border: 1px solid rgba(183, 117, 255, 0.15);
-      background: rgba(183, 117, 255, 0.02);
-      transition: all 0.2s ease;
-    }
-
-    .puzzle-cell.highlight {
-      background: rgba(183, 117, 255, 0.2);
-      border-color: rgba(183, 117, 255, 0.8);
-      box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5);
-    }
-
-    /* ===== ЛЕНТА С КУСОЧКАМИ ===== */
-
-    .puzzle-tray {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      width: 100%;
-      max-width: 350px;
-      margin-top: 16px;
-      padding: 14px;
-      background: rgba(20, 16, 26, 0.95);
-      border: 1px solid rgba(183, 117, 255, 0.35);
-      border-radius: 16px;
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7);
-      z-index: 10;
-    }
-
+    .puzzle-wrapper { position: relative; width: 100%; max-width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 10px; box-sizing: border-box; margin-top: 10px; margin-bottom: 60px; }
+    .puzzle-area { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1 / 1; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(183, 117, 255, 0.5); border-radius: 12px; overflow: hidden; touch-action: none; z-index: 1; box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9); }
+    .puzzle-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; display: flex; flex-wrap: wrap; align-content: flex-start; }
+    .puzzle-cell { box-sizing: border-box; border: 1px solid rgba(183, 117, 255, 0.15); background: rgba(183, 117, 255, 0.02); transition: all 0.2s ease; }
+    .puzzle-cell.highlight { background: rgba(183, 117, 255, 0.2); border-color: rgba(183, 117, 255, 0.8); box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5); }
+    .puzzle-tray { display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; width: 100%; max-width: 350px; margin-top: 16px; padding: 14px; background: rgba(20, 16, 26, 0.95); border: 1px solid rgba(183, 117, 255, 0.35); border-radius: 16px; box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7); z-index: 10; }
     .puzzle-tray::-webkit-scrollbar { height: 4px; }
     .puzzle-tray::-webkit-scrollbar-thumb { background: rgba(183, 117, 255, 0.4); border-radius: 2px; }
-
-    /* ===== КУСОЧЕК В ЛЕНТЕ ===== */
-
-    .puzzle-piece {
-      width: 50px;
-      height: 50px;
-      flex-shrink: 0;
-      cursor: grab;
-      position: relative;
-      touch-action: none;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5),
-                  0 0 0 1px rgba(183, 117, 255, 0.5);
-      background-size: cover;
-      background-position: center;
-      transition: transform 0.1s;
-    }
-
-    /* ===== КУСОЧЕК В ПОЛЁТЕ ===== */
-
-    .puzzle-piece.dragging {
-      position: fixed !important;
-      z-index: 9999;
-      pointer-events: none;
-      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.9));
-      margin: 0 !important;
-      padding: 0 !important;
-      border-radius: 0;
-      transform: none;
-    }
-
-    /* ===== КУСОЧЕК НА ПОЛЕ ===== */
-
-    .puzzle-piece.placed {
-      position: absolute !important;
-      border-radius: 0;
-      box-shadow: none;
-      cursor: default;
-      transform: none;
-    }
-
-    /* ===== ПРАВИЛЬНО ЗАКРЕПЛЁННЫЙ КУСОЧЕК ===== */
-
-    .puzzle-piece.locked {
-      cursor: default;
-      pointer-events: none;
-    }
+    .puzzle-piece { width: 50px; height: 50px; flex-shrink: 0; cursor: grab; position: relative; touch-action: none; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(183, 117, 255, 0.5); background-size: cover; background-position: center; transition: transform 0.1s; }
+    .puzzle-piece.dragging { position: fixed !important; z-index: 9999; pointer-events: none; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.9)); margin: 0 !important; padding: 0 !important; border-radius: 0; transform: none; }
+    .puzzle-piece.placed { position: absolute !important; border-radius: 0; box-shadow: none; cursor: default; transform: none; }
+    .puzzle-piece.locked { cursor: default; pointer-events: none; }
   </style>
 </head>
 <body>
   <main>
      <header class="top-dashboard">
-      
-      <!-- ПРОФИЛЬ -->
       <div class="dash-profile-row">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
           <div id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden;"></div>
           <div style="display: flex; flex-direction: column; gap: 1px; min-width: 0;">
             <div id="header-name" style="font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Загрузка...</div>
-            <div style="font-size: 12px; font-weight: 700; color: #fff; display: flex; gap: 4px; align-items: center; white-space: nowrap;">
-              <span id="header-rating">#0 — 0</span>
-            </div>
+            <div style="font-size: 12px; font-weight: 700; color: #fff; display: flex; gap: 4px; align-items: center; white-space: nowrap;"><span id="header-rating">#0 — 0</span></div>
           </div>
         </div>
-
         <div style="text-align: right; display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;">
           <div style="font-size: 13px; font-weight: 700; color: #e0dce8; text-transform: uppercase; letter-spacing: 0.5px;">Коллекция</div>
           <div id="stat-cards" style="font-size: 11px; font-weight: 500; color: #8a8299;">Собранных карт: 0 / 0</div>
           <div id="stat-animes" style="font-size: 11px; font-weight: 500; color: #8a8299;">Собранных аниме: 0 / 0</div>
         </div>
       </div>
-
-      <!-- ТАЙМЕРЫ -->
       <div id="timers-header" class="dash-timers-block">
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; background: rgba(183,117,255,0.05); border-radius: 8px; border: 1px solid rgba(183,117,255,0.1);">
           <span style="font-size: 11px; font-weight: 700; color: #8a8299; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Бесплатная карта</span>
           <span id="cd-free" class="timer-text">Загрузка...</span>
         </div>
-        
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 11px; font-weight: 600; color: #8a8299; text-transform: uppercase; margin-bottom: 2px;">Пазл</span>
@@ -333,17 +159,11 @@
           </div>
         </div>
       </div>
-
-      <!-- УПРАВЛЕНИЕ: ПЕРЕКЛЮЧАТЕЛЬ СВЕРХУ, ФИЛЬТРЫ ПОД НИМ -->
       <div id="collection-controls" class="dash-controls-row" style="display: none;">
-        
-        <!-- Большой и удобный переключатель вкладок -->
         <div class="tab-switcher" id="tab-switcher">
           <button id="tab-mine" onclick="switchTab('mine')">Мои карты</button>
           <button id="tab-sets" onclick="switchTab('sets')">Сеты аниме</button>
         </div>
-
-        <!-- Панель фильтров -->
         <div class="filter-bar" id="filter-bar">
           <div class="filter-dropdown-wrap">
             <button class="filter-chip" onclick="toggleFilterDropdown('rarity')"><span id="label-rarity">Все редкости</span> ▾</button>
@@ -356,7 +176,6 @@
           <button id="btn-dupes" class="filter-chip" onclick="toggleDupesFilter()" style="flex: auto; width: auto; justify-content: center;">Только повторки</button>
           <button id="btn-reset-filters" class="btn-reset" onclick="resetFilters()" style="display: none;">✕ Сбросить</button>
         </div>
-
       </div>
     </header>
     <div id="notice" hidden></div>
@@ -367,11 +186,11 @@
   
   <div class="fab-overlay" id="fab-overlay" onclick="toggleFab(false)"></div>
   <div class="fab-menu" id="fab-menu">
-    <button class="fab-btn" data-tab="collection" data-label="Коллекция" onclick="show('collection'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 11H9v-2h8v2zm0-4H9V7h8v2z"/></svg></button>
-    <button class="fab-btn" data-tab="games" data-label="Игры" onclick="show('games'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></button>
-    <button class="fab-btn" data-tab="trades" data-label="Обмены" onclick="show('trades'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></button>
-    <button class="fab-btn" data-tab="leaderboard" data-label="Рейтинг" onclick="show('leaderboard'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg></button>
-    <button class="fab-btn" data-tab="shop" data-label="Магазин" onclick="show('shop'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></button>
+    <button class="fab-btn" data-tab="collection" onclick="show('collection'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 11H9v-2h8v2zm0-4H9V7h8v2z"/></svg></button>
+    <button class="fab-btn" data-tab="games" onclick="show('games'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></button>
+    <button class="fab-btn" data-tab="trades" onclick="show('trades'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></button>
+    <button class="fab-btn" data-tab="leaderboard" onclick="show('leaderboard'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg></button>
+    <button class="fab-btn" data-tab="shop" onclick="show('shop'); toggleFab(false)"><svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></button>
   </div>
   <div class="fab-main" id="fab-main" onclick="toggleFab()"><div class="fab-avatar" id="fab-avatar" style="overflow: hidden;">?</div></div>
   <div class="fab-profile" id="fab-profile">
@@ -379,6 +198,7 @@
     <div class="fab-profile-stats"><span class="fab-rating" id="fab-rating">#0 — 0</span><span class="fab-cards" id="fab-cards">0/0</span></div>
   </div>
 
+  <!-- МОДАЛКА НАГРАДЫ -->
   <div id="reward-modal" class="modal-overlay" onclick="closeReward(event)">
     <div class="reward-content" onclick="event.stopPropagation()">
       <button class="reward-close" onclick="closeReward()">✕</button>
@@ -397,6 +217,18 @@
           </div>
           <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ОБМЕНА -->
+  <div id="trade-confirm-modal" class="modal-overlay" onclick="closeConfirmModal(event)">
+    <div class="reward-content" style="max-width: 380px; padding: 20px;" onclick="event.stopPropagation()">
+      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 10px;">Подтверждение</h2>
+      <div id="confirm-text" style="text-align: center; font-size: 15px; margin-bottom: 15px; color: #e0dce8; line-height: 1.5;"></div>
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <button class="wide" style="background: #1e1a26; border-color: #3a304a; color: #aaa; flex: 1; margin: 0;" onclick="closeConfirmModal()">Отмена</button>
+        <button class="primary wide" id="btn-confirm-action" style="flex: 1; margin: 0;">Да, подтверждаю</button>
       </div>
     </div>
   </div>
@@ -438,28 +270,20 @@
 
     function updateCooldowns() {
       if (!profile) return;
-      
       const now = Date.now()/1000 + (profile.server_time - profile.client_time);
-      
       const renderTimer = (elId, targetTime, readyText) => {
         const el = $(elId);
         if (!el) return;
-        
         const left = Math.max(0, Math.ceil(targetTime - now));
-        
-        if (left === 0) {
-          el.textContent = readyText;
-          el.classList.add('ready');
-        } else {
+        if (left === 0) { el.textContent = readyText; el.classList.add('ready'); }
+        else {
           const h = Math.floor(left / 3600);
           const m = Math.floor((left % 3600) / 60);
           const s = left % 60;
-          const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-          el.textContent = str;
+          el.textContent = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
           el.classList.remove('ready');
         }
       };
-
       renderTimer('cd-free', profile.free_at, 'Можно получить карту');
       renderTimer('cd-puzzle', profile.puzzle_at || 0, 'Можно играть');
       renderTimer('cd-quotes', profile.quotes_at || 0, 'Можно играть');
@@ -467,69 +291,43 @@
 
     async function refresh() {
       profile = await api('me');
-      
-      // --- ЛОГИКА АВАТАРКИ ---
       const initial = profile.name.charAt(0).toUpperCase();
       const photoUrl = profile.photo_url;
-      
-      // Функция для создания HTML аватарки
       const getAvatarHtml = (size, fontSize) => {
-        if (photoUrl) {
-          return `<img src="${esc(photoUrl)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
-        }
+        if (photoUrl) return `<img src="${esc(photoUrl)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
         return `<div style="width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: ${fontSize}px; font-weight: 700; color: #fff;">${initial}</div>`;
       };
-
-      // Обновляем шапку профиля
-      if ($('header-avatar')) {
-        $('header-avatar').innerHTML = getAvatarHtml(40, 18);
-      }
+      if ($('header-avatar')) $('header-avatar').innerHTML = getAvatarHtml(40, 18);
       if ($('header-name')) $('header-name').textContent = profile.name;
-      
       if ($('header-rating')) {
         let phrase = '';
         if (profile.rank === 1 && Math.random() < 0.2) phrase = ' — воу ну ты и низко(';
         else if (profile.rank <= 3 && Math.random() < 0.1) phrase = ' — неплохо)';
-        
-        let rankColor = '#b775ff'; 
-        let rankGlow = '';
+        let rankColor = '#b775ff'; let rankGlow = '';
         if (profile.rank === 1) { rankColor = '#fbbf24'; rankGlow = 'text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);'; }
         else if (profile.rank === 2) { rankColor = '#cbd5e1'; rankGlow = 'text-shadow: 0 0 10px rgba(203, 213, 225, 0.6);'; }
         else if (profile.rank === 3) { rankColor = '#d49a43'; rankGlow = 'text-shadow: 0 0 10px rgba(212, 154, 67, 0.6);'; }
-
         let phraseHtml = phrase ? `<span style="color: #8a8299; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 120px; vertical-align: middle; margin-left: 4px;">${phrase}</span>` : '';
         $('header-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>${phraseHtml}`;
       }
-      
       if ($('stat-cards')) $('stat-cards').textContent = `Собранных карт: ${profile.unique} / ${profile.cards.length}`;
       if ($('stat-animes')) {
         const animeStats = {};
-        profile.cards.forEach(c => {
-          if (!animeStats[c.anime]) animeStats[c.anime] = { total: 0, collected: 0 };
-          animeStats[c.anime].total += 1;
-          if (c.count > 0) animeStats[c.anime].collected += 1;
-        });
+        profile.cards.forEach(c => { if (!animeStats[c.anime]) animeStats[c.anime] = { total: 0, collected: 0 }; animeStats[c.anime].total += 1; if (c.count > 0) animeStats[c.anime].collected += 1; });
         const totalAnimes = Object.keys(animeStats).length;
         const completedAnimes = Object.values(animeStats).filter(a => a.collected === a.total).length;
         $('stat-animes').textContent = `Собранных аниме: ${completedAnimes} / ${totalAnimes}`;
       }
-      
-      // Обновляем FAB
-      if ($('fab-avatar')) {
-        $('fab-avatar').innerHTML = getAvatarHtml(64, 28);
-      }
+      if ($('fab-avatar')) $('fab-avatar').innerHTML = getAvatarHtml(64, 28);
       if ($('fab-name')) $('fab-name').textContent = profile.name;
-       if ($('fab-rating')) {
-        let rankColor = '#b775ff';
-        let rankGlow = '';
+      if ($('fab-rating')) {
+        let rankColor = '#b775ff'; let rankGlow = '';
         if (profile.rank === 1) { rankColor = '#fbbf24'; rankGlow = 'text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);'; }
         else if (profile.rank === 2) { rankColor = '#cbd5e1'; rankGlow = 'text-shadow: 0 0 10px rgba(203, 213, 225, 0.6);'; }
         else if (profile.rank === 3) { rankColor = '#d49a43'; rankGlow = 'text-shadow: 0 0 10px rgba(212, 154, 67, 0.6);'; }
-
         $('fab-rating').innerHTML = `<span style="color: ${rankColor}; ${rankGlow}">#${profile.rank}</span> <span style="color: #8a8299;">—</span> <span style="color: #fff;">${profile.rating.toLocaleString('ru-RU')}</span>`;
       }
       if ($('fab-cards')) $('fab-cards').textContent = `${profile.unique} / ${profile.cards.length}`;
-      
       updateCooldowns();
     }
 
@@ -538,14 +336,10 @@
       const rarityColor = colors[c.rarity] || '#aaa';
       const bgHtml = (c.image && !isMissing) ? `<div class="card-bg" style="background-image: url('${esc(c.image)}')"></div>` : '';
       let contentHtml = '';
-      if (c.image && !isMissing) {
-        contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
-      } else {
-        contentHtml = `${bgHtml}<div class="no-image-text">${esc(c.name)}</div>`;
-      }
+      if (c.image && !isMissing) contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
+      else contentHtml = `${bgHtml}<div class="no-image-text">${esc(c.name)}</div>`;
       const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
       const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
-      
       return `
         <article class="card ${rarityClass} ${isMissing ? 'missing' : ''}">
           <div class="portrait">${bgHtml}${contentHtml}${holoHtml}</div>
@@ -561,32 +355,13 @@
 
     function show(next) {
       if (busy) return;
-      
-      // Останавливаем все активные таймеры при переходе
-      clearInterval(ticker);
-      clearInterval(puzzleTicker);
-      if (leaderboardTicker) {
-        clearInterval(leaderboardTicker);
-        leaderboardTicker = null;
-      }
-
-      // Логика отмены пазла (если выходим из игр)
-      if (tab === 'games' && puzzleSession) {
-        api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
-        puzzleSession = null;
-        puzzleState = null;
-        sync();
-      }
-      
-      tab = next;
-      session = null;
-      puzzleState = null;
+      clearInterval(ticker); clearInterval(puzzleTicker);
+      if (leaderboardTicker) { clearInterval(leaderboardTicker); leaderboardTicker = null; }
+      if (tab === 'games' && puzzleSession) { api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {}); puzzleSession = null; puzzleState = null; sync(); }
+      tab = next; session = null; puzzleState = null;
       $('result').hidden = true;
       document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
-      
-      const collectionControls = $('collection-controls');
-      const timersHeader = $('timers-header');
-      
+      const collectionControls = $('collection-controls'); const timersHeader = $('timers-header');
       if (tab === 'collection') {
         if (collectionControls) collectionControls.style.display = 'flex';
         if (timersHeader) timersHeader.style.display = 'flex';
@@ -594,111 +369,56 @@
       } else {
         if (collectionControls) collectionControls.style.display = 'none';
         if (timersHeader) timersHeader.style.display = 'none';
-        
         if (tab === 'games') games();
         else if (tab === 'trades') showStub('Обмены', 'Здесь можно будет обмениваться картами с другими игроками.');
-        else if (tab === 'leaderboard') {
-          leaderboardView();
-          // Запускаем автообновление раз в 10 секунд (10000 мс)
-          leaderboardTicker = setInterval(leaderboardView, 10000);
-        }
+        else if (tab === 'leaderboard') { leaderboardView(); leaderboardTicker = setInterval(leaderboardView, 10000); }
         else if (tab === 'shop') showStub('Магазин', 'Здесь появятся паки с картами и другие товары.');
       }
     }
 
     function showStub(title, description) {
-      if (title === 'Обмены') {
-        tradesView();
-        return;
-      }
+      if (title === 'Обмены') { tradesView(); return; }
       $('view').innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 60px 20px; background: rgba(183,117,255,0.05); border-radius: 20px; border: 1px dashed rgba(183,117,255,0.3);"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><h2 style="margin:0 0 10px 0; color:#fff;">${title}</h2><p class="muted" style="margin:0; font-size: 14px; max-width: 300px;">${description}</p></div>`;
     }
 
     async function leaderboardView() {
       const view = $('view');
-      
-      // Если это первая загрузка вкладки (списка еще нет), показываем "Загрузку"
       const isFirstLoad = !view.innerHTML.includes('sets-list');
-      if (isFirstLoad) {
-        view.innerHTML = '<p class="muted" style="text-align:center; margin-top: 40px;">Загрузка рейтинга...</p>';
-      }
-
+      if (isFirstLoad) view.innerHTML = '<p class="muted" style="text-align:center; margin-top: 40px;">Загрузка рейтинга...</p>';
       try {
-        // Добавляем кэш-брейкер (&t=...), чтобы браузер всегда запрашивал свежие данные
         const data = await api('leaderboard?t=' + Date.now());
         const list = data.leaderboard;
-        
-        if (list.length === 0) {
-          view.innerHTML = `<h2>Рейтинг</h2><p class="muted" style="text-align:center; margin-top: 20px;">Пока никто не собрал карт.</p>`;
-          return;
-        }
-        
+        if (list.length === 0) { view.innerHTML = `<h2>Рейтинг</h2><p class="muted" style="text-align:center; margin-top: 20px;">Пока никто не собрал карт.</p>`; return; }
         const html = list.map(item => {
           let rankStyle = 'color: #8a8299; font-size: 18px; font-weight: 900;'; 
           if (item.rank === 1) rankStyle = 'color: #fbbf24; font-size: 24px; font-weight: 900; text-shadow: 0 0 15px rgba(251, 191, 36, 1), 0 0 30px rgba(251, 191, 36, 0.6);';
           else if (item.rank === 2) rankStyle = 'color: #cbd5e1; font-size: 22px; font-weight: 900; text-shadow: 0 0 12px rgba(203, 213, 225, 1), 0 0 20px rgba(203, 213, 225, 0.5);';
           else if (item.rank === 3) rankStyle = 'color: #d49a43; font-size: 20px; font-weight: 900; text-shadow: 0 0 8px rgba(212, 154, 67, 0.8);';
-
-          let avatarSize = 32; 
-          if (item.rank === 1) avatarSize = 48;
-          else if (item.rank === 2) avatarSize = 42;
-          else if (item.rank === 3) avatarSize = 36;
-
+          let avatarSize = 32; if (item.rank === 1) avatarSize = 48; else if (item.rank === 2) avatarSize = 42; else if (item.rank === 3) avatarSize = 36;
           const initial = item.name.charAt(0).toUpperCase();
-          const avatarHtml = item.photo_url 
-            ? `<img src="${esc(item.photo_url)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="">`
-            : `<span style="font-size: ${avatarSize * 0.45}px; font-weight: 700; color: #fff;">${initial}</span>`;
-
+          const avatarHtml = item.photo_url ? `<img src="${esc(item.photo_url)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="">` : `<span style="font-size: ${avatarSize * 0.45}px; font-weight: 700; color: #fff;">${initial}</span>`;
           return `
             <div class="set-row" style="padding: 10px 14px; gap: 10px; ${item.is_me ? 'border-color: #b775ff; background: rgba(183, 117, 255, 0.1);' : ''}">
               <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
-                
-                <!-- Колонка 1: Цифра ранга (фиксированная ширина) -->
                 <div style="${rankStyle} width: 28px; text-align: center; font-family: 'Rajdhani', sans-serif; flex-shrink: 0;">${item.rank}</div>
-                
-                <!-- Колонка 2: Аватарка (фиксированная ширина 48px, картинка центрируется) -->
                 <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <div style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                    ${avatarHtml}
-                  </div>
+                  <div style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">${avatarHtml}</div>
                 </div>
-                
-                <!-- Колонка 3: Ник (ровно под предыдущими) -->
                 <div style="font-weight: 700; color: #fff; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(item.name)} ${item.is_me ? '<span style="font-size:10px; color:#b775ff;">(Вы)</span>' : ''}</div>
-                
               </div>
               <div style="font-weight: 900; color: #fff; font-size: 16px; flex-shrink: 0;">${item.rating.toLocaleString('ru-RU')}</div>
             </div>`;
         }).join('');
-        
-        // Отрисовываем заголовок (без кнопки) и сам список
-        view.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;">
-            <div>
-              <h2 style="margin:0;">Рейтинг</h2>
-              <p class="muted" style="margin:4px 0 0 0;">Топ-50 игроков по рейтингу</p>
-            </div>
-          </div>
-          <div class="sets-list">${html}</div>
-        `;
-      } catch (e) { 
-        // Если произошла ошибка сети при фоновом обновлении, просто игнорируем её, чтобы не ломать экран
-        console.error('Ошибка обновления лидерборда:', e); 
-      }
+        view.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;"><div><h2 style="margin:0;">Рейтинг</h2><p class="muted" style="margin:4px 0 0 0;">Топ-50 игроков по рейтингу</p></div></div><div class="sets-list">${html}</div>`;
+      } catch (e) { console.error('Ошибка обновления лидерборда:', e); }
     }
     
     function switchTab(nextTab) {
-      collectionTab = nextTab;
-      currentAnime = null; 
-      
+      collectionTab = nextTab; currentAnime = null; 
       if ($('tab-mine')) $('tab-mine').classList.toggle('active', nextTab === 'mine');
       if ($('tab-sets')) $('tab-sets').classList.toggle('active', nextTab === 'sets');
-      
       const filterBar = $('filter-bar');
-      if (filterBar) {
-        filterBar.style.display = nextTab === 'sets' ? 'none' : 'flex';
-      }
-      
+      if (filterBar) filterBar.style.display = nextTab === 'sets' ? 'none' : 'flex';
       collection(); 
     }
 
@@ -712,16 +432,10 @@
         if ($('btn-reset-filters')) $('btn-reset-filters').style.display = hasFilters ? 'flex' : 'none';
         if ($('filter-bar')) $('filter-bar').style.display = collectionTab === 'sets' ? 'none' : 'flex';
       }
-
       if (collectionTab === 'mine') {
         let myCards = profile.cards.filter(c => c.count > 0);
         const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
-        myCards.sort((a, b) => {
-          const wA = rarityWeight[a.rarity] || 0;
-          const wB = rarityWeight[b.rarity] || 0;
-          if (wA !== wB) return wB - wA;
-          return a.name.localeCompare(b.name);
-        });
+        myCards.sort((a, b) => { const wA = rarityWeight[a.rarity] || 0; const wB = rarityWeight[b.rarity] || 0; if (wA !== wB) return wB - wA; return a.name.localeCompare(b.name); });
         if (filterAnime) myCards = myCards.filter(c => c.anime === filterAnime);
         if (filterRarity) myCards = myCards.filter(c => c.rarity === filterRarity);
         if (filterDupes) myCards = myCards.filter(c => c.count > 1);
@@ -732,46 +446,27 @@
         view.innerHTML = html;
         return;
       }
-
       if (currentAnime) {
         const list = profile.cards.filter(c => c.anime === currentAnime);
         const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
-        list.sort((a, b) => {
-          const wA = rarityWeight[a.rarity] || 0;
-          const wB = rarityWeight[b.rarity] || 0;
-          if (wA !== wB) return wB - wA;
-          return a.name.localeCompare(b.name);
-        });
+        list.sort((a, b) => { const wA = rarityWeight[a.rarity] || 0; const wB = rarityWeight[b.rarity] || 0; if (wA !== wB) return wB - wA; return a.name.localeCompare(b.name); });
         const uniqueCollected = list.filter(c => c.count > 0).length;
-        
         const cardsHtml = list.map(c => {
           const isMissing = c.count === 0;
-          
           const bgHtml = c.image ? `<div class="set-card-bg" style="background-image: url('${esc(c.image)}')"></div>` : '';
           let contentHtml = '';
-          
-          if (c.image) {
-            contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
-          } else {
-            contentHtml = `<div class="no-image-text">${esc(c.name)}</div>`;
-          }
-          
+          if (c.image) contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
+          else contentHtml = `<div class="no-image-text">${esc(c.name)}</div>`;
           const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
           const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
-          
           return `<div class="set-card ${rarityClass} ${isMissing ? 'missing' : ''}"><div class="set-card-img">${bgHtml}${contentHtml}${holoHtml}</div><div class="set-card-info"><div class="set-card-name" style="color:${isMissing ? '#666' : '#eee'}">${esc(c.name)}</div><div class="set-card-points" style="opacity: ${isMissing ? 0.3 : 1}; color: #b775ff;">${c.points}</div><div class="muted" style="font-size:10px; margin-top:2px; font-weight:600; color:${isMissing ? '#555' : '#8a8299'};">В коллекции: ${c.count}</div></div></div>`;
         }).join('');
         view.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;"><button id="back-to-sets" style="padding:8px 12px; font-size:14px;">← Назад</button><div style="font-weight:bold; color:#aaa;">${esc(currentAnime)} · ${uniqueCollected}/${list.length}</div></div><div class="set-grid">${cardsHtml}</div>`;
         $('back-to-sets').onclick = () => { currentAnime = null; collection(); };
         return;
       }
-
       const sets = {};
-      profile.cards.forEach(c => {
-        if (!sets[c.anime]) sets[c.anime] = { total: 0, collected: 0 };
-        sets[c.anime].total += 1;
-        if (c.count > 0) sets[c.anime].collected += 1;
-      });
+      profile.cards.forEach(c => { if (!sets[c.anime]) sets[c.anime] = { total: 0, collected: 0 }; sets[c.anime].total += 1; if (c.count > 0) sets[c.anime].collected += 1; });
       const sortedAnimes = Object.keys(sets).sort((a, b) => a.localeCompare(b));
       const setsHtml = sortedAnimes.map(anime => {
         const data = sets[anime];
@@ -783,18 +478,11 @@
       document.querySelectorAll('.set-row').forEach(el => { el.onclick = () => { currentAnime = el.dataset.anime; collection(); }; });
     }
 
-    function toggleFilterDropdown(type) {
-      const menu = $(type === 'rarity' ? 'menu-rarity' : 'menu-anime');
-      const other = $(type === 'rarity' ? 'menu-anime' : 'menu-rarity');
-      if (other) other.classList.remove('active');
-      if (menu) menu.classList.toggle('active');
-    }
-
+    function toggleFilterDropdown(type) { const menu = $(type === 'rarity' ? 'menu-rarity' : 'menu-anime'); const other = $(type === 'rarity' ? 'menu-anime' : 'menu-rarity'); if (other) other.classList.remove('active'); if (menu) menu.classList.toggle('active'); }
     function renderFilterMenus() {
       const rarityMenu = $('menu-rarity');
       if (rarityMenu) {
-        const allCards = profile.cards;
-        const rarityOrder = ['Мифическая', 'Легендарная', 'Эпическая', 'Редкая', 'Необычная', 'Обычная'];
+        const allCards = profile.cards; const rarityOrder = ['Мифическая', 'Легендарная', 'Эпическая', 'Редкая', 'Необычная', 'Обычная'];
         const availableRarities = rarityOrder.filter(r => allCards.some(c => c.rarity === r));
         let html = `<div class="filter-option ${!filterRarity ? 'active' : ''}" onclick="setFilter('rarity', '')">Все редкости</div>`;
         availableRarities.forEach(r => { html += `<div class="filter-option ${filterRarity === r ? 'active' : ''}" onclick="setFilter('rarity', '${esc(r)}')">${esc(r)}</div>`; });
@@ -809,65 +497,38 @@
         animeMenu.innerHTML = html;
       }
     }
-
-    function setFilter(type, value) {
-      if (type === 'rarity') filterRarity = value;
-      if (type === 'anime') filterAnime = value;
-      document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
-      if ($('label-rarity')) $('label-rarity').textContent = filterRarity || 'Все редкости';
-      if ($('label-anime')) $('label-anime').textContent = filterAnime || 'Все аниме';
-      collection();
-    }
-
-    function toggleDupesFilter() {
-      filterDupes = !filterDupes;
-      if ($('btn-dupes')) $('btn-dupes').classList.toggle('active', filterDupes);
-      collection();
-    }
-
+    function setFilter(type, value) { if (type === 'rarity') filterRarity = value; if (type === 'anime') filterAnime = value; document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active')); if ($('label-rarity')) $('label-rarity').textContent = filterRarity || 'Все редкости'; if ($('label-anime')) $('label-anime').textContent = filterAnime || 'Все аниме'; collection(); }
+    function toggleDupesFilter() { filterDupes = !filterDupes; if ($('btn-dupes')) $('btn-dupes').classList.toggle('active', filterDupes); collection(); }
     function resetFilters() { filterAnime = ''; filterRarity = ''; filterDupes = false; collection(); }
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.filter-dropdown-wrap')) document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
-    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.filter-dropdown-wrap')) document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active')); });
 
     // ==========================================
     // ОБМЕНЫ
     // ==========================================
-    let currentTradeState = 'list'; // 'list', 'create', 'answer'
+    let currentTradeState = 'list'; 
     let activeTradeToAnswer = null;
 
-    async function tradesView() {
-      currentTradeState = 'list';
-      renderTradesScreen();
-    }
+    async function tradesView() { currentTradeState = 'list'; renderTradesScreen(); }
 
     async function renderTradesScreen() {
       const view = $('view');
-      
       if (currentTradeState === 'list') {
         view.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;">
-            <div>
-              <h2 style="margin:0;">Обмены</h2>
-              <p class="muted" style="margin:4px 0 0 0;">Предлагайте карты и получайте новые</p>
-            </div>
+            <div><h2 style="margin:0;">Обмены</h2><p class="muted" style="margin:4px 0 0 0;">Предлагайте карты и получайте новые</p></div>
           </div>
           <button class="primary wide" onclick="startCreateTrade()" style="margin-bottom: 20px;">Создать обмен</button>
           <h3 style="margin-top: 10px; margin-bottom: 10px;">Входящие предложения</h3>
           <div id="incoming-trades-list"><p class="muted" style="text-align:center;">Загрузка...</p></div>
         `;
-        
         try {
           const data = await api('trades/incoming');
           const list = data.trades;
           const container = $('incoming-trades-list');
-          
           if (list.length === 0) {
             container.innerHTML = `<div style="text-align:center; padding: 30px 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed #3a304a;"><p class="muted" style="margin:0;">У вас нет входящих предложений.</p></div>`;
             return;
           }
-          
           container.innerHTML = list.map(t => `
             <div class="set-row" style="flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; cursor: pointer; border-color: ${t.cards.length > 0 ? colors[t.cards[0].rarity] : '#3a304a'};" onclick="startAnswerTrade(${t.trade_id})">
               <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -879,9 +540,7 @@
               </div>
             </div>
           `).join('');
-        } catch(e) {
-          $('incoming-trades-list').innerHTML = '<p style="color:#ff6b6b; text-align:center;">Ошибка загрузки.</p>';
-        }
+        } catch(e) { $('incoming-trades-list').innerHTML = '<p style="color:#ff6b6b; text-align:center;">Ошибка загрузки.</p>'; }
       }
       
       else if (currentTradeState === 'create') {
@@ -890,20 +549,16 @@
             <button onclick="tradesView()" style="background: #1e1a26; border: 1px solid #3a304a; padding: 8px 12px; border-radius: 8px; font-size: 14px;">← Назад</button>
             <h2 style="margin:0;">Новый обмен</h2>
           </div>
-
           <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
             <label class="reward-label" style="font-size: 11px;">Введите @username</label>
             <input type="text" id="trade-target-name" placeholder="@username" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0c10; border: 1px solid #3a304a; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-top: 6px;">
           </div>
-
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="margin:0; font-size: 16px;">Выберите карты</h3>
             <span id="trade-selected-count" style="font-size: 13px; color: #b775ff; font-weight: bold; background: rgba(183,117,255,0.1); padding: 4px 8px; border-radius: 6px;">Выбрано: 0</span>
           </div>
-
           <div id="trade-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
           <div id="trade-error-msg" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
-
           <button class="primary wide" onclick="submitTrade()" style="margin-top: 15px; box-shadow: 0 4px 20px rgba(183,117,255,0.4);">Предложить обмен</button>
         `;
         renderTradeInventory('trade-inventory-grid', true);
@@ -915,7 +570,6 @@
             <button onclick="tradesView()" style="background: #1e1a26; border: 1px solid #3a304a; padding: 8px 12px; border-radius: 8px; font-size: 14px;">← Назад</button>
             <h2 style="margin:0;">Ответ на обмен</h2>
           </div>
-
           <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
             <div style="font-size: 14px; color: #8a8299; margin-bottom: 8px;">От: <span style="color: #fff; font-weight: bold;">${esc(activeTradeToAnswer.sender_name)}</span></div>
             <div class="reward-label">Вам предлагают:</div>
@@ -923,23 +577,14 @@
               ${activeTradeToAnswer.cards.map(c => `
                 <div style="min-width: 70px; width: 70px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid ${colors[c.rarity]}; background: #16121c;">
                    ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; aspect-ratio: 1/1.2; object-fit: cover; object-position: top;">` : `<div style="width: 100%; aspect-ratio: 1/1.2; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9px; padding: 4px;">${esc(c.name)}</div>`}
-                   <div style="padding: 4px; text-align: center;">
-                     <div style="font-size: 9px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
-                     <div style="font-size: 9px; color: ${colors[c.rarity]}; font-weight: bold;">${c.rarity}</div>
-                   </div>
+                   <div style="padding: 4px; text-align: center;"><div style="font-size: 9px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div><div style="font-size: 9px; color: ${colors[c.rarity]}; font-weight: bold;">${c.rarity}</div></div>
                 </div>
               `).join('')}
             </div>
           </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="margin:0; font-size: 16px;">Выберите карту взамен</h3>
-          </div>
-
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><h3 style="margin:0; font-size: 16px;">Выберите карту взамен</h3></div>
           <div id="trade-my-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
-          
           <div id="trade-answer-error" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
-
           <div style="display: flex; gap: 10px; width: 100%;">
             <button class="wide" style="background: #2a1012; border-color: #9b4c51; color: #ffc2c7; flex: 1; margin: 0;" onclick="declineTrade()">Отклонить</button>
             <button class="primary wide" style="flex: 1; margin: 0;" onclick="acceptTrade()">Принять</button>
@@ -949,46 +594,28 @@
       }
     }
 
-    function startCreateTrade() {
-      selectedTradeCards = [];
-      currentTradeState = 'create';
-      renderTradesScreen();
-    }
-
+    function startCreateTrade() { selectedTradeCards = []; currentTradeState = 'create'; renderTradesScreen(); }
     async function startAnswerTrade(tradeId) {
       try {
         const data = await api('trades/incoming');
         const trade = data.trades.find(t => t.trade_id === tradeId);
         if (!trade) return;
-        
-        activeTradeToAnswer = trade;
-        currentTradeId = tradeId;
-        selectedTradeCards = [];
-        currentTradeState = 'answer';
-        renderTradesScreen();
+        activeTradeToAnswer = trade; currentTradeId = tradeId; selectedTradeCards = []; currentTradeState = 'answer'; renderTradesScreen();
       } catch(e) { alert('Ошибка загрузки обмена'); }
     }
 
     function renderTradeInventory(containerId, isCreating) {
       const container = $(containerId);
       if (!container) return;
-      
       let cards = profile.cards.filter(c => c.count > 0);
       const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
       cards.sort((a, b) => (rarityWeight[b.rarity] || 0) - (rarityWeight[a.rarity] || 0));
-      
-      if (cards.length === 0) {
-        container.innerHTML = '<p class="muted" style="font-size:14px; grid-column: 1/-1; text-align:center; padding: 20px;">Нет карт для обмена.</p>';
-        return;
-      }
-
+      if (cards.length === 0) { container.innerHTML = '<p class="muted" style="font-size:14px; grid-column: 1/-1; text-align:center; padding: 20px;">Нет карт для обмена.</p>'; return; }
       container.innerHTML = cards.map(c => {
         const selectedCount = selectedTradeCards.filter(id => id === c.id).length;
         const isSelected = selectedCount > 0;
         const borderColor = colors[c.rarity] || '#aaa';
-        
         let clickAction = isCreating ? `onclick="toggleTradeCard(${c.id})"` : `onclick="selectAnswerCard(${c.id})"`;
-
         return `
           <div ${clickAction} style="border-radius: 10px; overflow: hidden; border: 2px solid ${isSelected ? '#b775ff' : borderColor}; background: #16121c; cursor: pointer; opacity: ${isSelected ? '1' : '0.8'}; transition: 0.2s; position: relative; box-shadow: ${isSelected ? '0 0 15px rgba(183,117,255,0.4)' : 'none'};">
             ${isSelected ? `<div style="position: absolute; top: 6px; right: 6px; background: #b775ff; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">${selectedCount}</div>` : ''}
@@ -1008,234 +635,171 @@
     function toggleTradeCard(cardId) {
       const cardInfo = profile.cards.find(c => c.id === cardId);
       const countSelected = selectedTradeCards.filter(id => id === cardId).length;
-      
-      if (countSelected >= cardInfo.count) {
-        selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
-      } else {
-        selectedTradeCards.push(cardId);
-      }
-      
+      if (countSelected >= cardInfo.count) selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
+      else selectedTradeCards.push(cardId);
       $('trade-selected-count').textContent = `Выбрано: ${selectedTradeCards.length}`;
       renderTradeInventory('trade-inventory-grid', true);
     }
+
+    // --- ПОДТВЕРЖДЕНИЕ ---
+    function showConfirm(text, onYes) {
+      $('confirm-text').innerHTML = text;
+      $('trade-confirm-modal').classList.add('active');
+      const btn = $('btn-confirm-action');
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.onclick = () => { $('trade-confirm-modal').classList.remove('active'); onYes(); };
+    }
+    function closeConfirmModal(e) { if (e && e.target !== e.currentTarget) return; $('trade-confirm-modal').classList.remove('active'); }
 
     async function submitTrade() {
       const target = $('trade-target-name').value.trim();
       const errDiv = $('trade-error-msg');
       errDiv.style.display = 'none';
-
-      if (!target) { errDiv.textContent = 'Введите ник получателя!'; errDiv.style.display = 'block'; return; }
+      if (!target) { errDiv.textContent = 'Введите юзернейм получателя!'; errDiv.style.display = 'block'; return; }
       if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите хотя бы одну карту!'; errDiv.style.display = 'block'; return; }
 
-      try {
-        // ТУТ ВАЖЕН ПУТЬ: должно быть именно 'trades/create' (без начального слэша)
-        const res = await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
-        if (res.status === 'ok') {
-          await sync();
-          currentTradeState = 'list';
-          renderTradesScreen();
-        }
-      } catch (e) { 
-        errDiv.textContent = e.message;
-        errDiv.style.display = 'block';
-      }
+      const selectedNames = selectedTradeCards.map(id => { const card = profile.cards.find(c => Number(c.id) === Number(id)); return card ? card.name : 'Карта'; });
+      const cardsText = selectedNames.join(', ');
+
+      showConfirm(`Вы действительно хотите отправить обмен пользователю <b>@${esc(target)}</b>?<br><br>Вы отдаете: <span style="color:#b775ff">${selectedTradeCards.length} шт.</span><br><span style="font-size: 12px; color:#8a8299;">${cardsText}</span>`, async () => {
+        try {
+          await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
+          await sync(); currentTradeState = 'list'; renderTradesScreen();
+          $('notice').hidden = false; $('notice').textContent = 'Обмен успешно отправлен!'; setTimeout(() => { $('notice').hidden = true; }, 3000);
+        } catch (e) { errDiv.textContent = e.message; errDiv.style.display = 'block'; }
+      });
     }
 
     function selectAnswerCard(cardId) {
-      selectedTradeCards = [cardId];
+      if (selectedTradeCards.includes(cardId)) selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
+      else {
+        const cardInfo = profile.cards.find(c => c.id === cardId);
+        const countSelected = selectedTradeCards.filter(id => id === cardId).length;
+        if (cardInfo && countSelected < cardInfo.count) selectedTradeCards.push(cardId);
+      }
       renderTradeInventory('trade-my-inventory-grid', false);
     }
 
     async function acceptTrade() {
       const errDiv = $('trade-answer-error');
       errDiv.style.display = 'none';
+      if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите хотя бы одну карту взамен!'; errDiv.style.display = 'block'; return; }
 
-      if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите карту взамен!'; errDiv.style.display = 'block'; return; }
-      
-      try {
-        await api('trades/answer', { trade_id: currentTradeId, receiver_cards: selectedTradeCards });
-        await sync();
-        currentTradeState = 'list';
-        renderTradesScreen();
-        
-        $('notice').hidden = false;
-        $('notice').textContent = 'Обмен успешно завершен!';
-        setTimeout(() => { $('notice').hidden = true; }, 3000);
-      } catch (e) { 
-        errDiv.textContent = e.message;
-        errDiv.style.display = 'block';
-      }
+      const senderName = activeTradeToAnswer.sender_name;
+      const myCardNames = selectedTradeCards.map(id => { const card = profile.cards.find(c => Number(c.id) === Number(id)); return card ? card.name : 'Карта'; }).join(', ');
+      const theirCardNames = activeTradeToAnswer.cards.map(c => c.name).join(', ');
+
+      showConfirm(`Принять обмен от <b>${esc(senderName)}</b>?<br><br>Вы получите: <span style="color:#77cd91">${activeTradeToAnswer.cards.length} шт.</span><br><span style="font-size: 12px; color:#8a8299;">${theirCardNames}</span><br><br>Вы отдаете: <span style="color:#ff6b6b">${selectedTradeCards.length} шт.</span><br><span style="font-size: 12px; color:#8a8299;">${myCardNames}</span>`, async () => {
+        try {
+          await api('trades/answer', { trade_id: currentTradeId, receiver_cards: selectedTradeCards });
+          await sync(); currentTradeState = 'list'; renderTradesScreen();
+          $('notice').hidden = false; $('notice').textContent = 'Обмен успешно завершен!'; setTimeout(() => { $('notice').hidden = true; }, 3000);
+        } catch (e) { errDiv.textContent = e.message; errDiv.style.display = 'block'; }
+      });
     }
 
     async function declineTrade() {
-      try {
-        await api('trades/decline', { trade_id: currentTradeId });
-        currentTradeState = 'list';
-        renderTradesScreen();
-      } catch (e) { alert('Ошибка: ' + e.message); }
+      try { await api('trades/decline', { trade_id: currentTradeId }); currentTradeState = 'list'; renderTradesScreen(); } catch (e) { alert('Ошибка: ' + e.message); }
     }
 
-    function closeTradeModal(e) {
-      if (e && e.target !== e.currentTarget) return;
-      $('trade-create-modal').classList.remove('active');
-      $('trade-answer-modal').classList.remove('active');
-    }
-
+    // ==========================================
+    // ИГРЫ
+    // ==========================================
     function games() {
       if (gameTicker) clearInterval(gameTicker);
-      
       $('view').innerHTML = `
         <h2 style="margin-bottom: 20px;">Мини-игры</h2>
         <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
-          
           <div id="free-card-btn" class="game-card" style="background: #1e1a26; border: 1px solid #3a304a; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; transition: transform 0.1s, filter 0.3s, opacity 0.3s;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-weight: 700; color: #fff; font-size: 18px;">Получить бесплатную карту</div>
-              <div style="font-size: 32px;">✨</div>
-            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;"><div style="font-weight: 700; color: #fff; font-size: 18px;">Получить бесплатную карту</div><div style="font-size: 32px;">✨</div></div>
             <div class="muted" id="game-wait" style="margin:0; font-size: 14px; font-weight: 600; color: #8a8299;">Загрузка...</div>
           </div>
-
           <div id="puzzle-btn" class="game-card" style="background: #1e1a26; border: 1px solid #3a304a; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: transform 0.1s, filter 0.3s, opacity 0.3s;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-weight: 700; color: #fff; font-size: 18px;">Пазл</div>
-              <div style="font-size: 32px;">🧩</div>
-            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;"><div style="font-weight: 700; color: #fff; font-size: 18px;">Пазл</div><div style="font-size: 32px;">🧩</div></div>
             <div style="font-size: 13px; color: #8a8299; line-height: 1.4;">Собери картинку из кусочков. Чем реже карта — тем больше кусков и сложнее собрать!</div>
             <div id="game-puzzle-wait" style="font-size: 13px; font-weight: bold; color: #77cd91; margin-top: 4px;">Загрузка...</div>
           </div>
-
           <div id="quotes-btn" class="game-card" style="background: #1e1a26; border: 1px solid #3a304a; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: transform 0.1s, filter 0.3s, opacity 0.3s;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-weight: 700; color: #fff; font-size: 18px;">Цитаты</div>
-              <div style="font-size: 32px;">💬</div>
-            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;"><div style="font-weight: 700; color: #fff; font-size: 18px;">Цитаты</div><div style="font-size: 32px;">💬</div></div>
             <div style="font-size: 13px; color: #8a8299; line-height: 1.4;">Угадай персонажа по его фразе. Всего 3 раунда, но у тебя будет только 15 секунд на ответ!</div>
             <div id="game-quotes-wait" style="font-size: 13px; font-weight: bold; color: #fbbf24; margin-top: 4px;">Загрузка...</div>
           </div>
-
         </div>
       `;
-
       let isOpening = false;
-
       const updateGameTimers = () => {
         if (!profile) return;
-
         const now = Date.now() / 1000 + (profile.server_time - profile.client_time);
-        
         const freeLeft = Math.ceil(Math.max(0, profile.free_at - now));
         const isFreeReady = freeLeft <= 0;
-        const freeCard = $('free-card-btn');
-        const freeWait = $('game-wait');
-        
+        const freeCard = $('free-card-btn'); const freeWait = $('game-wait');
         if (freeCard && freeWait) {
           freeCard.style.filter = isFreeReady ? 'none' : 'grayscale(80%) brightness(0.8)';
           freeCard.style.opacity = isFreeReady ? '1' : '0.7';
           freeCard.style.transform = isFreeReady ? 'scale(1)' : 'scale(0.98)';
-          
           if (isFreeReady) {
             freeWait.innerHTML = `<span style="color:#de8aff; font-size: 16px;">Нажми, чтобы открыть!</span>`;
             freeCard.onclick = () => {
-              if (isOpening) return; 
-              isOpening = true;
-              run(async () => {
-                const r = await api('free', {});
-                await sync(); 
-                prize(r.card);
-                games(); 
-              }).finally(() => { isOpening = false; });
+              if (isOpening) return; isOpening = true;
+              run(async () => { const r = await api('free', {}); await sync(); prize(r.card); games(); }).finally(() => { isOpening = false; });
             };
           } else {
             freeCard.onclick = null;
-            const h = Math.floor(freeLeft / 3600);
-            const m = Math.floor((freeLeft % 3600) / 60);
-            const s = freeLeft % 60;
-            const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            freeWait.innerHTML = `Следующая карта через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${str}</span>`;
+            const h = Math.floor(freeLeft / 3600); const m = Math.floor((freeLeft % 3600) / 60); const s = freeLeft % 60;
+            freeWait.innerHTML = `Следующая карта через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}</span>`;
           }
         }
-
         const puzzleLeft = Math.ceil(Math.max(0, (profile.puzzle_at || 0) - now));
         const isPuzzleReady = puzzleLeft <= 0;
-        const puzzleBtn = $('puzzle-btn');
-        const puzzleWait = $('game-puzzle-wait');
-
+        const puzzleBtn = $('puzzle-btn'); const puzzleWait = $('game-puzzle-wait');
         if (puzzleBtn) {
           puzzleBtn.style.filter = isPuzzleReady ? 'none' : 'grayscale(80%) brightness(0.8)';
           puzzleBtn.style.opacity = isPuzzleReady ? '1' : '0.7';
           puzzleBtn.style.transform = isPuzzleReady ? 'scale(1)' : 'scale(0.98)';
           puzzleBtn.onclick = () => { if (isPuzzleReady) startPuzzleGame(); };
         }
-        
         if (puzzleWait) {
-          if (isPuzzleReady) {
-            puzzleWait.innerHTML = `Можно играть`;
-            puzzleWait.style.color = '#77cd91';
-            puzzleWait.style.fontSize = '16px';
-            puzzleWait.style.fontWeight = 'bold';
-          } else {
-            const h = Math.floor(puzzleLeft / 3600);
-            const m = Math.floor((puzzleLeft % 3600) / 60);
-            const s = puzzleLeft % 60;
-            const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            puzzleWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${str}</span>`;
+          if (isPuzzleReady) { puzzleWait.innerHTML = `Можно играть`; puzzleWait.style.color = '#77cd91'; puzzleWait.style.fontSize = '16px'; puzzleWait.style.fontWeight = 'bold'; }
+          else {
+            const h = Math.floor(puzzleLeft / 3600); const m = Math.floor((puzzleLeft % 3600) / 60); const s = puzzleLeft % 60;
+            puzzleWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}</span>`;
             puzzleWait.style.color = '#8a8299';
           }
         }
-
         const quotesLeft = Math.ceil(Math.max(0, (profile.quotes_at || 0) - now));
         const isQuotesReady = quotesLeft <= 0;
-        const quotesBtn = $('quotes-btn');
-        const quotesWait = $('game-quotes-wait');
-
+        const quotesBtn = $('quotes-btn'); const quotesWait = $('game-quotes-wait');
         if (quotesBtn) {
           quotesBtn.style.filter = isQuotesReady ? 'none' : 'grayscale(80%) brightness(0.8)';
           quotesBtn.style.opacity = isQuotesReady ? '1' : '0.7';
           quotesBtn.style.transform = isQuotesReady ? 'scale(1)' : 'scale(0.98)';
           quotesBtn.onclick = () => { if (isQuotesReady) startQuotesGame(); };
         }
-        
         if (quotesWait) {
-          if (isQuotesReady) {
-            quotesWait.innerHTML = `Можно играть`;
-            quotesWait.style.color = '#fbbf24';
-            quotesWait.style.fontSize = '16px';
-            quotesWait.style.fontWeight = 'bold';
-          } else {
-            const h = Math.floor(quotesLeft / 3600);
-            const m = Math.floor((quotesLeft % 3600) / 60);
-            const s = quotesLeft % 60;
-            const str = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            quotesWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${str}</span>`;
+          if (isQuotesReady) { quotesWait.innerHTML = `Можно играть`; quotesWait.style.color = '#fbbf24'; quotesWait.style.fontSize = '16px'; quotesWait.style.fontWeight = 'bold'; }
+          else {
+            const h = Math.floor(quotesLeft / 3600); const m = Math.floor((quotesLeft % 3600) / 60); const s = quotesLeft % 60;
+            quotesWait.innerHTML = `Следующая игра через: <span style="color:#b775ff; font-size: 16px; font-weight: 800;">${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}</span>`;
             quotesWait.style.color = '#8a8299';
           }
         }
       };
-
-      updateGameTimers(); 
-      gameTicker = setInterval(updateGameTimers, 1000); 
+      updateGameTimers(); gameTicker = setInterval(updateGameTimers, 1000); 
     }
 
     async function startQuotesGame() {
-      await run(async () => {
-        session = await api('game/quotes/start', {});
-        await sync();
-        renderSession();
-      });
+      await run(async () => { session = await api('game/quotes/start', {}); await sync(); renderSession(); });
     }
-
     function renderSession() {
-      clearInterval(ticker);
-      $('result').hidden = true;
+      clearInterval(ticker); $('result').hidden = true;
       $('view').innerHTML = `<h2>Цитаты: раунд ${session.round} / 3</h2><div class="quote">${esc(session.text)}</div><div id="timer" class="timer"></div><div class="choices">${session.options.map((o, i) => `<button data-choice="${i}">${esc(o)}</button>`).join('')}</div>`;
       const offset = session.server_time - Date.now()/1000;
       const tick = () => {
         const left = Math.max(0, Math.ceil(session.deadline - (Date.now()/1000 + offset)));
         if ($('timer')) $('timer').textContent = 'Осталось: ' + left + ' сек.';
         if (left === 0) {
-          clearInterval(ticker);
-          document.querySelectorAll('[data-choice]').forEach(b => b.disabled = true);
+          clearInterval(ticker); document.querySelectorAll('[data-choice]').forEach(b => b.disabled = true);
           $('result').hidden = false; $('result').textContent = 'Время вышло. Начни новую попытку.';
           const b = document.createElement('button'); b.className = 'wide'; b.textContent = 'К играм'; b.onclick = () => show('games'); $('result').appendChild(b);
         }
@@ -1243,13 +807,11 @@
       tick(); ticker = setInterval(tick, 200);
       document.querySelectorAll('[data-choice]').forEach(b => b.onclick = () => submit(Number(b.dataset.choice)));
     }
-
     async function submit(choice) {
       await run(async () => {
         const r = await api('game/answer', { session_id: session.id, choice, round: session.round || 1 });
         if (r.status === 'next') { session = r.session; renderSession(); return; }
-        clearInterval(ticker);
-        document.querySelectorAll('[data-choice]').forEach(b => { b.disabled = true; });
+        clearInterval(ticker); document.querySelectorAll('[data-choice]').forEach(b => { b.disabled = true; });
         await sync();
         if (r.status === 'won') prize(r.card);
         else { $('result').hidden = false; $('result').textContent = r.reason + (r.correct ? '\nПравильный ответ: ' + r.correct : ''); }
@@ -1260,38 +822,20 @@
     async function startPuzzleGame() {
       const btn = $('puzzle-btn');
       if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
-
       await run(async () => {
         try {
           const data = await api('game/puzzle/start', {});
           puzzleSession = data;
-          
-          puzzleState = {
-            pieces: data.pieces,
-            gridSize: data.grid_size,
-            deadline: data.deadline,
-            server_time: data.server_time,
-            items: [],
-            cells: []
-          };
-          
-          await sync(); 
-          renderPuzzle();
-        } catch (e) { 
-          if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
-          error(e); 
-        }
+          puzzleState = { pieces: data.pieces, gridSize: data.grid_size, deadline: data.deadline, server_time: data.server_time, items: [], cells: [] };
+          await sync(); renderPuzzle();
+        } catch (e) { if (btn) { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; } error(e); }
       });
     }
-
     function renderPuzzle() {
       clearInterval(puzzleTicker);
       const view = $('view');
       const { pieces, gridSize, deadline, server_time } = puzzleState;
-      
-      // Вычисляем размер кусочка для ленты (чтобы было красиво)
       const pieceSize = Math.floor((Math.min(window.innerWidth - 80, 300)) / gridSize);
-      
       view.innerHTML = `
         <h2 style="text-align:center; margin-bottom: 6px;">Собери карту!</h2>
         <div id="puzzle-timer" class="timer" style="text-align:center; font-size: 16px; margin-bottom: 10px;">Осталось: -- сек.</div>
@@ -1300,333 +844,148 @@
            <div id="puzzle-tray" class="puzzle-tray" style="min-height: ${pieceSize + 28}px;"></div>
         </div>
       `;
-      
-      const area = $('puzzle-area');
-      const tray = $('puzzle-tray');
-      const pWidth = 100 / gridSize;
-      const pHeight = 100 / gridSize;
-
-      const grid = document.createElement('div');
-      grid.className = 'puzzle-grid';
-      puzzleState.cells = []; 
-      
+      const area = $('puzzle-area'); const tray = $('puzzle-tray');
+      const pWidth = 100 / gridSize; const pHeight = 100 / gridSize;
+      const grid = document.createElement('div'); grid.className = 'puzzle-grid'; puzzleState.cells = []; 
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'puzzle-cell';
-          cell.style.width = pWidth + '%';
-          cell.style.height = pHeight + '%';
-          
-          puzzleState.cells.push({
-            el: cell, col: c, row: r,
-            centerX: c * pWidth + pWidth / 2,
-            centerY: r * pHeight + pHeight / 2,
-            occupiedBy: null
-          });
+          const cell = document.createElement('div'); cell.className = 'puzzle-cell'; cell.style.width = pWidth + '%'; cell.style.height = pHeight + '%';
+          puzzleState.cells.push({ el: cell, col: c, row: r, centerX: c * pWidth + pWidth / 2, centerY: r * pHeight + pHeight / 2, occupiedBy: null });
           grid.appendChild(cell);
         }
       }
       area.appendChild(grid);
-
-      const indices = Array.from({ length: pieces.length }, (_, i) => i);
-      indices.sort(() => Math.random() - 0.5);
-
+      const indices = Array.from({ length: pieces.length }, (_, i) => i); indices.sort(() => Math.random() - 0.5);
       puzzleState.items = [];
-
       indices.forEach(i => {
-        const el = document.createElement('img');
-        el.src = pieces[i];
-        el.className = 'puzzle-piece';
-        el.dataset.index = i;
-        el.style.width = pieceSize + 'px';
-        el.style.height = pieceSize + 'px';
-        
-        el.addEventListener('mousedown', startDrag);
-        el.addEventListener('touchstart', startDrag, { passive: false });
-        
-        tray.appendChild(el);
-        puzzleState.items[i] = { el, placed: false, placedCell: null, originalIndex: i, locked: false };
+        const el = document.createElement('img'); el.src = pieces[i]; el.className = 'puzzle-piece'; el.dataset.index = i;
+        el.style.width = pieceSize + 'px'; el.style.height = pieceSize + 'px';
+        el.addEventListener('mousedown', startDrag); el.addEventListener('touchstart', startDrag, { passive: false });
+        tray.appendChild(el); puzzleState.items[i] = { el, placed: false, placedCell: null, originalIndex: i, locked: false };
       });
-      
       const offset = server_time - Date.now()/1000;
       puzzleTicker = setInterval(() => {
         const left = Math.max(0, Math.ceil(deadline - (Date.now()/1000 + offset)));
         const timerEl = $('puzzle-timer');
         if (timerEl) timerEl.textContent = `Осталось: ${left} сек.`;
         if (left === 0) {
-          clearInterval(puzzleTicker); 
-          puzzleState = null;
+          clearInterval(puzzleTicker); puzzleState = null;
           $('view').innerHTML = `<div style="text-align:center; padding: 40px 20px;"><h2 style="color: #ff6b6b;">Время вышло!</h2><p class="muted">Ты не успел собрать карту.</p><button class="primary wide" onclick="show('games')" style="margin-top: 20px;">Попробовать снова</button></div>`;
         }
       }, 200);
     }
-
-    let dragElement = null;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
-    let hoveredCell = null;
-    let draggedFromCell = null;
-
-
+    let dragElement = null; let dragOffsetX = 0; let dragOffsetY = 0; let hoveredCell = null; let draggedFromCell = null;
     function startDrag(e) {
       if (!puzzleState) return;
-
-      const el = e.currentTarget;
-      e.preventDefault();
-
-      const index = Number(el.dataset.index);
-      const item = puzzleState.items[index];
-
+      const el = e.currentTarget; e.preventDefault();
+      const index = Number(el.dataset.index); const item = puzzleState.items[index];
       if (!item || item.locked) return;
-
-      // ЗАПОМИНАЕМ ячейку ДО того, как обнулим её
       draggedFromCell = item.placedCell;
-
-      // Освобождаем ячейку
-      if (item.placedCell) {
-        item.placedCell.occupiedBy = null;
-        item.placedCell = null;
-        item.placed = false;
-      }
-
-      dragElement = el;
-      hoveredCell = null;
-
+      if (item.placedCell) { item.placedCell.occupiedBy = null; item.placedCell = null; item.placed = false; }
+      dragElement = el; hoveredCell = null;
       const rect = el.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      dragOffsetX = clientX - rect.left;
-      dragOffsetY = clientY - rect.top;
-
-      el.style.width = rect.width + 'px';
-      el.style.height = rect.height + 'px';
-      el.style.left = (clientX - dragOffsetX) + 'px';
-      el.style.top = (clientY - dragOffsetY) + 'px';
-
-      document.body.appendChild(el);
-      el.classList.remove('placed');
-      el.classList.add('dragging');
-
-      document.addEventListener('mousemove', onDrag);
-      document.addEventListener('touchmove', onDrag, { passive: false });
-      document.addEventListener('mouseup', stopDrag);
-      document.addEventListener('touchend', stopDrag);
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragOffsetX = clientX - rect.left; dragOffsetY = clientY - rect.top;
+      el.style.width = rect.width + 'px'; el.style.height = rect.height + 'px';
+      el.style.left = (clientX - dragOffsetX) + 'px'; el.style.top = (clientY - dragOffsetY) + 'px';
+      document.body.appendChild(el); el.classList.remove('placed'); el.classList.add('dragging');
+      document.addEventListener('mousemove', onDrag); document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('mouseup', stopDrag); document.addEventListener('touchend', stopDrag);
     }
-
-
     function onDrag(e) {
-      if (!dragElement) return;
-
-      e.preventDefault();
-
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      dragElement.style.left = (clientX - dragOffsetX) + 'px';
-      dragElement.style.top = (clientY - dragOffsetY) + 'px';
-
-      puzzleState.cells.forEach(cell => {
-        cell.el.classList.remove('highlight');
-      });
-
+      if (!dragElement) return; e.preventDefault();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragElement.style.left = (clientX - dragOffsetX) + 'px'; dragElement.style.top = (clientY - dragOffsetY) + 'px';
+      puzzleState.cells.forEach(cell => cell.el.classList.remove('highlight'));
       const elRect = dragElement.getBoundingClientRect();
-      const pieceCenterX = elRect.left + elRect.width / 2;
-      const pieceCenterY = elRect.top + elRect.height / 2;
-
-      hoveredCell = null;
-      let minDistance = Infinity;
-
+      const pieceCenterX = elRect.left + elRect.width / 2; const pieceCenterY = elRect.top + elRect.height / 2;
+      hoveredCell = null; let minDistance = Infinity;
       for (const cell of puzzleState.cells) {
         const cellRect = cell.el.getBoundingClientRect();
-
-        const cellCenterX = cellRect.left + cellRect.width / 2;
-        const cellCenterY = cellRect.top + cellRect.height / 2;
-
-        const dist = Math.hypot(
-          pieceCenterX - cellCenterX,
-          pieceCenterY - cellCenterY
-        );
-
-        if (dist < cellRect.width * 0.8 && dist < minDistance) {
-          minDistance = dist;
-          hoveredCell = cell;
-        }
+        const cellCenterX = cellRect.left + cellRect.width / 2; const cellCenterY = cellRect.top + cellRect.height / 2;
+        const dist = Math.hypot(pieceCenterX - cellCenterX, pieceCenterY - cellCenterY);
+        if (dist < cellRect.width * 0.8 && dist < minDistance) { minDistance = dist; hoveredCell = cell; }
       }
-
-      if (hoveredCell) {
-        hoveredCell.el.classList.add('highlight');
-      }
+      if (hoveredCell) hoveredCell.el.classList.add('highlight');
     }
-
-
     function stopDrag() {
       if (!dragElement) return;
-
-      const el = dragElement;
-      dragElement = null;
-
-      document.removeEventListener('mousemove', onDrag);
-      document.removeEventListener('touchmove', onDrag);
-      document.removeEventListener('mouseup', stopDrag);
-      document.removeEventListener('touchend', stopDrag);
-
+      const el = dragElement; dragElement = null;
+      document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag);
       if (!puzzleState) return;
-
-      const index = Number(el.dataset.index);
-      const item = puzzleState.items[index];
-
+      const index = Number(el.dataset.index); const item = puzzleState.items[index];
       if (!item) return;
-
-      const area = $('puzzle-area');
-      const tray = $('puzzle-tray');
+      const area = $('puzzle-area'); const tray = $('puzzle-tray');
       if (!area || !tray) return;
-
       puzzleState.cells.forEach(cell => cell.el.classList.remove('highlight'));
-
-      const gridSize = puzzleState.gridSize;
-      const cellSize = 100 / gridSize;
+      const gridSize = puzzleState.gridSize; const cellSize = 100 / gridSize;
       const pieceSize = Math.floor((Math.min(window.innerWidth - 80, 300)) / gridSize);
-
       if (hoveredCell) {
-        // Если ячейка занята другим кусочком
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
-          
           if (!otherItem.locked) {
-            // Если наш кусочек притащили с поля (память не пуста)
             if (draggedFromCell) {
-              // МЕНЯЕМ МЕСТАМИ: старый кусочек летит на нашу старую ячейку
               otherItem.el.className = 'puzzle-piece placed';
-              otherItem.el.style.left = (draggedFromCell.col * cellSize) + '%';
-              otherItem.el.style.top = (draggedFromCell.row * cellSize) + '%';
-              otherItem.el.style.width = cellSize + '%';
-              otherItem.el.style.height = cellSize + '%';
-              area.appendChild(otherItem.el);
-              
-              otherItem.placed = true;
-              otherItem.placedCell = draggedFromCell;
-              draggedFromCell.occupiedBy = otherItem;
-              
-              // Проверяем, встал ли старый кусочек на правильное место
+              otherItem.el.style.left = (draggedFromCell.col * cellSize) + '%'; otherItem.el.style.top = (draggedFromCell.row * cellSize) + '%';
+              otherItem.el.style.width = cellSize + '%'; otherItem.el.style.height = cellSize + '%';
+              area.appendChild(otherItem.el); otherItem.placed = true; otherItem.placedCell = draggedFromCell; draggedFromCell.occupiedBy = otherItem;
               const otherCorrectIndex = draggedFromCell.row * gridSize + draggedFromCell.col;
-              if (otherItem.originalIndex === otherCorrectIndex) {
-                otherItem.locked = true;
-                otherItem.el.style.cursor = 'default';
-              }
+              if (otherItem.originalIndex === otherCorrectIndex) { otherItem.locked = true; otherItem.el.style.cursor = 'default'; }
             } else {
-              // Если наш кусочек из ленты — старый летит в ленту
-              otherItem.placed = false;
-              otherItem.placedCell = null;
-              otherItem.el.className = 'puzzle-piece';
-              otherItem.el.style.left = '';
-              otherItem.el.style.top = '';
-              otherItem.el.style.width = pieceSize + 'px';
-              otherItem.el.style.height = pieceSize + 'px';
+              otherItem.placed = false; otherItem.placedCell = null;
+              otherItem.el.className = 'puzzle-piece'; otherItem.el.style.left = ''; otherItem.el.style.top = '';
+              otherItem.el.style.width = pieceSize + 'px'; otherItem.el.style.height = pieceSize + 'px';
               tray.appendChild(otherItem.el);
             }
           } else {
-            // Если старый кусочек ЗАЛОЧЕН (на своем правильном месте), мы не можем его сдвинуть
-            // Возвращаем наш кусочек обратно (на старое место или в ленту)
             if (draggedFromCell) {
               el.className = 'puzzle-piece placed';
-              el.style.left = (draggedFromCell.col * cellSize) + '%';
-              el.style.top = (draggedFromCell.row * cellSize) + '%';
-              el.style.width = cellSize + '%';
-              el.style.height = cellSize + '%';
-              area.appendChild(el);
-              item.placed = true;
-              item.placedCell = draggedFromCell;
-              draggedFromCell.occupiedBy = item;
+              el.style.left = (draggedFromCell.col * cellSize) + '%'; el.style.top = (draggedFromCell.row * cellSize) + '%';
+              el.style.width = cellSize + '%'; el.style.height = cellSize + '%';
+              area.appendChild(el); item.placed = true; item.placedCell = draggedFromCell; draggedFromCell.occupiedBy = item;
             } else {
-              el.className = 'puzzle-piece';
-              el.style.left = '';
-              el.style.top = '';
-              el.style.width = pieceSize + 'px';
-              el.style.height = pieceSize + 'px';
+              el.className = 'puzzle-piece'; el.style.left = ''; el.style.top = '';
+              el.style.width = pieceSize + 'px'; el.style.height = pieceSize + 'px';
               tray.appendChild(el);
             }
-            
-            hoveredCell = null;
-            draggedFromCell = null;
-            return;
+            hoveredCell = null; draggedFromCell = null; return;
           }
         }
-
-        // Ставим наш кусочек на поле
         el.className = 'puzzle-piece placed';
-        el.style.left = (hoveredCell.col * cellSize) + '%';
-        el.style.top = (hoveredCell.row * cellSize) + '%';
-        el.style.width = cellSize + '%';
-        el.style.height = cellSize + '%';
-
-        area.appendChild(el);
-
-        item.placed = true;
-        item.placedCell = hoveredCell;
-        hoveredCell.occupiedBy = item;
-
+        el.style.left = (hoveredCell.col * cellSize) + '%'; el.style.top = (hoveredCell.row * cellSize) + '%';
+        el.style.width = cellSize + '%'; el.style.height = cellSize + '%';
+        area.appendChild(el); item.placed = true; item.placedCell = hoveredCell; hoveredCell.occupiedBy = item;
         const correctIndex = hoveredCell.row * gridSize + hoveredCell.col;
-
-        if (item.originalIndex === correctIndex) {
-          item.locked = true;
-          el.style.cursor = 'default';
-        }
-
+        if (item.originalIndex === correctIndex) { item.locked = true; el.style.cursor = 'default'; }
         checkWin();
       } else {
-        // Если бросили мимо поля — возвращаем на старое место или в ленту
         if (draggedFromCell) {
-          // На старое место
           el.className = 'puzzle-piece placed';
-          el.style.left = (draggedFromCell.col * cellSize) + '%';
-          el.style.top = (draggedFromCell.row * cellSize) + '%';
-          el.style.width = cellSize + '%';
-          el.style.height = cellSize + '%';
-          area.appendChild(el);
-          
-          item.placed = true;
-          item.placedCell = draggedFromCell;
-          draggedFromCell.occupiedBy = item;
+          el.style.left = (draggedFromCell.col * cellSize) + '%'; el.style.top = (draggedFromCell.row * cellSize) + '%';
+          el.style.width = cellSize + '%'; el.style.height = cellSize + '%';
+          area.appendChild(el); item.placed = true; item.placedCell = draggedFromCell; draggedFromCell.occupiedBy = item;
         } else {
-          // В ленту
-          el.classList.remove('dragging');
-          el.className = 'puzzle-piece';
-          el.style.left = '';
-          el.style.top = '';
-          el.style.width = pieceSize + 'px';
-          el.style.height = pieceSize + 'px';
+          el.classList.remove('dragging'); el.className = 'puzzle-piece'; el.style.left = ''; el.style.top = '';
+          el.style.width = pieceSize + 'px'; el.style.height = pieceSize + 'px';
           tray.appendChild(el);
         }
       }
-
-      hoveredCell = null;
-      draggedFromCell = null; // Очищаем память после завершения
+      hoveredCell = null; draggedFromCell = null;
     }
-    
     function checkWin() {
       if (!puzzleState) return;
       const gridSize = puzzleState.gridSize;
-      const allPlacedCorrectly = puzzleState.cells.every(cell => {
-        return cell.occupiedBy && cell.occupiedBy.originalIndex === (cell.row * gridSize + cell.col);
-      });
-      if (allPlacedCorrectly) {
-        clearInterval(puzzleTicker);
-        finishPuzzle();
-      }
+      const allPlacedCorrectly = puzzleState.cells.every(cell => cell.occupiedBy && cell.occupiedBy.originalIndex === (cell.row * gridSize + cell.col));
+      if (allPlacedCorrectly) { clearInterval(puzzleTicker); finishPuzzle(); }
     }
-
     async function finishPuzzle() {
       if (puzzleState && puzzleState.finished) return;
       if (puzzleState) puzzleState.finished = true;
-      
       await run(async () => {
         try {
           const res = await api('game/puzzle/finish', { session_id: puzzleSession.session_id });
-          if (res.status === 'won') {
-            await sync();
-            prize(res.card);
-          }
+          if (res.status === 'won') { await sync(); prize(res.card); }
         } catch (e) { error(e); }
         puzzleState = null;
       });
@@ -1635,32 +994,20 @@
     function prize(c) {
       const ownedCard = profile.cards.find(item => Number(item.id) === Number(c.id));
       const count = ownedCard ? ownedCard.count : 1;
-      
       const rarityColor = colors[c.rarity] || '#aaa';
       $('reward-card-container').innerHTML = card(c);
       $('reward-subtitle').innerHTML = `<span style="color:#b775ff; font-weight:bold;">+${c.points}</span> рейтинга`;
-      $('reward-name').textContent = c.name;
-      $('reward-anime').textContent = c.anime;
-      $('reward-rarity').textContent = c.rarity;
-      $('reward-rarity').style.color = rarityColor;
-      $('reward-count').textContent = `${count} шт.`;
-      $('reward-modal').classList.add('active');
+      $('reward-name').textContent = c.name; $('reward-anime').textContent = c.anime;
+      $('reward-rarity').textContent = c.rarity; $('reward-rarity').style.color = rarityColor;
+      $('reward-count').textContent = `${count} шт.`; $('reward-modal').classList.add('active');
     }
-
     async function closeReward(e) { 
       if (e && e.target !== e.currentTarget) return; 
       $('reward-modal').classList.remove('active'); 
       await sync(); 
-      if (tab === 'games') {
-        games();
-      }
+      if (tab === 'games') games();
     }
-    async function sync() { 
-      await refresh(); 
-      profile.client_time = Date.now() / 1000;
-      updateCooldowns(); 
-    }
-    
+    async function sync() { await refresh(); profile.client_time = Date.now() / 1000; updateCooldowns(); }
     async function run(fn) {
       if (busy) return; busy = true;
       document.querySelectorAll('button').forEach(b => b.disabled = true);
@@ -1675,20 +1022,11 @@
     }
 
     (async () => {
-      try { 
-        await sync(); 
-        show('collection'); 
-        setInterval(updateCooldowns, 1000); 
-      }
+      try { await sync(); show('collection'); setInterval(updateCooldowns, 1000); }
       catch (e) { console.error(e); $('result').hidden = false; $('result').textContent = 'Не удалось войти: ' + e.message; }
-
-      // Обновляем лидерборд, если пользователь вернулся в приложение и вкладка открыта
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && tab === 'leaderboard') {
-        leaderboardView();
-      }
-    });
-
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && tab === 'leaderboard') leaderboardView();
+      });
     })();
   </script>
 </body>

@@ -18,7 +18,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from PIL import Image
-from pydantic import BaseModel, Field
 
 BASE = Path(__file__).resolve().parent
 CONTENT_DIR = BASE / 'content'
@@ -137,7 +136,6 @@ def identity(authorization):
         if not isinstance(user.get('id'), int) or isinstance(user['id'], bool):
             raise ValueError()
         
-        # Добавляем пустые поля, если их нет, чтобы не было ошибок
         if 'photo_url' not in user: user['photo_url'] = ''
         if 'username' not in user: user['username'] = ''
             
@@ -173,18 +171,15 @@ def reward(c, uid):
 @app.get('/api/me')
 def me(authorization: str | None = Header(default=None)):
     with db() as c:
-        # Получаем данные пользователя (включая photo_url) от Telegram
         tg_user = identity(authorization)
         uid = tg_user['id']
         
-        # Создаем/обновляем пользователя в БД
         name = str(tg_user.get('first_name') or tg_user.get('username') or 'Игрок')[:100]
         c.execute('INSERT INTO users(id,name) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name', (uid, name))
         
         user_row = c.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
         cards = [card_dict(r) for r in c.execute('SELECT cards.*,COALESCE(inventory.count,0) AS count FROM cards LEFT JOIN inventory ON cards.id=inventory.card_id AND inventory.user_id=? ORDER BY cards.id', (uid,))]
         
-        # --- СЧИТАЕМ МЕСТО В РЕЙТИНГЕ ---
         query = '''
             SELECT u.id, SUM(CASE cards.rarity
                 WHEN 'Обычная' THEN 100 WHEN 'Необычная' THEN 250
@@ -198,16 +193,12 @@ def me(authorization: str | None = Header(default=None)):
         '''
         all_users = c.execute(query).fetchall()
         
-        # Считаем общее количество игроков с рейтингом > 0
         total_players_with_rating = len(all_users)
-        
-        # Ищем текущего игрока
-        rank = total_players_with_rating + 1 # По умолчанию (если 0 карт) - последнее место
+        rank = total_players_with_rating + 1 
         for i, row in enumerate(all_users):
             if row['id'] == uid:
                 rank = i + 1
                 break
-        # ----------------------------------
 
         last_puzzle = c.execute('SELECT started_at FROM sessions WHERE user_id=? AND kind=? AND done=1 ORDER BY started_at DESC LIMIT 1', (uid, 'puzzle')).fetchone()
         last_quotes = c.execute('SELECT started_at FROM sessions WHERE user_id=? AND kind=? AND done=1 ORDER BY started_at DESC LIMIT 1', (uid, 'quotes')).fetchone()
@@ -234,7 +225,6 @@ def me(authorization: str | None = Header(default=None)):
 def leaderboard(authorization: str | None = Header(default=None)):
     with db() as c:
         uid = player(c, authorization)
-        # Достаем photo_url из таблицы users
         query = '''
             SELECT u.id, u.name, u.photo_url, 
                    SUM(CASE cards.rarity
@@ -413,7 +403,6 @@ def cancel_puzzle(body: dict, authorization: str | None = Header(default=None)):
     session_id = body.get('session_id')
     with db() as c:
         uid = player(c, authorization)
-        # Просто помечаем сессию завершенной, НЕ добавляя карту в инвентарь
         c.execute('UPDATE sessions SET done=1, started_at=? WHERE id=? AND user_id=?', (time.time(), session_id, uid))
         return {'status': 'cancelled'}
     
@@ -437,7 +426,6 @@ def create_trade(body: TradeCreate, authorization: str | None = Header(default=N
     with db() as c:
         uid = player(c, authorization)
         
-        # Ищем получателя ТОЛЬКО по username (без учета регистра)
         search_term = body.receiver_username.strip().lstrip('@')
         receiver = c.execute('SELECT id, name FROM users WHERE LOWER(username) = LOWER(?)', (search_term,)).fetchone()
         
@@ -446,13 +434,11 @@ def create_trade(body: TradeCreate, authorization: str | None = Header(default=N
         if receiver['id'] == uid:
             raise HTTPException(400, 'Нельзя обмениваться с самим собой')
             
-        # Проверяем, есть ли у отправителя все эти карты
         for card_id in body.sender_cards:
             inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (uid, card_id)).fetchone()
             if not inv or inv['count'] < 1:
                 raise HTTPException(400, 'У вас нет одной из выбранных карт')
                 
-        # Создаем обмен
         cards_str = ','.join(map(str, body.sender_cards))
         c.execute('''
             INSERT INTO trades (sender_id, receiver_id, sender_cards, status, created_at)
@@ -500,31 +486,25 @@ def answer_trade(body: TradeAnswer, authorization: str | None = Header(default=N
         if not trade:
             raise HTTPException(404, 'Обмен не найден или уже обработан')
             
-        # Проверяем карты получателя
         for card_id in body.receiver_cards:
             inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (uid, card_id)).fetchone()
             if not inv or inv['count'] < 1:
                 raise HTTPException(400, 'У вас нет одной из выбранных карт')
                 
-        # Проверяем карты отправителя
         sender_card_ids = trade['sender_cards'].split(',')
         for cid in sender_card_ids:
             sender_inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (trade['sender_id'], cid)).fetchone()
             if not sender_inv or sender_inv['count'] < 1:
                 raise HTTPException(400, 'У отправителя больше нет одной из этих карт')
                 
-        # СОВЕРШАЕМ ОБМЕН
-        # 1. Отдаем карты отправителя получателю
         for cid in sender_card_ids:
             c.execute('UPDATE inventory SET count = count - 1 WHERE user_id=? AND card_id=?', (trade['sender_id'], cid))
             c.execute('INSERT INTO inventory (user_id, card_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, cid))
             
-        # 2. Отдаем карты получателя отправителю
         for cid in body.receiver_cards:
             c.execute('UPDATE inventory SET count = count - 1 WHERE user_id=? AND card_id=?', (uid, cid))
             c.execute('INSERT INTO inventory (user_id, card_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (trade['sender_id'], cid))
             
-        # 3. Меняем статус
         receiver_cards_str = ','.join(map(str, body.receiver_cards))
         c.execute('UPDATE trades SET status="accepted", receiver_cards=? WHERE id=?', (receiver_cards_str, body.trade_id))
         
