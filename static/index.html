@@ -1001,7 +1001,7 @@
       }, 200);
     }
 
-        function startDrag(e) {
+    function startDrag(e) {
       if (!puzzleState) return;
       const el = e.currentTarget;
       e.preventDefault();
@@ -1011,7 +1011,7 @@
       
       if (item.locked) return;
       
-      // Если кусочек уже на поле, освобождаем ячейку
+      // Если кусочек уже стоял на поле, освобождаем ячейку
       if (item.placedCell) {
         item.placedCell.occupiedBy = null;
         item.placedCell = null;
@@ -1026,14 +1026,14 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
+      // Точно фиксируем смещение курсора относительно левого верхнего угла элемента
       dragOffsetX = clientX - rect.left;
       dragOffsetY = clientY - rect.top;
       
-      // Убираем элемент из ленты, чтобы он не сдвигал другие кусочки
-      // Переносим в body, чтобы он летал поверх всего
+      // Переносим элемент в body, чтобы он летал поверх всего интерфейса
       document.body.appendChild(el);
       
-      // Жестко фиксируем его текущее положение на экране
+      // Фиксируем размеры и начальные координаты строго под курсором/пальцем
       el.style.width = rect.width + 'px';
       el.style.height = rect.height + 'px';
       el.style.left = (clientX - dragOffsetX) + 'px';
@@ -1052,25 +1052,27 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      // Двигаем кусочек за пальцем
+      // Двигаем элемент строго вслед за курсором с учетом начального смещения
       dragElement.style.left = (clientX - dragOffsetX) + 'px';
       dragElement.style.top = (clientY - dragOffsetY) + 'px';
 
-      // Подсветка ячейки под пальцем
       const area = $('puzzle-area');
       if (!area) return;
       const areaRect = area.getBoundingClientRect();
       const gridSize = puzzleState.gridSize;
       
-      const centerX = ((clientX - areaRect.left) / areaRect.width) * 100;
-      const centerY = ((clientY - areaRect.top) / areaRect.height) * 100;
+      // Вычисляем текущий центр перетаскиваемого кусочка относительно игрового поля в процентах
+      const pieceRect = dragElement.getBoundingClientRect();
+      const centerX = ((pieceRect.left + pieceRect.width / 2 - areaRect.left) / areaRect.width) * 100;
+      const centerY = ((pieceRect.top + pieceRect.height / 2 - areaRect.top) / areaRect.height) * 100;
       
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
       
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        if (dist < (100 / gridSize) * 0.6) {
+        // Увеличиваем радиус срабатывания подсветки (до 1.0 от ширины ячейки), чтобы игроку было проще попасть
+        if (dist < (100 / gridSize) * 1.0) {
           hoveredCell = cell;
           break;
         }
@@ -1101,7 +1103,7 @@
       const areaRect = area.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       
-      // Вычисляем центр кусочка относительно поля
+      // Вычисляем центр кусочка относительно поля в процентах
       const centerX = ((elRect.left + elRect.width / 2 - areaRect.left) / areaRect.width) * 100;
       const centerY = ((elRect.top + elRect.height / 2 - areaRect.top) / areaRect.height) * 100;
       
@@ -1111,7 +1113,8 @@
       let hoveredCell = null;
       for (const cell of puzzleState.cells) {
         const dist = Math.sqrt(Math.pow(centerX - cell.centerX, 2) + Math.pow(centerY - cell.centerY, 2));
-        if (dist < pWidth * 0.8) {
+        // Расширяем зону привязки при отпускании, чтобы кусок не улетал обратно в ленту при попытке поставить его в ячейку
+        if (dist < pWidth * 1.1) {
           hoveredCell = cell;
           break;
         }
@@ -1120,7 +1123,7 @@
       puzzleState.cells.forEach(c => c.el.classList.remove('highlight'));
 
       if (hoveredCell) {
-        // Если ячейка занята, возвращаем старый кусочек в ленту
+        // Если ячейка уже занята другим кусочком, возвращаем тот кусочек в ленту
         if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
           if (!otherItem.locked) {
@@ -1129,11 +1132,13 @@
             otherItem.el.className = 'puzzle-piece';
             otherItem.el.style.left = '';
             otherItem.el.style.top = '';
+            otherItem.el.style.width = '';
+            otherItem.el.style.height = '';
             tray.appendChild(otherItem.el);
           }
         }
         
-        // Ставим кусочек на поле (в процентах)
+        // Привязываем текущий кусок к сетке поля
         el.style.left = (hoveredCell.col * pWidth) + '%';
         el.style.top = (hoveredCell.row * pWidth) + '%';
         el.style.width = pWidth + '%';
@@ -1154,7 +1159,7 @@
         
         checkWin();
       } else {
-        // Если мимо, возвращаем в ленту (сбрасываем стили)
+        // Если бросили мимо поля, возвращаем элемент в ленту и сбрасываем inline-стили
         el.className = 'puzzle-piece';
         el.style.left = '';
         el.style.top = '';
