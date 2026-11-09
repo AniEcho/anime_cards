@@ -539,15 +539,14 @@
       `;
     }
 
-    function show(next) {
+    async function show(next) {
       if (busy) return;
       if (tab === 'games' && puzzleSession) {
-        // Раньше тут вызывался finish и начислялась карта!
-        // Теперь вызываем cancel, чтобы скинуть сессию и не давать карту:
-        api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
+        // Ожидаем отмену на сервере и свежие данные, чтобы кулдаун обновился сразу
+        await api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {});
         puzzleSession = null;
         puzzleState = null;
-        sync();
+        await sync();
       }
       tab = next;
       clearInterval(ticker);
