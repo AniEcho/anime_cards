@@ -1148,24 +1148,43 @@
       });
 
       if (hoveredCell) {
-        // Если ячейка занята другим кусочком — возвращаем его в ленту
-        if (
-          hoveredCell.occupiedBy &&
-          hoveredCell.occupiedBy !== item &&
-          !hoveredCell.occupiedBy.locked
-        ) {
+        // Если ячейка уже занята другим кусочком
+        if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
           const otherItem = hoveredCell.occupiedBy;
-
-          otherItem.placed = false;
-          otherItem.placedCell = null;
-
-          otherItem.el.className = 'puzzle-piece';
-          otherItem.el.style.left = '';
-          otherItem.el.style.top = '';
-          otherItem.el.style.width = '';
-          otherItem.el.style.height = '';
-
-          tray.appendChild(otherItem.el);
+          
+          if (!otherItem.locked) {
+            // Если перетаскиваемый кусок был на поле (в другой ячейке), отправляем старый кусок на место текущего
+            if (item.placedCell) {
+              const oldCell = item.placedCell;
+              
+              otherItem.placedCell = oldCell;
+              oldCell.occupiedBy = otherItem;
+              
+              const gridSize = puzzleState.gridSize;
+              const cellSize = 100 / gridSize;
+              
+              otherItem.el.style.left = (oldCell.col * cellSize) + '%';
+              otherItem.el.style.top = (oldCell.row * cellSize) + '%';
+              otherItem.el.style.width = cellSize + '%';
+              otherItem.el.style.height = cellSize + '%';
+              otherItem.el.className = 'puzzle-piece placed';
+              area.appendChild(otherItem.el);
+            } else {
+              // Если кусок был взятий из ленты, вытесняем занявший ячейку кусок обратно в ленту
+              otherItem.placed = false;
+              otherItem.placedCell = null;
+              otherItem.el.className = 'puzzle-piece';
+              otherItem.el.style.left = '';
+              otherItem.el.style.top = '';
+              otherItem.el.style.width = '';
+              otherItem.el.style.height = '';
+              tray.appendChild(otherItem.el);
+              otherItem.occupiedBy = null;
+            }
+          }
+        } else if (item.placedCell) {
+          // Если мы просто перетащили кусок из одной своей ячейки в другую пустую
+          item.placedCell.occupiedBy = null;
         }
 
         const gridSize = puzzleState.gridSize;
