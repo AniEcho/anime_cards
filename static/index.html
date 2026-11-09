@@ -1148,32 +1148,66 @@
       });
 
       if (hoveredCell) {
-        // Если ячейка занята другим кусочком — возвращаем его в ленту
-        if (
-          hoveredCell.occupiedBy &&
-          hoveredCell.occupiedBy !== item &&
-          !hoveredCell.occupiedBy.locked
-        ) {
-          const otherItem = hoveredCell.occupiedBy;
-
-          otherItem.placed = false;
-          otherItem.placedCell = null;
-
-          otherItem.el.className = 'puzzle-piece';
-          otherItem.el.style.left = '';
-          otherItem.el.style.top = '';
-          otherItem.el.style.width = '';
-          otherItem.el.style.height = '';
-
-          tray.appendChild(otherItem.el);
-        }
-
         const gridSize = puzzleState.gridSize;
         const cellSize = 100 / gridSize;
+        
+        // Если ячейка занята другим кусочком
+        if (hoveredCell.occupiedBy && hoveredCell.occupiedBy !== item) {
+          const otherItem = hoveredCell.occupiedBy;
+          
+          // Если старый кусочек НЕ залочен (т.е. не стоит на своем правильном месте)
+          if (!otherItem.locked) {
+            // Меняем их местами!
+            // Если наш кусочек был где-то на поле, ставим туда старый
+            if (item.placedCell) {
+              const oldCell = item.placedCell;
+              
+              otherItem.el.className = 'puzzle-piece placed';
+              otherItem.el.style.left = (oldCell.col * cellSize) + '%';
+              otherItem.el.style.top = (oldCell.row * cellSize) + '%';
+              otherItem.el.style.width = cellSize + '%';
+              otherItem.el.style.height = cellSize + '%';
+              
+              area.appendChild(otherItem.el);
+              
+              otherItem.placed = true;
+              otherItem.placedCell = oldCell;
+              oldCell.occupiedBy = otherItem;
+              
+              // Проверяем, встал ли он на свое правильное место
+              const otherCorrectIndex = oldCell.row * gridSize + oldCell.col;
+              if (otherItem.originalIndex === otherCorrectIndex) {
+                otherItem.locked = true;
+                otherItem.el.style.cursor = 'default';
+              }
+            } else {
+              // Если наш кусочек пришел из ленты, а ячейка занята — старый летит в ленту
+              otherItem.placed = false;
+              otherItem.placedCell = null;
+              otherItem.el.className = 'puzzle-piece';
+              otherItem.el.style.left = '';
+              otherItem.el.style.top = '';
+              otherItem.el.style.width = '';
+              otherItem.el.style.height = '';
+              tray.appendChild(otherItem.el);
+            }
+          } else {
+            // Если старый кусочек залочен (стоит на правильном месте), мы не можем его сдвинуть.
+            // Возвращаем наш кусочек обратно в ленту.
+            el.className = 'puzzle-piece';
+            el.style.left = '';
+            el.style.top = '';
+            el.style.width = '';
+            el.style.height = '';
+            tray.appendChild(el);
+            
+            hoveredCell = null;
+            return;
+          }
+        }
 
-        el.classList.remove('dragging');
+        // Ставим наш кусочек на поле
         el.className = 'puzzle-piece placed';
-
         el.style.left = (hoveredCell.col * cellSize) + '%';
         el.style.top = (hoveredCell.row * cellSize) + '%';
         el.style.width = cellSize + '%';
@@ -1194,6 +1228,7 @@
 
         checkWin();
       } else {
+        // Если бросили мимо поля
         el.classList.remove('dragging');
         el.className = 'puzzle-piece';
 
