@@ -1027,6 +1027,7 @@
     let dragOffsetX = 0;
     let dragOffsetY = 0;
     let hoveredCell = null;
+    let draggedFromCell = null;
 
 
     function startDrag(e) {
@@ -1040,7 +1041,10 @@
 
       if (!item || item.locked) return;
 
-      // Если кусочек уже стоял на поле — освобождаем ячейку
+      // ЗАПОМИНАЕМ ячейку ДО того, как обнулим её
+      draggedFromCell = item.placedCell;
+
+      // Освобождаем ячейку
       if (item.placedCell) {
         item.placedCell.occupiedBy = null;
         item.placedCell = null;
@@ -1050,9 +1054,7 @@
       dragElement = el;
       hoveredCell = null;
 
-      // Реальные экранные координаты до переноса в body
       const rect = el.getBoundingClientRect();
-
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -1146,8 +1148,6 @@
 
       const gridSize = puzzleState.gridSize;
       const cellSize = 100 / gridSize;
-      
-      // Вычисляем размер кусочка для ленты (чтобы он не был маленьким)
       const pieceSize = Math.floor((Math.min(window.innerWidth - 80, 300)) / gridSize);
 
       if (hoveredCell) {
@@ -1156,30 +1156,28 @@
           const otherItem = hoveredCell.occupiedBy;
           
           if (!otherItem.locked) {
-            // СВАП: Если наш кусочек пришел с поля, меняем их местами
-            if (item.placedCell) {
-              const oldCell = item.placedCell;
-              
-              // Ставим старый кусочек на место нашего
+            // Если наш кусочек притащили с поля (память не пуста)
+            if (draggedFromCell) {
+              // МЕНЯЕМ МЕСТАМИ: старый кусочек летит на нашу старую ячейку
               otherItem.el.className = 'puzzle-piece placed';
-              otherItem.el.style.left = (oldCell.col * cellSize) + '%';
-              otherItem.el.style.top = (oldCell.row * cellSize) + '%';
+              otherItem.el.style.left = (draggedFromCell.col * cellSize) + '%';
+              otherItem.el.style.top = (draggedFromCell.row * cellSize) + '%';
               otherItem.el.style.width = cellSize + '%';
               otherItem.el.style.height = cellSize + '%';
               area.appendChild(otherItem.el);
               
               otherItem.placed = true;
-              otherItem.placedCell = oldCell;
-              oldCell.occupiedBy = otherItem;
+              otherItem.placedCell = draggedFromCell;
+              draggedFromCell.occupiedBy = otherItem;
               
-              // Проверяем, встал ли он на правильное место
-              const otherCorrectIndex = oldCell.row * gridSize + oldCell.col;
+              // Проверяем, встал ли старый кусочек на правильное место
+              const otherCorrectIndex = draggedFromCell.row * gridSize + draggedFromCell.col;
               if (otherItem.originalIndex === otherCorrectIndex) {
                 otherItem.locked = true;
                 otherItem.el.style.cursor = 'default';
               }
             } else {
-              // Если наш кусочек пришел из ленты, а ячейка занята — старый летит в ленту
+              // Если наш кусочек из ленты — старый летит в ленту
               otherItem.placed = false;
               otherItem.placedCell = null;
               otherItem.el.className = 'puzzle-piece';
@@ -1190,15 +1188,29 @@
               tray.appendChild(otherItem.el);
             }
           } else {
-            // Если старый залочен — возвращаем наш кусочек в ленту
-            el.className = 'puzzle-piece';
-            el.style.left = '';
-            el.style.top = '';
-            el.style.width = pieceSize + 'px';
-            el.style.height = pieceSize + 'px';
-            tray.appendChild(el);
+            // Если старый кусочек ЗАЛОЧЕН (на своем правильном месте), мы не можем его сдвинуть
+            // Возвращаем наш кусочек обратно (на старое место или в ленту)
+            if (draggedFromCell) {
+              el.className = 'puzzle-piece placed';
+              el.style.left = (draggedFromCell.col * cellSize) + '%';
+              el.style.top = (draggedFromCell.row * cellSize) + '%';
+              el.style.width = cellSize + '%';
+              el.style.height = cellSize + '%';
+              area.appendChild(el);
+              item.placed = true;
+              item.placedCell = draggedFromCell;
+              draggedFromCell.occupiedBy = item;
+            } else {
+              el.className = 'puzzle-piece';
+              el.style.left = '';
+              el.style.top = '';
+              el.style.width = pieceSize + 'px';
+              el.style.height = pieceSize + 'px';
+              tray.appendChild(el);
+            }
             
             hoveredCell = null;
+            draggedFromCell = null;
             return;
           }
         }
@@ -1225,19 +1237,33 @@
 
         checkWin();
       } else {
-        // Если бросили мимо поля, возвращаем в ленту с нормальным размером
-        el.classList.remove('dragging');
-        el.className = 'puzzle-piece';
-
-        el.style.left = '';
-        el.style.top = '';
-        el.style.width = pieceSize + 'px';
-        el.style.height = pieceSize + 'px';
-
-        tray.appendChild(el);
+        // Если бросили мимо поля — возвращаем на старое место или в ленту
+        if (draggedFromCell) {
+          // На старое место
+          el.className = 'puzzle-piece placed';
+          el.style.left = (draggedFromCell.col * cellSize) + '%';
+          el.style.top = (draggedFromCell.row * cellSize) + '%';
+          el.style.width = cellSize + '%';
+          el.style.height = cellSize + '%';
+          area.appendChild(el);
+          
+          item.placed = true;
+          item.placedCell = draggedFromCell;
+          draggedFromCell.occupiedBy = item;
+        } else {
+          // В ленту
+          el.classList.remove('dragging');
+          el.className = 'puzzle-piece';
+          el.style.left = '';
+          el.style.top = '';
+          el.style.width = pieceSize + 'px';
+          el.style.height = pieceSize + 'px';
+          tray.appendChild(el);
+        }
       }
 
       hoveredCell = null;
+      draggedFromCell = null; // Очищаем память после завершения
     }
     
     function checkWin() {
