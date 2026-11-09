@@ -146,9 +146,16 @@ def reward(c, uid):
 @app.get('/api/me')
 def me(authorization: str | None = Header(default=None)):
     with db() as c:
-        uid = player(c,authorization)
-        user = c.execute('SELECT * FROM users WHERE id=?',(uid,)).fetchone()
-        cards = [card_dict(r) for r in c.execute('SELECT cards.*,COALESCE(inventory.count,0) AS count FROM cards LEFT JOIN inventory ON cards.id=inventory.card_id AND inventory.user_id=? ORDER BY cards.id',(uid,))]
+        # Получаем данные пользователя (включая photo_url) от Telegram
+        tg_user = identity(authorization)
+        uid = tg_user['id']
+        
+        # Создаем/обновляем пользователя в БД
+        name = str(tg_user.get('first_name') or tg_user.get('username') or 'Игрок')[:100]
+        c.execute('INSERT INTO users(id,name) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name', (uid, name))
+        
+        user_row = c.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
+        cards = [card_dict(r) for r in c.execute('SELECT cards.*,COALESCE(inventory.count,0) AS count FROM cards LEFT JOIN inventory ON cards.id=inventory.card_id AND inventory.user_id=? ORDER BY cards.id', (uid,))]
         
         # --- СЧИТАЕМ МЕСТО В РЕЙТИНГЕ ---
         query = '''
@@ -177,15 +184,15 @@ def me(authorization: str | None = Header(default=None)):
         quotes_at = (last_quotes['started_at'] + QUOTES_COOLDOWN) if last_quotes and last_quotes['started_at'] else 0
 
         return {
-            'name': user['name'], 
-            'photo_url': user.get('photo_url', ''), # <--- ДОБАВЛЕНО
+            'name': user_row['name'], 
+            'photo_url': tg_user.get('photo_url', ''), # <--- БЕРЕМ ИЗ ОБЪЕКТА TELEGRAM
             'dev': DEV_MODE, 
             'rating': sum(x['count']*x['points'] for x in cards), 
             'rank': rank,
             'total': sum(x['count'] for x in cards), 
             'unique': sum(x['count']>0 for x in cards), 
             'cards': cards, 
-            'free_at': user['last_free'] + FREE_SECONDS, 
+            'free_at': user_row['last_free'] + FREE_SECONDS, 
             'puzzle_at': puzzle_at,
             'quotes_at': quotes_at,
             'server_time': time.time()
