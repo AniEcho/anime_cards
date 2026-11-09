@@ -227,10 +227,9 @@
 
     .puzzle-tray {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
       width: 100%;
       max-width: 350px;
       margin-top: 16px;
@@ -242,14 +241,8 @@
       z-index: 10;
     }
 
-    .puzzle-tray::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .puzzle-tray::-webkit-scrollbar-thumb {
-      background: rgba(183, 117, 255, 0.4);
-      border-radius: 2px;
-    }
+    .puzzle-tray::-webkit-scrollbar { height: 4px; }
+    .puzzle-tray::-webkit-scrollbar-thumb { background: rgba(183, 117, 255, 0.4); border-radius: 2px; }
 
     /* ===== КУСОЧЕК В ЛЕНТЕ ===== */
 
