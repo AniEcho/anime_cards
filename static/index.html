@@ -579,8 +579,11 @@
             <h2 style="margin:0;">Новый обмен</h2>
           </div>
           <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
-            <label class="reward-label" style="font-size: 11px;">Введите @username</label>
-            <input type="text" id="trade-target-name" placeholder="@username" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0c10; border: 1px solid #3a304a; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-top: 6px;">
+            <label class="reward-label" style="font-size: 11px; display: block; margin-bottom: 8px;">ВВЕДИТЕ @USERNAME</label>
+            <div style="display: flex; align-items: center; background: #0a0c10; border: 1px solid #3a304a; border-radius: 12px; padding: 0 14px; transition: border-color 0.2s;" onfocusin="this.style.borderColor='#b775ff'" onfocusout="this.style.borderColor='#3a304a'">
+              <span style="color: #b775ff; font-weight: 700; font-size: 18px; margin-right: 6px;">@</span>
+              <input type="text" id="trade-target-name" placeholder="username" style="flex: 1; background: transparent; border: none; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; padding: 14px 0; font-weight: 600;">
+            </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="margin:0; font-size: 16px;">Выберите карты</h3>
@@ -602,22 +605,22 @@
             <h2 style="margin:0;">Ответ на обмен</h2>
           </div>
           
-          <div style="background: #1e1a26; padding: 20px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
-            <div style="font-size: 15px; color: #8a8299; margin-bottom: 16px;">
-              От: <span style="color: #b775ff; font-weight: bold;">${activeTradeToAnswer.sender_username ? '@' + esc(activeTradeToAnswer.sender_username) : esc(activeTradeToAnswer.sender_name)}</span>
+          <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
+            <div style="font-size: 14px; color: #8a8299; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+              От: <span style="color: #b775ff; font-weight: 700; font-size: 15px; letter-spacing: 0.5px;">${activeTradeToAnswer.sender_username ? '@' + esc(activeTradeToAnswer.sender_username) : esc(activeTradeToAnswer.sender_name)}</span>
             </div>
             <div class="reward-label" style="font-size: 11px; margin-bottom: 10px; display: block;">ВАМ ПРЕДЛАГАЮТ:</div>
             
-            <!-- Сетка карточек: теперь они крупные, в 2 колонки, как в твоем инвентаре -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px;">
+            <!-- ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ КАК В ПАЗЛЕ -->
+            <div style="display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; padding-bottom: 8px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scroll-behavior: smooth;">
               ${activeTradeToAnswer.cards.map(c => `
-                <div style="border-radius: 12px; overflow: hidden; border: 1px solid ${colors[c.rarity]}; background: #16121c; position: relative;">
+                <div style="width: 100px; flex-shrink: 0; border-radius: 10px; overflow: hidden; border: 1px solid ${colors[c.rarity]}; background: #16121c; position: relative;">
                    <div style="position: relative; width: 100%; aspect-ratio: 1/1.2; background: #0a0c10;">
-                     ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; padding: 6px; font-weight: bold; color: #fff;">${esc(c.name)}</div>`}
+                     ${c.image ? `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10px; padding: 4px; font-weight: bold; color: #fff;">${esc(c.name)}</div>`}
                    </div>
-                   <div style="padding: 10px 8px; text-align: center; background: #16121c;">
-                     <div style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
-                     <div style="font-size: 11px; color: ${colors[c.rarity]}; font-weight: bold; margin-top: 4px;">${c.rarity}</div>
+                   <div style="padding: 6px 4px; text-align: center; background: #16121c;">
+                     <div style="font-size: 11px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">${esc(c.name)}</div>
+                     <div style="font-size: 9px; color: ${colors[c.rarity]}; font-weight: bold; margin-top: 4px;">${c.rarity}</div>
                    </div>
                 </div>
               `).join('')}
