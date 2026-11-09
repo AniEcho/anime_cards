@@ -59,7 +59,12 @@ def db():
 
 def initialize():
     with db() as c:
-        c.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, last_free REAL NOT NULL DEFAULT 0, photo_url TEXT DEFAULT '')')
+        c.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, last_free REAL NOT NULL DEFAULT 0)')
+        try:
+            c.execute('ALTER TABLE users ADD COLUMN photo_url TEXT DEFAULT ""')
+        except sqlite3.OperationalError:
+            pass
+
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
@@ -186,7 +191,7 @@ def me(authorization: str | None = Header(default=None)):
 
         return {
             'name': user_row['name'], 
-            'photo_url': tg_user.get('photo_url', ''), # <--- БЕРЕМ ИЗ ОБЪЕКТА TELEGRAM
+            'photo_url': tg_user.get('photo_url', ''),
             'dev': DEV_MODE, 
             'rating': sum(x['count']*x['points'] for x in cards), 
             'rank': rank,
