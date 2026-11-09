@@ -645,12 +645,21 @@
 
           return `
             <div class="set-row" style="padding: 10px 14px; gap: 10px; ${item.is_me ? 'border-color: #b775ff; background: rgba(183, 117, 255, 0.1);' : ''}">
-              <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-                <div style="${rankStyle} width: 24px; text-align: center; font-family: 'Rajdhani', sans-serif; flex-shrink: 0;">${item.rank}</div>
-                <div style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                  ${avatarHtml}
+              <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                
+                <!-- Колонка 1: Цифра ранга (фиксированная ширина) -->
+                <div style="${rankStyle} width: 28px; text-align: center; font-family: 'Rajdhani', sans-serif; flex-shrink: 0;">${item.rank}</div>
+                
+                <!-- Колонка 2: Аватарка (фиксированная ширина 48px, картинка центрируется) -->
+                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <div style="width: ${avatarSize}px; height: ${avatarSize}px; border-radius: 50%; background: linear-gradient(135deg, #b775ff, #5a2a6e); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    ${avatarHtml}
+                  </div>
                 </div>
+                
+                <!-- Колонка 3: Ник (ровно под предыдущими) -->
                 <div style="font-weight: 700; color: #fff; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(item.name)} ${item.is_me ? '<span style="font-size:10px; color:#b775ff;">(Вы)</span>' : ''}</div>
+                
               </div>
               <div style="font-weight: 900; color: #fff; font-size: 16px; flex-shrink: 0;">${item.rating.toLocaleString('ru-RU')}</div>
             </div>`;
@@ -1423,7 +1432,7 @@
         leaderboardView();
       }
     });
-    
+
     })();
   </script>
 </body>

@@ -176,7 +176,12 @@ def me(authorization: str | None = Header(default=None)):
             ORDER BY total_rating DESC
         '''
         all_users = c.execute(query).fetchall()
-        rank = 1
+        
+        # Считаем общее количество игроков с рейтингом > 0
+        total_players_with_rating = len(all_users)
+        
+        # Ищем текущего игрока
+        rank = total_players_with_rating + 1 # По умолчанию (если 0 карт) - последнее место
         for i, row in enumerate(all_users):
             if row['id'] == uid:
                 rank = i + 1
