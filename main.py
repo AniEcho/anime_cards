@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from PIL import Image
+from pydantic import BaseModel, Field
 
 BASE = Path(__file__).resolve().parent
 CONTENT_DIR = BASE / 'content'
@@ -68,10 +69,25 @@ def initialize():
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
+        
         try:
             c.execute('ALTER TABLE sessions ADD COLUMN started_at REAL')
         except sqlite3.OperationalError:
             pass
+
+        # --- ТАБЛИЦА ДЛЯ ОБМЕНОВ ---
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sender_id INTEGER REFERENCES users(id),
+                receiver_id INTEGER REFERENCES users(id),
+                sender_cards TEXT NOT NULL,
+                receiver_cards TEXT DEFAULT '',
+                status TEXT NOT NULL DEFAULT 'pending',
+                created_at REAL NOT NULL
+            )
+        ''')
+        # ---------------------------
 
         catalog = json.loads((CONTENT_DIR / 'cards.json').read_text(encoding='utf-8'))
         for card in catalog:
@@ -396,6 +412,127 @@ def cancel_puzzle(body: dict, authorization: str | None = Header(default=None)):
         c.execute('UPDATE sessions SET done=1, started_at=? WHERE id=? AND user_id=?', (time.time(), session_id, uid))
         return {'status': 'cancelled'}
     
+# ==========================================
+# ОБМЕНЫ (TRADES)
+# ==========================================
+
+class TradeCreate(BaseModel):
+    receiver_username: str
+    sender_cards: list[int]
+
+class TradeAnswer(BaseModel):
+    trade_id: int
+    receiver_cards: list[int]
+
+@app.post('/api/trades/create')
+def create_trade(body: TradeCreate, authorization: str | None = Header(default=None)):
+    if not body.sender_cards:
+        raise HTTPException(400, 'Выберите хотя бы одну карту')
+        
+    with db() as c:
+        uid = player(c, authorization)
+        
+        # Ищем получателя по имени
+        receiver = c.execute('SELECT id, name FROM users WHERE name = ?', (body.receiver_username.lstrip('@'),)).fetchone()
+        if not receiver:
+            raise HTTPException(404, 'Игрок с таким ником не найден (он должен был хотя бы раз зайти в игру)')
+        if receiver['id'] == uid:
+            raise HTTPException(400, 'Нельзя обмениваться с самим собой')
+            
+        # Проверяем, есть ли у отправителя все эти карты
+        for card_id in body.sender_cards:
+            inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (uid, card_id)).fetchone()
+            if not inv or inv['count'] < 1:
+                raise HTTPException(400, 'У вас нет одной из выбранных карт')
+                
+        # Создаем обмен
+        cards_str = ','.join(map(str, body.sender_cards))
+        c.execute('''
+            INSERT INTO trades (sender_id, receiver_id, sender_cards, status, created_at)
+            VALUES (?, ?, ?, 'pending', ?)
+        ''', (uid, receiver['id'], cards_str, time.time()))
+        
+        return {'status': 'ok'}
+
+@app.get('/api/trades/incoming')
+def incoming_trades(authorization: str | None = Header(default=None)):
+    with db() as c:
+        uid = player(c, authorization)
+        rows = c.execute('''
+            SELECT t.id as trade_id, u.name as sender_name, u.photo_url as sender_photo, t.sender_cards
+            FROM trades t
+            JOIN users u ON t.sender_id = u.id
+            WHERE t.receiver_id = ? AND t.status = 'pending'
+            ORDER BY t.created_at DESC
+        ''', (uid,)).fetchall()
+        
+        result = []
+        for r in rows:
+            d = dict(r)
+            card_ids = d['sender_cards'].split(',')
+            cards_info = []
+            for cid in card_ids:
+                card = c.execute('SELECT * FROM cards WHERE id=?', (cid,)).fetchone()
+                if card:
+                    cd = card_dict(card)
+                    cards_info.append(cd)
+            d['cards'] = cards_info
+            del d['sender_cards']
+            result.append(d)
+        return {'trades': result}
+
+@app.post('/api/trades/answer')
+def answer_trade(body: TradeAnswer, authorization: str | None = Header(default=None)):
+    if not body.receiver_cards:
+        raise HTTPException(400, 'Выберите хотя бы одну карту в ответ')
+        
+    with db() as c:
+        uid = player(c, authorization)
+        
+        trade = c.execute('SELECT * FROM trades WHERE id=? AND receiver_id=? AND status="pending"', (body.trade_id, uid)).fetchone()
+        if not trade:
+            raise HTTPException(404, 'Обмен не найден или уже обработан')
+            
+        # Проверяем карты получателя
+        for card_id in body.receiver_cards:
+            inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (uid, card_id)).fetchone()
+            if not inv or inv['count'] < 1:
+                raise HTTPException(400, 'У вас нет одной из выбранных карт')
+                
+        # Проверяем карты отправителя
+        sender_card_ids = trade['sender_cards'].split(',')
+        for cid in sender_card_ids:
+            sender_inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (trade['sender_id'], cid)).fetchone()
+            if not sender_inv or sender_inv['count'] < 1:
+                raise HTTPException(400, 'У отправителя больше нет одной из этих карт')
+                
+        # СОВЕРШАЕМ ОБМЕН
+        # 1. Отдаем карты отправителя получателю
+        for cid in sender_card_ids:
+            c.execute('UPDATE inventory SET count = count - 1 WHERE user_id=? AND card_id=?', (trade['sender_id'], cid))
+            c.execute('INSERT INTO inventory (user_id, card_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, cid))
+            
+        # 2. Отдаем карты получателя отправителю
+        for cid in body.receiver_cards:
+            c.execute('UPDATE inventory SET count = count - 1 WHERE user_id=? AND card_id=?', (uid, cid))
+            c.execute('INSERT INTO inventory (user_id, card_id, count) VALUES (?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (trade['sender_id'], cid))
+            
+        # 3. Меняем статус
+        receiver_cards_str = ','.join(map(str, body.receiver_cards))
+        c.execute('UPDATE trades SET status="accepted", receiver_cards=? WHERE id=?', (receiver_cards_str, body.trade_id))
+        
+        return {'status': 'ok'}
+
+@app.post('/api/trades/decline')
+def decline_trade(body: dict, authorization: str | None = Header(default=None)):
+    with db() as c:
+        uid = player(c, authorization)
+        trade_id = body.get('trade_id')
+        trade = c.execute('SELECT * FROM trades WHERE id=? AND receiver_id=? AND status="pending"', (trade_id, uid)).fetchone()
+        if trade:
+            c.execute('UPDATE trades SET status="declined" WHERE id=?', (trade_id,))
+        return {'status': 'ok'}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
