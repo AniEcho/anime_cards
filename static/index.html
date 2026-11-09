@@ -164,63 +164,73 @@
     .reward-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #8a8299; margin-bottom: 1px; }
     .reward-value { font-size: 14px; font-weight: 700; color: #fff; }
 
-    /* Обновленный контейнер пазла */
-    .puzzle-wrapper { 
-      position: relative; 
-      width: 100%; 
-      max-width: 100%; 
-      display: flex; 
+    /* ===== КОНТЕЙНЕР ПАЗЛА ===== */
+
+    .puzzle-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      display: flex;
       flex-direction: column;
-      align-items: center; 
-      padding: 0 10px; 
-      box-sizing: border-box; 
-      margin-top: 10px; 
-      margin-bottom: 60px; 
-    }
-    
-    .puzzle-area { 
-      position: relative; 
-      width: 100%; 
-      max-width: 320px; 
-      aspect-ratio: 1 / 1; 
-      background: rgba(0, 0, 0, 0.4); 
-      border: 1px dashed rgba(183, 117, 255, 0.5); 
-      border-radius: 12px; 
-      overflow: visible; 
-      touch-action: none; 
-      z-index: 1; 
-      box-shadow: inset 0 0 30px rgba(0,0,0,0.9); 
-    }
-    
-    .puzzle-grid { 
-      position: absolute; 
-      top: 0; left: 0; right: 0; bottom: 0; 
-      pointer-events: none; 
-      z-index: 0; 
-      display: flex; 
-      flex-wrap: wrap; 
-      align-content: flex-start; 
-    }
-    
-    .puzzle-cell { 
-      box-sizing: border-box; 
-      border: 1px solid rgba(183, 117, 255, 0.15); 
-      background: rgba(183, 117, 255, 0.02); 
-      transition: all 0.2s ease; 
-    }
-    
-    .puzzle-cell.highlight { 
-      background: rgba(183, 117, 255, 0.2); 
-      border-color: rgba(183, 117, 255, 0.8); 
-      box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5); 
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      margin-top: 10px;
+      margin-bottom: 60px;
     }
 
-    /* Лента для кусочков */
+    /* ===== ПОЛЕ СБОРКИ ===== */
+
+    .puzzle-area {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 1 / 1;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px dashed rgba(183, 117, 255, 0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      touch-action: none;
+      z-index: 1;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+    }
+
+    /* ===== СЕТКА ЯЧЕЕК ===== */
+
+    .puzzle-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+    }
+
+    .puzzle-cell {
+      box-sizing: border-box;
+      border: 1px solid rgba(183, 117, 255, 0.15);
+      background: rgba(183, 117, 255, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .puzzle-cell.highlight {
+      background: rgba(183, 117, 255, 0.2);
+      border-color: rgba(183, 117, 255, 0.8);
+      box-shadow: inset 0 0 15px rgba(183, 117, 255, 0.5);
+    }
+
+    /* ===== ЛЕНТА С КУСОЧКАМИ ===== */
+
     .puzzle-tray {
       display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      overflow-y: hidden;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
       width: 100%;
       max-width: 350px;
       margin-top: 16px;
@@ -228,44 +238,64 @@
       background: rgba(20, 16, 26, 0.95);
       border: 1px solid rgba(183, 117, 255, 0.35);
       border-radius: 16px;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7);
       z-index: 10;
     }
-    .puzzle-tray::-webkit-scrollbar { height: 4px; }
-    .puzzle-tray::-webkit-scrollbar-thumb { background: rgba(183, 117, 255, 0.4); border-radius: 2px; }
 
-    /* Кусочек в ленте */
+    .puzzle-tray::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .puzzle-tray::-webkit-scrollbar-thumb {
+      background: rgba(183, 117, 255, 0.4);
+      border-radius: 2px;
+    }
+
+    /* ===== КУСОЧЕК В ЛЕНТЕ ===== */
+
     .puzzle-piece {
-      width: 50px !important;
-      height: 50px !important;
+      width: 50px;
+      height: 50px;
       flex-shrink: 0;
       cursor: grab;
-      position: absolute;
+      position: relative;
       touch-action: none;
       border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(183, 117, 255, 0.5);
-      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(183, 117, 255, 0.5);
+      background-size: cover;
+      background-position: center;
       transition: transform 0.1s;
     }
-    
-    /* Кусочек в полете */
+
+    /* ===== КУСОЧЕК В ПОЛЁТЕ ===== */
+
     .puzzle-piece.dragging {
-      position: fixed !important; 
+      position: fixed !important;
       z-index: 9999;
-      pointer-events: none; 
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.9));
-      transform: scale(1.05); 
-      margin: 0 !important; 
+      pointer-events: none;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.9));
+      margin: 0 !important;
       padding: 0 !important;
+      border-radius: 0;
+      transform: none;
     }
-    
-    /* Кусочек на поле */
+
+    /* ===== КУСОЧЕК НА ПОЛЕ ===== */
+
     .puzzle-piece.placed {
       position: absolute !important;
-      border-radius: 0; 
-      box-shadow: none; 
-      cursor: default; 
+      border-radius: 0;
+      box-shadow: none;
+      cursor: default;
       transform: none;
+    }
+
+    /* ===== ПРАВИЛЬНО ЗАКРЕПЛЁННЫЙ КУСОЧЕК ===== */
+
+    .puzzle-piece.locked {
+      cursor: default;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -1000,201 +1030,190 @@
       }, 200);
     }
 
-let dragElement = null;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-let hoveredCell = null;
+    let dragElement = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let hoveredCell = null;
 
 
-function startDrag(e) {
-  if (!puzzleState) return;
+    function startDrag(e) {
+      if (!puzzleState) return;
 
-  const el = e.currentTarget;
-  e.preventDefault();
+      const el = e.currentTarget;
+      e.preventDefault();
 
-  const index = Number(el.dataset.index);
-  const item = puzzleState.items[index];
+      const index = Number(el.dataset.index);
+      const item = puzzleState.items[index];
 
-  if (!item || item.locked) return;
+      if (!item || item.locked) return;
 
-  // Если кусочек уже стоял на поле — освобождаем ячейку
-  if (item.placedCell) {
-    item.placedCell.occupiedBy = null;
-    item.placedCell = null;
-    item.placed = false;
-  }
+      // Если кусочек уже стоял на поле — освобождаем ячейку
+      if (item.placedCell) {
+        item.placedCell.occupiedBy = null;
+        item.placedCell = null;
+        item.placed = false;
+      }
 
-  dragElement = el;
-  hoveredCell = null;
+      dragElement = el;
+      hoveredCell = null;
 
-  // Реальные экранные координаты элемента до переноса в body
-  const rect = el.getBoundingClientRect();
+      // Реальные экранные координаты до переноса в body
+      const rect = el.getBoundingClientRect();
 
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-  // Смещение курсора относительно левого верхнего угла кусочка
-  dragOffsetX = clientX - rect.left;
-  dragOffsetY = clientY - rect.top;
+      dragOffsetX = clientX - rect.left;
+      dragOffsetY = clientY - rect.top;
 
-  // Фиксируем размер и позицию до переноса в body
-  el.style.width = rect.width + 'px';
-  el.style.height = rect.height + 'px';
-  el.style.left = (clientX - dragOffsetX) + 'px';
-  el.style.top = (clientY - dragOffsetY) + 'px';
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+      el.style.left = (clientX - dragOffsetX) + 'px';
+      el.style.top = (clientY - dragOffsetY) + 'px';
 
-  // Переносим в body и включаем режим перетаскивания
-  document.body.appendChild(el);
-  el.classList.remove('placed');
-  el.classList.add('dragging');
+      document.body.appendChild(el);
+      el.classList.remove('placed');
+      el.classList.add('dragging');
 
-  document.addEventListener('mousemove', onDrag);
-  document.addEventListener('touchmove', onDrag, { passive: false });
-  document.addEventListener('mouseup', stopDrag);
-  document.addEventListener('touchend', stopDrag);
-}
-
-
-function onDrag(e) {
-  if (!dragElement) return;
-
-  e.preventDefault();
-
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-  dragElement.style.left = (clientX - dragOffsetX) + 'px';
-  dragElement.style.top = (clientY - dragOffsetY) + 'px';
-
-  // Убираем подсветку со всех ячеек
-  puzzleState.cells.forEach(cell => {
-    cell.el.classList.remove('highlight');
-  });
-
-  // Координаты центра перетаскиваемого кусочка
-  const elRect = dragElement.getBoundingClientRect();
-  const pieceCenterX = elRect.left + elRect.width / 2;
-  const pieceCenterY = elRect.top + elRect.height / 2;
-
-  hoveredCell = null;
-  let minDistance = Infinity;
-
-  // Ищем ближайшую ячейку
-  for (const cell of puzzleState.cells) {
-    const cellRect = cell.el.getBoundingClientRect();
-
-    const cellCenterX = cellRect.left + cellRect.width / 2;
-    const cellCenterY = cellRect.top + cellRect.height / 2;
-
-    const dist = Math.hypot(
-      pieceCenterX - cellCenterX,
-      pieceCenterY - cellCenterY
-    );
-
-    if (dist < cellRect.width * 0.8 && dist < minDistance) {
-      minDistance = dist;
-      hoveredCell = cell;
-    }
-  }
-
-  // Подсвечиваем найденную ячейку
-  if (hoveredCell) {
-    hoveredCell.el.classList.add('highlight');
-  }
-}
-
-
-function stopDrag() {
-  if (!dragElement) return;
-
-  const el = dragElement;
-  dragElement = null;
-
-  document.removeEventListener('mousemove', onDrag);
-  document.removeEventListener('touchmove', onDrag);
-  document.removeEventListener('mouseup', stopDrag);
-  document.removeEventListener('touchend', stopDrag);
-
-  if (!puzzleState) return;
-
-  const index = Number(el.dataset.index);
-  const item = puzzleState.items[index];
-
-  if (!item) return;
-
-  const area = $('puzzle-area');
-  const tray = $('puzzle-tray');
-
-  if (!area || !tray) return;
-
-  // Убираем подсветку со всех ячеек
-  puzzleState.cells.forEach(cell => {
-    cell.el.classList.remove('highlight');
-  });
-
-  if (hoveredCell) {
-    // Если ячейка занята другим кусочком — возвращаем его в ленту
-    if (
-      hoveredCell.occupiedBy &&
-      hoveredCell.occupiedBy !== item &&
-      !hoveredCell.occupiedBy.locked
-    ) {
-      const otherItem = hoveredCell.occupiedBy;
-
-      otherItem.placed = false;
-      otherItem.placedCell = null;
-
-      otherItem.el.className = 'puzzle-piece';
-      otherItem.el.style.left = '';
-      otherItem.el.style.top = '';
-      otherItem.el.style.width = '';
-      otherItem.el.style.height = '';
-
-      tray.appendChild(otherItem.el);
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
     }
 
-    const gridSize = puzzleState.gridSize;
-    const cellSize = 100 / gridSize;
 
-    // Сначала возвращаем обычное позиционирование
-    el.classList.remove('dragging');
-    el.className = 'puzzle-piece placed';
+    function onDrag(e) {
+      if (!dragElement) return;
 
-    // Ставим кусочек в ячейку через проценты
-    el.style.left = (hoveredCell.col * cellSize) + '%';
-    el.style.top = (hoveredCell.row * cellSize) + '%';
-    el.style.width = cellSize + '%';
-    el.style.height = cellSize + '%';
+      e.preventDefault();
 
-    area.appendChild(el);
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    item.placed = true;
-    item.placedCell = hoveredCell;
-    hoveredCell.occupiedBy = item;
+      dragElement.style.left = (clientX - dragOffsetX) + 'px';
+      dragElement.style.top = (clientY - dragOffsetY) + 'px';
 
-    const correctIndex = hoveredCell.row * gridSize + hoveredCell.col;
+      puzzleState.cells.forEach(cell => {
+        cell.el.classList.remove('highlight');
+      });
 
-    if (item.originalIndex === correctIndex) {
-      item.locked = true;
-      el.style.cursor = 'default';
+      const elRect = dragElement.getBoundingClientRect();
+      const pieceCenterX = elRect.left + elRect.width / 2;
+      const pieceCenterY = elRect.top + elRect.height / 2;
+
+      hoveredCell = null;
+      let minDistance = Infinity;
+
+      for (const cell of puzzleState.cells) {
+        const cellRect = cell.el.getBoundingClientRect();
+
+        const cellCenterX = cellRect.left + cellRect.width / 2;
+        const cellCenterY = cellRect.top + cellRect.height / 2;
+
+        const dist = Math.hypot(
+          pieceCenterX - cellCenterX,
+          pieceCenterY - cellCenterY
+        );
+
+        if (dist < cellRect.width * 0.8 && dist < minDistance) {
+          minDistance = dist;
+          hoveredCell = cell;
+        }
+      }
+
+      if (hoveredCell) {
+        hoveredCell.el.classList.add('highlight');
+      }
     }
 
-    checkWin();
-  } else {
-    // Бросили мимо поля — возвращаем в ленту
-    el.classList.remove('dragging');
-    el.className = 'puzzle-piece';
 
-    el.style.left = '';
-    el.style.top = '';
-    el.style.width = '';
-    el.style.height = '';
+    function stopDrag() {
+      if (!dragElement) return;
 
-    tray.appendChild(el);
-  }
+      const el = dragElement;
+      dragElement = null;
 
-  hoveredCell = null;
-}
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchend', stopDrag);
+
+      if (!puzzleState) return;
+
+      const index = Number(el.dataset.index);
+      const item = puzzleState.items[index];
+
+      if (!item) return;
+
+      const area = $('puzzle-area');
+      const tray = $('puzzle-tray');
+
+      if (!area || !tray) return;
+
+      puzzleState.cells.forEach(cell => {
+        cell.el.classList.remove('highlight');
+      });
+
+      if (hoveredCell) {
+        // Если ячейка занята другим кусочком — возвращаем его в ленту
+        if (
+          hoveredCell.occupiedBy &&
+          hoveredCell.occupiedBy !== item &&
+          !hoveredCell.occupiedBy.locked
+        ) {
+          const otherItem = hoveredCell.occupiedBy;
+
+          otherItem.placed = false;
+          otherItem.placedCell = null;
+
+          otherItem.el.className = 'puzzle-piece';
+          otherItem.el.style.left = '';
+          otherItem.el.style.top = '';
+          otherItem.el.style.width = '';
+          otherItem.el.style.height = '';
+
+          tray.appendChild(otherItem.el);
+        }
+
+        const gridSize = puzzleState.gridSize;
+        const cellSize = 100 / gridSize;
+
+        el.classList.remove('dragging');
+        el.className = 'puzzle-piece placed';
+
+        el.style.left = (hoveredCell.col * cellSize) + '%';
+        el.style.top = (hoveredCell.row * cellSize) + '%';
+        el.style.width = cellSize + '%';
+        el.style.height = cellSize + '%';
+
+        area.appendChild(el);
+
+        item.placed = true;
+        item.placedCell = hoveredCell;
+        hoveredCell.occupiedBy = item;
+
+        const correctIndex = hoveredCell.row * gridSize + hoveredCell.col;
+
+        if (item.originalIndex === correctIndex) {
+          item.locked = true;
+          el.style.cursor = 'default';
+        }
+
+        checkWin();
+      } else {
+        el.classList.remove('dragging');
+        el.className = 'puzzle-piece';
+
+        el.style.left = '';
+        el.style.top = '';
+        el.style.width = '';
+        el.style.height = '';
+
+        tray.appendChild(el);
+      }
+
+      hoveredCell = null;
+    }
     
     function checkWin() {
       if (!puzzleState) return;
