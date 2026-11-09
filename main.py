@@ -65,6 +65,10 @@ def initialize():
             c.execute('ALTER TABLE users ADD COLUMN photo_url TEXT DEFAULT ""')
         except sqlite3.OperationalError:
             pass
+        try:
+            c.execute('ALTER TABLE users ADD COLUMN username TEXT DEFAULT ""')
+        except sqlite3.OperationalError:
+            pass
 
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
@@ -114,7 +118,7 @@ def index():
 
 def identity(authorization):
     if authorization == 'dev' and DEV_MODE:
-        return {'id': 1, 'first_name': 'Тестовый игрок'}
+        return {'id': 1, 'first_name': 'Тестовый игрок', 'username': 'testuser'}
     if not authorization or not authorization.startswith('tma '):
         raise HTTPException(401, 'Открой приложение через Telegram')
     try:
@@ -133,9 +137,9 @@ def identity(authorization):
         if not isinstance(user.get('id'), int) or isinstance(user['id'], bool):
             raise ValueError()
         
-        # ДОБАВЛЯЕМ photo_url (если он есть, иначе пустая строка)
-        if 'photo_url' not in user:
-            user['photo_url'] = ''
+        # Добавляем пустые поля, если их нет, чтобы не было ошибок
+        if 'photo_url' not in user: user['photo_url'] = ''
+        if 'username' not in user: user['username'] = ''
             
         return user
     except (ValueError, KeyError, TypeError):
@@ -143,9 +147,10 @@ def identity(authorization):
 
 def player(c, authorization):
     user = identity(authorization)
-    name = str(user.get('first_name') or user.get('username') or 'Игрок')[:100]
+    name = str(user.get('first_name') or 'Игрок')[:100]
     photo = user.get('photo_url', '')
-    c.execute('INSERT INTO users(id,name,photo_url) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, photo_url=excluded.photo_url', (user['id'],name,photo))
+    username = str(user.get('username') or '')[:100]
+    c.execute('INSERT INTO users(id,name,photo_url,username) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, photo_url=excluded.photo_url, username=excluded.username', (user['id'],name,photo,username))
     return user['id']
 
 def card_dict(row):
@@ -432,11 +437,12 @@ def create_trade(body: TradeCreate, authorization: str | None = Header(default=N
     with db() as c:
         uid = player(c, authorization)
         
-        # Ищем получателя по имени
-        search_name = body.receiver_username.strip().lstrip('@')
-        receiver = c.execute('SELECT id, name FROM users WHERE LOWER(name) = LOWER(?)', (search_name,)).fetchone()
+        # Ищем получателя ТОЛЬКО по username (без учета регистра)
+        search_term = body.receiver_username.strip().lstrip('@')
+        receiver = c.execute('SELECT id, name FROM users WHERE LOWER(username) = LOWER(?)', (search_term,)).fetchone()
+        
         if not receiver:
-            raise HTTPException(404, 'Игрок с таким ником не найден (он должен был хотя бы раз зайти в игру)')
+            raise HTTPException(404, f'Игрок с юзернеймом @{search_term} не найден. Убедитесь, что он заходил в игру.')
         if receiver['id'] == uid:
             raise HTTPException(400, 'Нельзя обмениваться с самим собой')
             

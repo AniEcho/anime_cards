@@ -892,7 +892,7 @@
           </div>
 
           <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
-            <label class="reward-label" style="font-size: 11px;">Ник получателя</label>
+            <label class="reward-label" style="font-size: 11px;">Введите @username</label>
             <input type="text" id="trade-target-name" placeholder="@username" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0c10; border: 1px solid #3a304a; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-top: 6px;">
           </div>
 
@@ -904,7 +904,7 @@
           <div id="trade-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
           <div id="trade-error-msg" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
 
-          <button class="primary wide" onclick="submitTrade()" style="position: sticky; bottom: 80px; z-index: 50; box-shadow: 0 4px 20px rgba(183,117,255,0.4);">Предложить обмен</button>
+          <button class="primary wide" onclick="submitTrade()" style="margin-top: 15px; box-shadow: 0 4px 20px rgba(183,117,255,0.4);">Предложить обмен</button>
         `;
         renderTradeInventory('trade-inventory-grid', true);
       }
@@ -1028,14 +1028,13 @@
       if (selectedTradeCards.length === 0) { errDiv.textContent = 'Выберите хотя бы одну карту!'; errDiv.style.display = 'block'; return; }
 
       try {
-        await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
-        await sync();
-        currentTradeState = 'list';
-        renderTradesScreen();
-        // Красивое уведомление
-        $('notice').hidden = false;
-        $('notice').textContent = 'Обмен успешно отправлен!';
-        setTimeout(() => { $('notice').hidden = true; }, 3000);
+        // ТУТ ВАЖЕН ПУТЬ: должно быть именно 'trades/create' (без начального слэша)
+        const res = await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
+        if (res.status === 'ok') {
+          await sync();
+          currentTradeState = 'list';
+          renderTradesScreen();
+        }
       } catch (e) { 
         errDiv.textContent = e.message;
         errDiv.style.display = 'block';
