@@ -247,7 +247,10 @@
     let gameTicker = null;
     let filterAnime = '';
     let filterRarity = '';
-    let filterDupes = false; 
+    let filterDupes = false;
+    let tradeFilterAnime = '';
+    let tradeFilterRarity = '';
+    let tradeFilterDupes = false;
     let puzzleState = null;
     let puzzleSession = null;
     let puzzleTicker = null;
@@ -500,7 +503,14 @@
     function setFilter(type, value) { if (type === 'rarity') filterRarity = value; if (type === 'anime') filterAnime = value; document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active')); if ($('label-rarity')) $('label-rarity').textContent = filterRarity || 'Все редкости'; if ($('label-anime')) $('label-anime').textContent = filterAnime || 'Все аниме'; collection(); }
     function toggleDupesFilter() { filterDupes = !filterDupes; if ($('btn-dupes')) $('btn-dupes').classList.toggle('active', filterDupes); collection(); }
     function resetFilters() { filterAnime = ''; filterRarity = ''; filterDupes = false; collection(); }
-    document.addEventListener('click', (e) => { if (!e.target.closest('.filter-dropdown-wrap')) document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active')); });
+    document.addEventListener('click', (e) => { 
+      if (!e.target.closest('.filter-dropdown-wrap')) {
+        document.querySelectorAll('.filter-menu').forEach(m => {
+          m.classList.remove('active');
+          m.style.display = 'none';
+        });
+      }
+    });
 
     // ==========================================
     // ОБМЕНЫ
@@ -512,6 +522,23 @@
 
     async function renderTradesScreen() {
       const view = $('view');
+      
+      // Общий HTML для фильтров
+      const filtersHtml = `
+        <div class="filter-bar" style="margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: wrap;">
+          <div class="filter-dropdown-wrap" style="position: relative; flex: 1; min-width: 120px;">
+            <button class="filter-chip" onclick="toggleTradeFilterDropdown('rarity', event)"><span id="trade-label-rarity">${tradeFilterRarity || 'Все редкости'}</span> ▾</button>
+            <div class="filter-menu" id="trade-menu-rarity" style="position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; display: none;"></div>
+          </div>
+          <div class="filter-dropdown-wrap" style="position: relative; flex: 1; min-width: 120px;">
+            <button class="filter-chip" onclick="toggleTradeFilterDropdown('anime', event)"><span id="trade-label-anime">${tradeFilterAnime || 'Все аниме'}</span> ▾</button>
+            <div class="filter-menu" id="trade-menu-anime" style="position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; display: none;"></div>
+          </div>
+          <button id="trade-btn-dupes" class="filter-chip ${tradeFilterDupes ? 'active' : ''}" onclick="toggleTradeDupesFilter()" style="flex: auto; width: auto; justify-content: center;">Только повторки</button>
+          <button id="trade-btn-reset-filters" class="btn-reset" onclick="resetTradeFilters()" style="display: ${(tradeFilterAnime || tradeFilterRarity || tradeFilterDupes) ? 'flex' : 'none'};">✕ Сбросить</button>
+        </div>
+      `;
+
       if (currentTradeState === 'list') {
         view.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 15px;">
@@ -557,11 +584,13 @@
             <h3 style="margin:0; font-size: 16px;">Выберите карты</h3>
             <span id="trade-selected-count" style="font-size: 13px; color: #b775ff; font-weight: bold; background: rgba(183,117,255,0.1); padding: 4px 8px; border-radius: 6px;">Выбрано: 0</span>
           </div>
+          ${filtersHtml}
           <div id="trade-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
           <div id="trade-error-msg" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
           <button class="primary wide" onclick="submitTrade()" style="margin-top: 15px; box-shadow: 0 4px 20px rgba(183,117,255,0.4);">Предложить обмен</button>
         `;
         renderTradeInventory('trade-inventory-grid', true);
+        renderTradeFilterMenus();
       }
       
       else if (currentTradeState === 'answer' && activeTradeToAnswer) {
@@ -583,6 +612,7 @@
             </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><h3 style="margin:0; font-size: 16px;">Выберите карту взамен</h3></div>
+          ${filtersHtml}
           <div id="trade-my-inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
           <div id="trade-answer-error" style="color: #ff6b6b; font-size: 14px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></div>
           <div style="display: flex; gap: 10px; width: 100%;">
@@ -591,7 +621,99 @@
           </div>
         `;
         renderTradeInventory('trade-my-inventory-grid', false);
+        renderTradeFilterMenus();
       }
+    }
+
+    function renderTradeFilterMenus() {
+      const rarityMenu = $('trade-menu-rarity');
+      if (rarityMenu) {
+        const rarityOrder = ['Мифическая', 'Легендарная', 'Эпическая', 'Редкая', 'Необычная', 'Обычная'];
+        const availableRarities = rarityOrder.filter(r => profile.cards.some(c => c.rarity === r && c.count > 0));
+        let html = `<div class="filter-option ${!tradeFilterRarity ? 'active' : ''}" onclick="setTradeFilter('rarity', '')">Все редкости</div>`;
+        availableRarities.forEach(r => { html += `<div class="filter-option ${tradeFilterRarity === r ? 'active' : ''}" onclick="setTradeFilter('rarity', '${esc(r)}')">${esc(r)}</div>`; });
+        rarityMenu.innerHTML = html;
+      }
+      
+      const animeMenu = $('trade-menu-anime');
+      if (animeMenu) {
+        const availableAnimes = [...new Set(profile.cards.filter(c => c.count > 0).map(c => c.anime))].sort((a, b) => a.localeCompare(b, 'ru'));
+        let html = `<div class="filter-option ${!tradeFilterAnime ? 'active' : ''}" onclick="setTradeFilter('anime', '')">Все аниме</div>`;
+        availableAnimes.forEach(a => { html += `<div class="filter-option ${tradeFilterAnime === a ? 'active' : ''}" onclick="setTradeFilter('anime', '${esc(a)}')">${esc(a)}</div>`; });
+        animeMenu.innerHTML = html;
+      }
+    }
+
+    function toggleTradeFilterDropdown(type, event) {
+      if (event) event.stopPropagation(); // Чтобы клик не закрыл меню сразу же
+      const menu = $(type === 'rarity' ? 'trade-menu-rarity' : 'trade-menu-anime');
+      const other = $(type === 'rarity' ? 'trade-menu-anime' : 'trade-menu-rarity');
+      
+      if (other) other.classList.remove('active');
+      if (menu) {
+        const isOpening = !menu.classList.contains('active');
+        menu.classList.toggle('active');
+        if (isOpening) {
+          menu.style.display = 'flex'; // Принудительно показываем
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+    
+    function setTradeFilter(type, value) {
+      if (type === 'rarity') tradeFilterRarity = value;
+      if (type === 'anime') tradeFilterAnime = value;
+      
+      document.querySelectorAll('.filter-menu').forEach(m => {
+        m.classList.remove('active');
+        m.style.display = 'none';
+      });
+      
+      const lblRarity = $('trade-label-rarity');
+      if (lblRarity) lblRarity.textContent = tradeFilterRarity || 'Все редкости';
+      const lblAnime = $('trade-label-anime');
+      if (lblAnime) lblAnime.textContent = tradeFilterAnime || 'Все аниме';
+      
+      const btnReset = $('trade-btn-reset-filters');
+      if (btnReset) btnReset.style.display = (tradeFilterAnime || tradeFilterRarity || tradeFilterDupes) ? 'flex' : 'none';
+      
+      renderTradeInventory(currentTradeState === 'create' ? 'trade-inventory-grid' : 'trade-my-inventory-grid', currentTradeState === 'create');
+    }
+    
+    function toggleTradeDupesFilter() {
+      tradeFilterDupes = !tradeFilterDupes;
+      const btnDupes = $('trade-btn-dupes');
+      if (btnDupes) btnDupes.classList.toggle('active', tradeFilterDupes);
+      
+      const btnReset = $('trade-btn-reset-filters');
+      if (btnReset) btnReset.style.display = (tradeFilterAnime || tradeFilterRarity || tradeFilterDupes) ? 'flex' : 'none';
+      
+      renderTradeInventory(currentTradeState === 'create' ? 'trade-inventory-grid' : 'trade-my-inventory-grid', currentTradeState === 'create');
+    }
+    
+    function resetTradeFilters() {
+      tradeFilterAnime = '';
+      tradeFilterRarity = '';
+      tradeFilterDupes = false;
+      
+      document.querySelectorAll('.filter-menu').forEach(m => {
+        m.classList.remove('active');
+        m.style.display = 'none';
+      });
+      
+      const lblRarity = $('trade-label-rarity');
+      if (lblRarity) lblRarity.textContent = 'Все редкости';
+      const lblAnime = $('trade-label-anime');
+      if (lblAnime) lblAnime.textContent = 'Все аниме';
+      
+      const btnDupes = $('trade-btn-dupes');
+      if (btnDupes) btnDupes.classList.remove('active');
+      
+      const btnReset = $('trade-btn-reset-filters');
+      if (btnReset) btnReset.style.display = 'none';
+      
+      renderTradeInventory(currentTradeState === 'create' ? 'trade-inventory-grid' : 'trade-my-inventory-grid', currentTradeState === 'create');
     }
 
     function startCreateTrade() { selectedTradeCards = []; currentTradeState = 'create'; renderTradesScreen(); }
@@ -607,10 +729,22 @@
     function renderTradeInventory(containerId, isCreating) {
       const container = $(containerId);
       if (!container) return;
+      
       let cards = profile.cards.filter(c => c.count > 0);
+      
+      // Применяем фильтры
+      if (tradeFilterAnime) cards = cards.filter(c => c.anime === tradeFilterAnime);
+      if (tradeFilterRarity) cards = cards.filter(c => c.rarity === tradeFilterRarity);
+      if (tradeFilterDupes) cards = cards.filter(c => c.count > 1);
+      
       const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
       cards.sort((a, b) => (rarityWeight[b.rarity] || 0) - (rarityWeight[a.rarity] || 0));
-      if (cards.length === 0) { container.innerHTML = '<p class="muted" style="font-size:14px; grid-column: 1/-1; text-align:center; padding: 20px;">Нет карт для обмена.</p>'; return; }
+      
+      if (cards.length === 0) { 
+        container.innerHTML = '<p class="muted" style="font-size:14px; grid-column: 1/-1; text-align:center; padding: 20px;">По выбранным фильтрам карт не найдено.</p>'; 
+        return; 
+      }
+      
       container.innerHTML = cards.map(c => {
         const selectedCount = selectedTradeCards.filter(id => id === c.id).length;
         const isSelected = selectedCount > 0;
