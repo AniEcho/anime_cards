@@ -362,7 +362,20 @@
       clearInterval(ticker); clearInterval(puzzleTicker);
       if (tradesTicker) { clearInterval(tradesTicker); tradesTicker = null; }
       if (leaderboardTicker) { clearInterval(leaderboardTicker); leaderboardTicker = null; }
-      if (tab === 'games' && puzzleSession) { api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {}); puzzleSession = null; puzzleState = null; sync(); }
+      
+      // Если выходим из игры, убиваем зависшие кусочки
+      if (tab === 'games' && puzzleSession) { 
+        api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {}); 
+        puzzleSession = null; 
+        puzzleState = null; 
+        sync(); 
+      }
+
+      // ПРИНУДИТЕЛЬНАЯ ОЧИСТКА ВСЕГДА
+      document.querySelectorAll('.puzzle-piece').forEach(el => {
+        if (el.parentElement === document.body) el.remove();
+      });
+
       tab = next; session = null; puzzleState = null;
       $('result').hidden = true;
       document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));
@@ -1076,8 +1089,10 @@
           clearInterval(puzzleTicker); 
           puzzleState = null;
           
-          // ПРИНУДИТЕЛЬНО УДАЛЯЕМ ВСЕ ЗАВИСШИЕ КУСОЧКИ (ЕСЛИ ИГРОК ИХ ДЕРЖИТ)
-          document.querySelectorAll('.puzzle-piece.dragging').forEach(el => el.remove());
+          // Удаляем все кусочки, которые сейчас перетаскиваются (лежат в body)
+          document.querySelectorAll('.puzzle-piece').forEach(el => {
+            if (el.parentElement === document.body) el.remove();
+          });
           
           $('view').innerHTML = `<div style="text-align:center; padding: 40px 20px;"><h2 style="color: #ff6b6b;">Время вышло!</h2><p class="muted">Ты не успел собрать карту.</p><button class="primary wide" onclick="show('games')" style="margin-top: 20px;">Попробовать снова</button></div>`;
         }
@@ -1118,7 +1133,11 @@
       if (hoveredCell) hoveredCell.el.classList.add('highlight');
     }
     function stopDrag() {
-      if (!dragElement) return;
+      if (!puzzleState) {
+        dragElement.remove();
+        dragElement = null;
+        return;
+      }
       const el = dragElement; dragElement = null;
       document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag);
       document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag);
