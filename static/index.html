@@ -201,18 +201,26 @@
   <!-- МОДАЛКА НАГРАДЫ -->
   <div id="reward-modal" class="modal-overlay" onclick="closeReward(event)">
     <div class="reward-content" onclick="event.stopPropagation()">
-      <button class="reward-close" onclick="closeReward()">✕</button>
       <h2 class="reward-title">Карта получена!</h2>
       <div class="reward-body">
         <div class="reward-left"><div id="reward-card-container"></div></div>
         <div class="reward-right">
-          <div class="reward-points" id="reward-subtitle"></div>
-          <div class="reward-info-block">
-            <div><div class="reward-label">Персонаж</div><div class="reward-value" id="reward-name"></div></div>
-            <div><div class="reward-label">Аниме</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
-            <div style="display: flex; gap: 20px; margin-top: 4px;">
-              <div style="flex: 1;"><div class="reward-label">Редкость</div><div class="reward-value" id="reward-rarity"></div></div>
-              <div style="flex: 1;"><div class="reward-label">В коллекции</div><div class="reward-value" id="reward-count"></div></div>
+          <div class="reward-points" id="reward-subtitle" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
+          <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
+            <!-- Убрали блок с именем, так как оно есть на карточке -->
+            <div>
+              <div class="reward-label">Аниме</div>
+              <div class="reward-value" id="reward-anime" style="color: #b775ff;"></div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+              <div style="flex: 1;">
+                <div class="reward-label">Редкость</div>
+                <div class="reward-value" id="reward-rarity"></div>
+              </div>
+              <div style="flex: 1;">
+                <div class="reward-label">В коллекции</div>
+                <div class="reward-value" id="reward-count"></div>
+              </div>
             </div>
           </div>
           <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
@@ -233,15 +241,15 @@
     </div>
   </div>
 
-     <!-- МОДАЛКА ИНФОРМАЦИИ О КАРТЕ -->
+  <!-- МОДАЛКА ИНФОРМАЦИИ О КАРТЕ -->
   <div id="card-info-modal" class="modal-overlay" onclick="closeCardInfo(event)">
     <div class="reward-content" style="max-width: 480px; padding: 24px 20px;" onclick="event.stopPropagation()">
       <h2 class="reward-title" style="margin-bottom: 16px;">Информация о карте</h2>
       
       <div class="reward-body">
-        <!-- ЛЕВАЯ ЧАСТЬ: КАРТОЧКА -->
-        <div class="reward-left">
-          <div id="info-card-container"></div>
+        <!-- ЛЕВАЯ ЧАСТЬ: ТОЛЬКО КАРТИНКА -->
+        <div class="reward-left" style="width: 130px; flex-shrink: 0;">
+          <div id="info-card-container" style="width: 100%; aspect-ratio: 1 / 1.2; border-radius: 12px; overflow: hidden; background: #0a0c10; border: 1px solid #3a304a; display: flex; align-items: center; justify-content: center;"></div>
         </div>
         
         <!-- ПРАВАЯ ЧАСТЬ: ТЕКСТ -->
@@ -1274,22 +1282,31 @@
       const count = ownedCard ? ownedCard.count : 1;
       const rarityColor = colors[c.rarity] || '#aaa';
       $('reward-card-container').innerHTML = card(c);
+      
+      // Убираем клик с карточки в модалке, чтобы она не открывала инфу о себе
+      $('reward-card-container').querySelector('.card').onclick = null;
+      
       $('reward-subtitle').innerHTML = `<span style="color:#b775ff; font-weight:bold;">+${c.points}</span> рейтинга`;
-      $('reward-name').textContent = c.name; $('reward-anime').textContent = c.anime;
-      $('reward-rarity').textContent = c.rarity; $('reward-rarity').style.color = rarityColor;
-      $('reward-count').textContent = `${count} шт.`; $('reward-modal').classList.add('active');
+      $('reward-anime').textContent = c.anime;
+      $('reward-rarity').textContent = c.rarity; 
+      $('reward-rarity').style.color = rarityColor;
+      $('reward-count').textContent = `${count} шт.`; 
+      $('reward-modal').classList.add('active');
     }
 
     function openCardInfo(cardId) {
       const c = profile.cards.find(x => Number(x.id) === Number(cardId));
       if (!c) return;
 
-      // Вставляем карточку (используем функцию card, которая рисует красивую карту)
-      $('info-card-container').innerHTML = card(c);
-      // Убираем клик с карты внутри модалки, чтобы она не открывала саму себя
-      $('info-card-container').querySelector('.card').onclick = null;
+      // Вставляем ТОЛЬКО картинку, без рамок и текста
+      const container = $('info-card-container');
+      if (c.image) {
+        container.innerHTML = `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">`;
+      } else {
+        container.innerHTML = `<div style="color: #555; font-size: 14px; font-weight: bold; text-align: center; padding: 10px;">${esc(c.name)}</div>`;
+      }
       
-      // Заполняем данные
+      // Заполняем текст справа
       const rarityColor = colors[c.rarity] || '#aaa';
       $('info-card-points').innerHTML = `<span style="color:#b775ff; font-weight:bold;">${c.points}</span> рейтинга`;
       $('info-card-name').textContent = c.name;
@@ -1298,11 +1315,9 @@
       $('info-card-rarity').style.color = rarityColor;
       $('info-card-count').textContent = `${c.count} шт.`;
       
-      // Описание
       const desc = c.description && c.description.trim() !== '' ? c.description : 'Описание для этого персонажа пока не добавлено.';
       $('info-card-desc').textContent = desc;
 
-      // Открываем модалку
       $('card-info-modal').classList.add('active');
     }
 
