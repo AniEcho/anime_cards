@@ -268,6 +268,8 @@
     const auth = tg?.initData ? 'tma ' + tg.initData : 'dev';
 
     let profile, tab = 'collection', session = null, ticker = null, busy = false;
+    let currentPage = 1; // Текущая страница в "Мои карты"
+    const CARDS_PER_PAGE = 8; // Сколько карт на одной странице (2 колонки по 4)
     let currentTradeId = null;
     let selectedTradeCards = [];
     let leaderboardTicker = null;
@@ -468,6 +470,7 @@
     }
     
     function switchTab(nextTab) {
+      currentPage = 1;
       collectionTab = nextTab; currentAnime = null; 
       if ($('tab-mine')) $('tab-mine').classList.toggle('active', nextTab === 'mine');
       if ($('tab-sets')) $('tab-sets').classList.toggle('active', nextTab === 'sets');
@@ -499,8 +502,36 @@
         renderFilterMenus();
         
         let html = ``;
-        if (myCards.length === 0) html += `<p class="muted" style="text-align:center; margin-top:20px;">По выбранным фильтрам ничего не найдено.</p>`;
-        else html += `<div class="grid">${myCards.map(card).join('')}</div>`;
+        if (myCards.length === 0) {
+          html += `<p class="muted" style="text-align:center; margin-top:20px;">По выбранным фильтрам ничего не найдено.</p>`;
+        } else {
+          // --- ПАГИНАЦИЯ ---
+          const totalPages = Math.ceil(myCards.length / CARDS_PER_PAGE);
+          if (currentPage > totalPages) currentPage = totalPages;
+          if (currentPage < 1) currentPage = 1;
+          
+          const startIdx = (currentPage - 1) * CARDS_PER_PAGE;
+          const pageCards = myCards.slice(startIdx, startIdx + CARDS_PER_PAGE);
+          
+          html += `<div class="grid" style="grid-template-columns: repeat(2, 1fr);">${pageCards.map(card).join('')}</div>`;
+          
+          if (totalPages > 1) {
+            let pagesHtml = '';
+            if (currentPage > 1) pagesHtml += `<button onclick="changePage(${currentPage - 1})" style="background: #1e1a26; border-color: #3a304a; color: #fff; padding: 8px 14px; font-size: 14px;">←</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+              if (i === currentPage) {
+                pagesHtml += `<button style="background: #b775ff; border-color: #8e44ad; color: #fff; font-weight: bold; padding: 8px 14px; font-size: 14px; cursor: default;">${i}</button>`;
+              } else {
+                pagesHtml += `<button onclick="changePage(${i})" style="background: transparent; border: 1px solid #3a304a; color: #aaa; padding: 8px 14px; font-size: 14px;">${i}</button>`;
+              }
+            }
+            
+            if (currentPage < totalPages) pagesHtml += `<button onclick="changePage(${currentPage + 1})" style="background: #1e1a26; border-color: #3a304a; color: #fff; padding: 8px 14px; font-size: 14px;">→</button>`;
+            
+            html += `<div style="display: flex; justify-content: center; gap: 6px; margin-top: 20px; flex-wrap: wrap;">${pagesHtml}</div>`;
+          }
+        }
         view.innerHTML = html;
         return;
       }
@@ -520,7 +551,6 @@
           const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
           const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
           
-          // ДОБАВИЛИ onclick СЮДА (чтобы работало информирование в сетях)
           return `<div class="set-card ${rarityClass} ${isMissing ? 'missing' : ''}" onclick="openCardInfo(${c.id})"><div class="set-card-img">${bgHtml}${contentHtml}${holoHtml}</div><div class="set-card-info"><div class="set-card-name" style="color:${isMissing ? '#666' : '#eee'}">${esc(c.name)}</div><div class="set-card-points" style="opacity: ${isMissing ? 0.3 : 1}; color: #b775ff;">${c.points}</div><div class="muted" style="font-size:10px; margin-top:2px; font-weight:600; color:${isMissing ? '#555' : '#8a8299'};">В коллекции: ${c.count}</div></div></div>`;
         }).join('');
         
@@ -542,6 +572,13 @@
       
       view.innerHTML = `<div class="sets-list">${setsHtml}</div>`;
       document.querySelectorAll('.set-row').forEach(el => { el.onclick = () => { currentAnime = el.dataset.anime; collection(); }; });
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      collection();
+      // Прокручиваем вверх к картам, чтобы не смотреть на подвал
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function toggleFilterDropdown(type, event) {
@@ -578,9 +615,28 @@
         animeMenu.innerHTML = html;
       }
     }
-    function setFilter(type, value) { if (type === 'rarity') filterRarity = value; if (type === 'anime') filterAnime = value; document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active')); if ($('label-rarity')) $('label-rarity').textContent = filterRarity || 'Все редкости'; if ($('label-anime')) $('label-anime').textContent = filterAnime || 'Все аниме'; collection(); }
-    function toggleDupesFilter() { filterDupes = !filterDupes; if ($('btn-dupes')) $('btn-dupes').classList.toggle('active', filterDupes); collection(); }
-    function resetFilters() { filterAnime = ''; filterRarity = ''; filterDupes = false; collection(); }
+    function setFilter(type, value) { 
+      if (type === 'rarity') filterRarity = value; 
+      if (type === 'anime') filterAnime = value; 
+      currentPage = 1; // <--- ДОБАВИТЬ
+      document.querySelectorAll('.filter-menu').forEach(m => m.classList.remove('active'));  
+      if ($('label-rarity')) $('label-rarity').textContent = filterRarity || 'Все редкости'; 
+      if ($('label-anime')) $('label-anime').textContent = filterAnime || 'Все аниме'; 
+      collection(); 
+    }
+    function toggleDupesFilter() {
+      currentPage = 1;
+      filterDupes = !filterDupes;
+      if ($('btn-dupes'))
+        $('btn-dupes').classList.toggle('active', filterDupes);
+        collection(); 
+    }
+    function resetFilters() {
+      currentPage = 1;
+      filterAnime = ''; 
+      filterRarity = ''; 
+      filterDupes = false; 
+      collection(); }
     document.addEventListener('click', (e) => { 
       if (!e.target.closest('.filter-dropdown-wrap')) {
         document.querySelectorAll('.filter-menu').forEach(m => {
