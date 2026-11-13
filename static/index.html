@@ -207,19 +207,11 @@
         <div class="reward-right">
           <div class="reward-points" id="reward-subtitle" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
           <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div>
-              <div class="reward-label">Аниме</div>
-              <div class="reward-value" id="reward-anime" style="color: #b775ff;"></div>
-            </div>
-            <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;">
-                <div class="reward-label">Редкость</div>
-                <div class="reward-value" id="reward-rarity"></div>
-              </div>
-              <div style="flex: 1;">
-                <div class="reward-label">В коллекции</div>
-                <div class="reward-value" id="reward-count"></div>
-              </div>
+            <div><div class="reward-label">Персонаж</div><div class="reward-value" id="reward-name"></div></div>
+            <div><div class="reward-label">Аниме</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
+            <div style="display: flex; gap: 20px; margin-top: 4px;">
+              <div style="flex: 1;"><div class="reward-label">Редкость</div><div class="reward-value" id="reward-rarity"></div></div>
+              <div style="flex: 1;"><div class="reward-label">В коллекции</div><div class="reward-value" id="reward-count"></div></div>
             </div>
           </div>
           <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
@@ -242,28 +234,48 @@
 
   <!-- МОДАЛКА ИНФОРМАЦИИ О КАРТЕ -->
   <div id="card-info-modal" class="modal-overlay" onclick="closeCardInfo(event)">
-    <div class="reward-content" style="max-width: 400px; padding: 20px;" onclick="event.stopPropagation()">
+    <div class="reward-content" style="max-width: 480px; padding: 24px 20px;" onclick="event.stopPropagation()">
+      <h2 class="reward-title" style="margin-bottom: 16px;">Информация о карте</h2>
       
-      <!-- Картинка -->
-      <div id="info-card-image-wrap" style="width: 100%; aspect-ratio: 1 / 1.2; border-radius: 12px; overflow: hidden; background: #0a0c10; margin-bottom: 15px; border: 1px solid #3a304a; display: flex; align-items: center; justify-content: center;"></div>
-      
-      <!-- Информация под картинкой -->
-      <div style="text-align: center; margin-bottom: 15px;">
-        <h2 id="info-card-name" style="margin: 0 0 5px 0; color: #fff; font-size: 22px;">Имя</h2>
-        <div id="info-card-anime" style="color: #b775ff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Аниме</div>
-        <div style="display: flex; justify-content: center; gap: 10px; align-items: center;">
-          <div id="info-card-rarity" style="font-size: 12px; font-weight: bold; display: inline-block; padding: 2px 8px; border-radius: 4px; border: 1px solid currentColor;">Редкость</div>
-          <div id="info-card-points" style="color: #fbbf24; font-weight: 900; font-size: 14px;">0</div>
+      <div class="reward-body">
+        <!-- ЛЕВАЯ ЧАСТЬ: КАРТИНКА -->
+        <div class="reward-left" style="width: 130px; flex-shrink: 0;">
+          <div id="info-card-container" style="width: 100%; aspect-ratio: 1 / 1.2; border-radius: 12px; overflow: hidden; background: #0a0c10; border: 1px solid #3a304a; display: flex; align-items: center; justify-content: center;"></div>
+        </div>
+        
+        <!-- ПРАВАЯ ЧАСТЬ: ТЕКСТ -->
+        <div class="reward-right">
+          <div class="reward-points" id="info-card-points" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
+          
+          <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
+            <div>
+              <div class="reward-label">Персонаж</div>
+              <div class="reward-value" id="info-card-name"></div>
+            </div>
+            <div>
+              <div class="reward-label">Аниме</div>
+              <div class="reward-value" id="info-card-anime" style="color: #b775ff;"></div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+              <div style="flex: 1;">
+                <div class="reward-label">Редкость</div>
+                <div class="reward-value" id="info-card-rarity"></div>
+              </div>
+              <div style="flex: 1;">
+                <div class="reward-label">В коллекции</div>
+                <div class="reward-value" id="info-card-count"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid #3a304a;">
+            <div class="reward-label" style="margin-bottom: 5px;">О персонаже:</div>
+            <div id="info-card-desc" style="color: #e0dce8; font-size: 13px; line-height: 1.4; font-style: italic; max-height: 80px; overflow-y: auto;">Описание...</div>
+          </div>
+
+          <button onclick="closeCardInfo()" class="primary wide" style="margin: 0; padding: 12px; font-size: 15px; border-radius: 12px;">Закрыть</button>
         </div>
       </div>
-
-      <!-- Описание -->
-      <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #3a304a;">
-        <div class="reward-label" style="margin-bottom: 5px;">О персонаже:</div>
-        <div id="info-card-desc" style="color: #e0dce8; font-size: 14px; line-height: 1.5; font-style: italic;">Описание персонажа...</div>
-      </div>
-      
-      <button onclick="closeCardInfo()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 12px;">Закрыть</button>
     </div>
   </div>
 
@@ -379,7 +391,6 @@
       const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
       const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
       
-      // ДОБАВИЛИ onclick="openCardInfo(...)" в тег article
       return `
         <article class="card ${rarityClass} ${isMissing ? 'missing' : ''}" onclick="openCardInfo(${c.id})">
           <div class="portrait">${bgHtml}${contentHtml}${holoHtml}</div>
@@ -399,7 +410,6 @@
       if (tradesTicker) { clearInterval(tradesTicker); tradesTicker = null; }
       if (leaderboardTicker) { clearInterval(leaderboardTicker); leaderboardTicker = null; }
       
-      // Если выходим из игры, убиваем зависшие кусочки
       if (tab === 'games' && puzzleSession) { 
         api('game/puzzle/cancel', { session_id: puzzleSession.session_id }).catch(() => {}); 
         puzzleSession = null; 
@@ -407,7 +417,6 @@
         sync(); 
       }
 
-      // ПРИНУДИТЕЛЬНАЯ ОЧИСТКА ВСЕГДА
       document.querySelectorAll('.puzzle-piece').forEach(el => {
         if (el.parentElement === document.body) el.remove();
       });
@@ -426,7 +435,6 @@
         if (tab === 'games') games();
         else if (tab === 'trades') { 
           tradesView(); 
-          // Автообновление списка обменов каждые 15 секунд, если мы на этой вкладке
           tradesTicker = setInterval(async () => {
             if (currentTradeState === 'list') {
               await sync();
@@ -580,7 +588,7 @@
 
     async function tradesView() { 
       $('view').innerHTML = '<p class="muted" style="text-align:center; margin-top: 40px;">Обновление данных...</p>';
-      await sync(); // ВОТ ЭТО ГЛАВНОЕ — загружаем свежие карты с сервера
+      await sync(); 
       currentTradeState = 'list'; 
       await renderTradesScreen(); 
     }
@@ -588,7 +596,6 @@
     async function renderTradesScreen() {
       const view = $('view');
       
-      // Общий HTML для фильтров
       const filtersHtml = `
         <div class="filter-bar" style="margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: wrap;">
           <div class="filter-dropdown-wrap" style="position: relative; flex: 1; min-width: 120px;">
@@ -646,10 +653,7 @@
           <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
             <label class="reward-label" style="font-size: 11px; display: block; margin-bottom: 8px;">ВВЕДИТЕ @USERNAME</label>
             <div style="display: flex; align-items: center; background: #0a0c10; border: 1px solid #3a304a; border-radius: 12px; padding: 0 14px; transition: border-color 0.2s;" onfocusin="this.style.borderColor='#b775ff'" onfocusout="this.style.borderColor='#3a304a'">
-              
-              <!-- Заменили @ на иконку профиля -->
               <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: #8a8299; margin-right: 8px; flex-shrink: 0;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-              
               <input type="text" id="trade-target-name" placeholder="@username" style="flex: 1; background: transparent; border: none; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; padding: 14px 0; font-weight: 600;">
             </div>
           </div>
@@ -679,7 +683,6 @@
             </div>
             <div class="reward-label" style="font-size: 11px; margin-bottom: 10px; display: block;">ВАМ ПРЕДЛАГАЮТ:</div>
             
-            <!-- ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ КАК В ПАЗЛЕ -->
             <div style="display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; padding-bottom: 8px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scroll-behavior: smooth;">
               ${activeTradeToAnswer.cards.map(c => `
                 <div style="width: 100px; flex-shrink: 0; border-radius: 10px; overflow: hidden; border: 1px solid ${colors[c.rarity]}; background: #16121c; position: relative;">
@@ -729,7 +732,7 @@
     }
 
     function toggleTradeFilterDropdown(type, event) {
-      if (event) event.stopPropagation(); // Чтобы клик не закрыл меню сразу же
+      if (event) event.stopPropagation(); 
       const menu = $(type === 'rarity' ? 'trade-menu-rarity' : 'trade-menu-anime');
       const other = $(type === 'rarity' ? 'trade-menu-anime' : 'trade-menu-rarity');
       
@@ -738,7 +741,7 @@
         const isOpening = !menu.classList.contains('active');
         menu.classList.toggle('active');
         if (isOpening) {
-          menu.style.display = 'flex'; // Принудительно показываем
+          menu.style.display = 'flex'; 
         } else {
           menu.style.display = 'none';
         }
@@ -802,7 +805,7 @@
 
     async function startCreateTrade() { 
       $('view').innerHTML = '<p class="muted" style="text-align:center; margin-top: 40px;">Загрузка инвентаря...</p>';
-      await sync(); // Получаем свежий инвентарь
+      await sync(); 
       selectedTradeCards = []; 
       currentTradeState = 'create'; 
       await renderTradesScreen(); 
@@ -811,7 +814,7 @@
     async function startAnswerTrade(tradeId) {
       try {
         $('view').innerHTML = '<p class="muted" style="text-align:center; margin-top: 40px;">Загрузка...</p>';
-        await sync(); // Обновляем инвентарь перед тем как отвечать
+        await sync(); 
         const data = await api('trades/incoming');
         const trade = data.trades.find(t => t.trade_id === tradeId);
         if (!trade) return;
@@ -829,7 +832,6 @@
       
       let cards = profile.cards.filter(c => c.count > 0);
       
-      // Применяем фильтры
       if (tradeFilterAnime) cards = cards.filter(c => c.anime === tradeFilterAnime);
       if (tradeFilterRarity) cards = cards.filter(c => c.rarity === tradeFilterRarity);
       if (tradeFilterDupes) cards = cards.filter(c => c.count > 1);
@@ -872,7 +874,6 @@
       renderTradeInventory('trade-inventory-grid', true);
     }
 
-    // --- ПОДТВЕРЖДЕНИЕ ---
     function showConfirm(text, onYes) {
       $('confirm-text').innerHTML = text;
       $('trade-confirm-modal').classList.add('active');
@@ -897,7 +898,6 @@
         try {
           await api('trades/create', { receiver_username: target, sender_cards: selectedTradeCards });
           $('notice').hidden = false; $('notice').textContent = 'Обмен успешно отправлен!'; setTimeout(() => { $('notice').hidden = true; }, 3000);
-          // Переходим к списку обменов (tradesView сделает sync и покажет актуальный список)
           tradesView();
         } catch (e) { 
           errDiv.textContent = e.message; 
@@ -909,19 +909,12 @@
     function selectAnswerCard(cardId) {
       const cardInfo = profile.cards.find(c => c.id === cardId);
       if (!cardInfo) return;
-      
-      // Считаем, сколько раз эта карта уже выбрана
       const countSelected = selectedTradeCards.filter(id => id === cardId).length;
-      
       if (countSelected >= cardInfo.count) {
-        // Если выбрали максимум, что есть (например, 3 из 3) — сбрасываем выбор этой карты
         selectedTradeCards = selectedTradeCards.filter(id => id !== cardId);
       } else {
-        // Иначе добавляем ещё одну копию
         selectedTradeCards.push(cardId);
       }
-      
-      // Перерисовываем сетку, чтобы обновились бейджи с цифрами (1, 2, 3)
       renderTradeInventory('trade-my-inventory-grid', false);
     }
 
@@ -938,7 +931,6 @@
         try {
           await api('trades/answer', { trade_id: currentTradeId, receiver_cards: selectedTradeCards });
           $('notice').hidden = false; $('notice').textContent = 'Обмен успешно завершен!'; setTimeout(() => { $('notice').hidden = true; }, 3000);
-          // Переходим к списку обменов (tradesView сделает sync и подтянет новые карты)
           tradesView();
         } catch (e) { 
           errDiv.textContent = e.message; 
@@ -1125,7 +1117,6 @@
           clearInterval(puzzleTicker); 
           puzzleState = null;
           
-          // Удаляем все кусочки, которые сейчас перетаскиваются (лежат в body)
           document.querySelectorAll('.puzzle-piece').forEach(el => {
             if (el.parentElement === document.body) el.remove();
           });
@@ -1169,7 +1160,7 @@
       if (hoveredCell) hoveredCell.el.classList.add('highlight');
     }
     function stopDrag() {
-      if (!dragElement) return; // <--- ДОБАВИТЬ ЭТО
+      if (!dragElement) return;
       if (!puzzleState) {
         dragElement.remove();
         dragElement = null;
@@ -1260,9 +1251,12 @@
       const ownedCard = profile.cards.find(item => Number(item.id) === Number(c.id));
       const count = ownedCard ? ownedCard.count : 1;
       const rarityColor = colors[c.rarity] || '#aaa';
+      
+      c.count = count; // <--- ФИКС ОШИБКИ undefined
+      
       $('reward-card-container').innerHTML = card(c);
       $('reward-subtitle').innerHTML = `<span style="color:#b775ff; font-weight:bold;">+${c.points}</span> рейтинга`;
-      $('reward-name').textContent = c.name; // Вернули имя
+      $('reward-name').textContent = c.name;
       $('reward-anime').textContent = c.anime;
       $('reward-rarity').textContent = c.rarity; 
       $('reward-rarity').style.color = rarityColor;
@@ -1274,19 +1268,20 @@
       const c = profile.cards.find(x => Number(x.id) === Number(cardId));
       if (!c) return;
 
-      const imgWrap = $('info-card-image-wrap');
+      const container = $('info-card-container');
       if (c.image) {
-        imgWrap.innerHTML = `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">`;
+        container.innerHTML = `<img src="${esc(c.image)}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;">`;
       } else {
-        imgWrap.innerHTML = `<div style="color: #555; font-size: 20px; font-weight: bold;">${esc(c.name)}</div>`;
+        container.innerHTML = `<div style="color: #555; font-size: 14px; font-weight: bold; text-align: center; padding: 10px;">${esc(c.name)}</div>`;
       }
       
       const rarityColor = colors[c.rarity] || '#aaa';
+      $('info-card-points').innerHTML = `<span style="color:#b775ff; font-weight:bold;">${c.points}</span> рейтинга`;
       $('info-card-name').textContent = c.name;
       $('info-card-anime').textContent = c.anime;
       $('info-card-rarity').textContent = c.rarity;
       $('info-card-rarity').style.color = rarityColor;
-      $('info-card-points').textContent = c.points;
+      $('info-card-count').textContent = `${c.count} шт.`;
       
       const desc = c.description && c.description.trim() !== '' ? c.description : 'Описание для этого персонажа пока не добавлено.';
       $('info-card-desc').textContent = desc;
