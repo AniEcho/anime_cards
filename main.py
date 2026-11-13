@@ -92,13 +92,39 @@ def initialize():
         ''')
         # ---------------------------
 
-        catalog = json.loads((CONTENT_DIR / 'cards.json').read_text(encoding='utf-8'))
-        for card in catalog:
-            if card['rarity'] not in POINTS:
-                raise ValueError('Unknown rarity: ' + card['rarity'])
+        # Читаем все JSON-файлы из папки content/cards/
+        cards_dir = CONTENT_DIR / 'cards'
+        cards_dir.mkdir(parents=True, exist_ok=True)
+        
+        all_cards = []
+        card_id = 1
+        
+        # Проходим по всем файлам в алфавитном порядке
+        for file_path in sorted(cards_dir.glob('*.json')):
+            anime_name = file_path.stem.capitalize() # Имя файла "naruto" станет "Naruto"
+            try:
+                cards_data = json.loads(file_path.read_text(encoding='utf-8'))
+                for card in cards_data:
+                    if card['rarity'] not in POINTS:
+                        raise ValueError(f"Неизвестная редкость: {card['rarity']} в файле {file_path.name}")
+                    
+                    # Собираем карту, добавляя ей ID и название аниме
+                    all_cards.append({
+                        'id': card_id,
+                        'anime': anime_name,
+                        'name': card['name'],
+                        'rarity': card['rarity'],
+                        'image': card.get('image', '')
+                    })
+                    card_id += 1
+            except Exception as e:
+                print(f"Ошибка чтения {file_path.name}: {e}")
+
+        # Сохраняем в базу
+        for card in all_cards:
             c.execute(
                 'INSERT INTO cards (id, anime, name, rarity, image) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET anime=excluded.anime, name=excluded.name, rarity=excluded.rarity, image=excluded.image',
-                (card['id'], card['anime'], card['name'], card['rarity'], card.get('image', ''))
+                (card['id'], card['anime'], card['name'], card['rarity'], card['image'])
             )
 
 @asynccontextmanager
