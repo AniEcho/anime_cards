@@ -110,7 +110,7 @@
     .reward-right { width: 100%; display: flex; flex-direction: column; align-items: stretch; text-align: left; }
     .reward-points { font-size: 15px; color: #fff; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; width: 100%; font-weight: 700; }
     .reward-info-block { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-bottom: 14px; }
-    .reward-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #8a8299; margin-bottom: 1px; }
+    .reward-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: #8a8299; margin-bottom: 1px; }
     .reward-value { font-size: 14px; font-weight: 700; color: #fff; }
     .puzzle-wrapper { position: relative; width: 100%; max-width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 10px; box-sizing: border-box; margin-top: 10px; margin-bottom: 60px; }
     .puzzle-area { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1 / 1; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(183, 117, 255, 0.5); border-radius: 12px; overflow: hidden; touch-action: none; z-index: 1; box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9); }
@@ -207,10 +207,12 @@
         <div class="reward-right">
           <div class="reward-points" id="reward-subtitle" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
           <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div><div class="reward-label">Аниме</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
+            <div><div class="reward-label">Имя:</div><div class="reward-value" id="reward-name"></div></div>
+          <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
+            <div><div class="reward-label">Аниме:</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
             <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;"><div class="reward-label">Редкость</div><div class="reward-value" id="reward-rarity"></div></div>
-              <div style="flex: 1;"><div class="reward-label">В коллекции</div><div class="reward-value" id="reward-count"></div></div>
+              <div style="flex: 1;"><div class="reward-label">Редкость:</div><div class="reward-value" id="reward-rarity"></div></div>
+              <div style="flex: 1;"><div class="reward-label">В коллекции:</div><div class="reward-value" id="reward-count"></div></div>
             </div>
           </div>
           <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
@@ -244,10 +246,11 @@
         <div class="reward-right">
           <div class="reward-points" id="info-card-points" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
           <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div><div class="reward-label">Аниме</div><div class="reward-value" id="info-card-anime" style="color: #b775ff;"></div></div>
+            <div><div class="reward-label">Имя:</div><div class="reward-value" id="info-card-name"></div></div>
+            <div><div class="reward-label">Аниме:</div><div class="reward-value" id="info-card-anime" style="color: #b775ff;"></div></div>
             <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;"><div class="reward-label">Редкость</div><div class="reward-value" id="info-card-rarity"></div></div>
-              <div style="flex: 1;"><div class="reward-label">В коллекции</div><div class="reward-value" id="info-card-count"></div></div>
+              <div style="flex: 1;"><div class="reward-label">Редкость:</div><div class="reward-value" id="info-card-rarity"></div></div>
+              <div style="flex: 1;"><div class="reward-label">В коллекции:</div><div class="reward-value" id="info-card-count"></div></div>
             </div>
           </div>
 
@@ -1317,6 +1320,7 @@
       const ownedCard = profile.cards.find(item => Number(item.id) === Number(c.id));
       const count = ownedCard ? ownedCard.count : 1;
       const rarityColor = colors[c.rarity] || '#aaa';
+      $('reward-name').textContent = c.name;
       
       c.count = count; // Фикс undefined
       
@@ -1331,6 +1335,7 @@
 
     function openCardInfo(cardId) {
       const c = profile.cards.find(x => Number(x.id) === Number(cardId));
+      $('info-card-name').textContent = c.name;
       if (!c) return;
 
       // Вставляем карточку в модалку
