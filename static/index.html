@@ -292,6 +292,13 @@
     const $ = id => document.getElementById(id);
     const esc = x => String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const colors = { 'Обычная': '#b7b7bd', 'Необычная': '#77cd91', 'Редкая': '#78aafa', 'Эпическая': '#b775ff', 'Легендарная': '#f2b458', 'Мифическая': '#de8aff' };
+    const CRAFT_RECIPES = {
+        'Необычная': { from: 'Обычная', amount: 3 },
+        'Редкая': { from: 'Необычная', amount: 3 },
+        'Эпическая': { from: 'Редкая', amount: 3 },
+        'Легендарная': { from: 'Эпическая', amount: 2 },
+        'Мифическая': { from: 'Легендарная', amount: 3 },
+    };
 
     async function api(path, data) {
       const r = await fetch('/api/' + path, {
@@ -388,6 +395,39 @@
             <div class="muted" style="font-size:10px; margin-top:2px; font-weight:600; color:${isMissing ? '#555' : '#8a8299'};">В коллекции: ${c.count}</div>
           </div>
         </article>
+      `;
+    }
+
+    function craftView() {
+      // Берем рецепты прямо с сервера, чтобы если ты изменил их в main.py, они обновились и тут
+      const recipesHtml = Object.entries(CRAFT_RECIPES).map(([target, data]) => {
+        const source = data.from;
+        const amount = data.amount;
+        
+        // Считаем, сколько у нас есть дублей этой редкости
+        const sourceCards = profile.cards.filter(c => c.rarity === source && c.count > 1);
+        const totalDupes = sourceCards.reduce((sum, c) => sum + (c.count - 1), 0);
+        const canCraft = totalDupes >= amount;
+
+        return `
+          <div class="set-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px; margin-bottom: 8px; cursor: pointer;" onclick="openCraftSelection('${source}', '${target}', ${amount})">
+            <div style="font-size: 14px; font-weight: bold; color: #fff;">
+              ${amount} <span style="color: ${colors[source]}">${source}</span> <span style="color: #b775ff;">→</span> 1 <span style="color: ${colors[target]}">${target}</span>
+            </div>
+            <div style="background: ${canCraft ? '#1b3a28' : '#2a1012'}; color: ${canCraft ? '#77cd91' : '#ffc2c7'}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid ${canCraft ? '#4a7c59' : '#9b4c51'};">
+              ${totalDupes} дубл.
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      $('view').innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+          <button onclick="show('games')" style="padding: 8px 12px; font-size: 14px;">← Назад</button>
+          <h2 style="margin:0;">Крафт карт</h2>
+        </div>
+        <p class="muted" style="font-size: 13px; margin-bottom: 15px;">Сдавайте дубликаты, чтобы получить карты выше рангом. Последнюю копию сдать нельзя.</p>
+        <div>${recipesHtml}</div>
       `;
     }
 
@@ -1038,6 +1078,10 @@
             <div style="font-size: 13px; color: #8a8299; line-height: 1.4;">Угадай персонажа по его фразе. Всего 3 раунда, но у тебя будет только 15 секунд на ответ!</div>
             <div id="game-quotes-wait" style="font-size: 13px; font-weight: bold; color: #fbbf24; margin-top: 4px;">Загрузка...</div>
           </div>
+          <div id="craft-btn" class="game-card" onclick="craftView()" style="background: #1e1a26; border: 1px solid #3a304a; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; transition: transform 0.1s;">
+            <div style="display: flex; justify-content: space-between; align-items: center;"><div style="font-weight: 700; color: #fff; font-size: 18px;">Крафт карт</div><div style="font-size: 32px;">⚗️</div></div>
+            <div style="font-size: 13px; color: #8a8299; line-height: 1.4;">Обменивай повторки на карты более высокой редкости.</div>
+          </div>
         </div>
       `;
       let isOpening = false;
@@ -1378,6 +1422,85 @@
       else { menu.classList.remove('active'); overlay.classList.remove('active'); mainBtn.classList.remove('active'); profile.classList.remove('active'); }
     }
 
+     let craftSelected = [];
+    let currentCraftData = {};
+
+    function openCraftSelection(source, target, amount) {
+      craftSelected = [];
+      currentCraftData = { source, target, amount };
+      renderCraftSelection();
+    }
+
+    function renderCraftSelection() {
+      const { source, target, amount } = currentCraftData;
+      let availableCards = profile.cards.filter(c => c.rarity === source && c.count > 1);
+      
+      const cardsHtml = availableCards.map(c => {
+        const selectedCount = craftSelected.filter(id => id === c.id).length;
+        const maxAllowed = c.count - 1; 
+        const isSelected = selectedCount > 0;
+        
+        return `
+          <div style="border: 2px solid ${isSelected ? '#b775ff' : (colors[c.rarity] || '#aaa')}; background: #16121c; cursor: pointer; border-radius: 10px; overflow: hidden; opacity: ${isSelected ? 1 : 0.8};" onclick="toggleCraftCard(${c.id}, ${maxAllowed})">
+            <div style="width: 100%; aspect-ratio: 1/1.2; background: #0a0c10; position: relative;">
+               ${c.image ? `<img src="${esc(c.image)}" style="width:100%; height:100%; object-fit:cover; object-position:top;">` : ''}
+               ${selectedCount > 0 ? `<div style="position: absolute; top: 5px; right: 5px; background: #b775ff; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${selectedCount}</div>` : ''}
+            </div>
+            <div style="padding: 8px; text-align: center;">
+              <div style="font-size: 11px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.name)}</div>
+              <div style="font-size: 10px; color: ${colors[c.rarity]}; margin-top: 2px;">${c.rarity}</div>
+              <div style="font-size: 10px; color: #8a8299; margin-top: 2px;">Всего: ${c.count} (сдать: ${maxAllowed})</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      $('view').innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+          <button onclick="craftView()" style="padding: 8px 12px; font-size: 14px;">← Назад</button>
+          <h2 style="margin:0;">${amount} ${source} → 1 ${target}</h2>
+        </div>
+        <div style="font-size: 15px; margin-bottom: 10px; color: #b775ff; font-weight: bold;">Выбрано: ${craftSelected.length} / ${amount}</div>
+        
+        <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">${cardsHtml}</div>
+        
+        <div id="craft-error" style="color: #ff6b6b; text-align: center; margin-top: 15px; font-weight: bold; display: none;"></div>
+        
+        <button class="primary wide" style="margin-top: 20px; ${craftSelected.length === amount ? '' : 'opacity: 0.5; pointer-events: none;'}" onclick="doCraft()">Скрафтить</button>
+        <button class="wide" style="margin-top: 10px; background: #1e1a26; color: #aaa;" onclick="openCraftSelection('${source}', '${target}', ${amount})">Сбросить выбор</button>
+      `;
+    }
+
+    function toggleCraftCard(cardId, maxAllowed) {
+      const selectedCount = craftSelected.filter(id => id === cardId).length;
+      if (selectedCount >= maxAllowed) {
+        craftSelected = craftSelected.filter(id => id !== cardId);
+      } else {
+        if (craftSelected.length < currentCraftData.amount) {
+          craftSelected.push(cardId);
+        }
+      }
+      renderCraftSelection();
+    }
+
+    async function doCraft() {
+      if (craftSelected.length !== currentCraftData.amount) return;
+      const errDiv = $('craft-error');
+      errDiv.style.display = 'none';
+      
+      await run(async () => {
+        try {
+          const res = await api('craft', { card_ids: craftSelected, target_rarity: currentCraftData.target });
+          await sync();
+          prize(res.card); 
+          craftView(); 
+        } catch(e) {
+          errDiv.textContent = e.message;
+          errDiv.style.display = 'block';
+        }
+      });
+    }
+
     (async () => {
       try { await sync(); show('collection'); setInterval(updateCooldowns, 1000); }
       catch (e) { console.error(e); $('result').hidden = false; $('result').textContent = 'Не удалось войти: ' + e.message; }
@@ -1385,6 +1508,7 @@
         if (document.visibilityState === 'visible' && tab === 'leaderboard') leaderboardView();
       });
     })();
+    
   </script>
 </body>
 </html>

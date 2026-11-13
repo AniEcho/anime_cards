@@ -11,7 +11,7 @@ import io
 from pathlib import Path
 from urllib.parse import parse_qsl
 from contextlib import asynccontextmanager, contextmanager
-
+from collections import Counter
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -30,6 +30,16 @@ BOT_TOKEN = os.getenv('BOT_TOKEN', '')
 FREE_SECONDS = 20
 PUZZLE_COOLDOWN = 15
 QUOTES_COOLDOWN = 15
+
+# Рецепты крафта: 
+# Формат: 'Название результата': { 'из': 'Название исходной редкости', 'сколько': Кол-во }
+CRAFT_RECIPES = {
+    'Необычная': {'from': 'Обычная', 'amount': 3},
+    'Редкая': {'from': 'Необычная', 'amount': 3},
+    'Эпическая': {'from': 'Редкая', 'amount': 3},
+    'Легендарная': {'from': 'Эпическая', 'amount': 2},
+    'Мифическая': {'from': 'Легендарная', 'amount': 3}, # Изменили 5 на 3
+}
 
 POINTS = {
     'Обычная': 100, 'Необычная': 250, 'Редкая': 500,
@@ -576,6 +586,49 @@ def decline_trade(body: dict, authorization: str | None = Header(default=None)):
         if trade:
             c.execute('UPDATE trades SET status="declined" WHERE id=?', (trade_id,))
         return {'status': 'ok'}
+
+class CraftRequest(BaseModel):
+    card_ids: list[int]
+    target_rarity: str
+
+@app.post('/api/craft')
+def craft(body: CraftRequest, authorization: str | None = Header(default=None)):
+    if body.target_rarity not in CRAFT_RECIPES:
+        raise HTTPException(400, 'Такого рецепта не существует')
+
+    recipe = CRAFT_RECIPES[body.target_rarity]
+    source_rarity = recipe['from']
+    amount_needed = recipe['amount']
+
+    if len(body.card_ids) != amount_needed:
+        raise HTTPException(400, f'Нужно выбрать ровно {amount_needed} карт')
+
+    with db() as c:
+        uid = player(c, authorization)
+        
+        # Считаем, сколько копий каждой карты мы пытаемся сдать
+        counts = Counter(body.card_ids)
+        
+        for card_id, req_count in counts.items():
+            card = c.execute('SELECT * FROM cards WHERE id=?', (card_id,)).fetchone()
+            if not card or card['rarity'] != source_rarity:
+                raise HTTPException(400, 'Неверная карта для этого рецепта')
+            
+            inv = c.execute('SELECT count FROM inventory WHERE user_id=? AND card_id=?', (uid, card_id)).fetchone()
+            
+            # Проверка: у игрока должно быть достаточно карт, И ПОСЛЕ КРАФТА ДОЛЖНА ОСТАТЬСЯ ХОТЯ БЫ 1
+            if not inv or inv['count'] - req_count < 1:
+                raise HTTPException(400, 'Нельзя сдавать последнюю копию карты (можно только повторки)')
+
+        # Списываем карты
+        for card_id in body.card_ids:
+            c.execute('UPDATE inventory SET count = count - 1 WHERE user_id=? AND card_id=?', (uid, card_id))
+
+        # Выдаем случайную карту
+        new_card = c.execute('SELECT * FROM cards WHERE rarity=? ORDER BY RANDOM() LIMIT 1', (body.target_rarity,)).fetchone()
+        c.execute('INSERT INTO inventory(user_id, card_id, count) VALUES(?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, new_card['id']))
+
+        return {'status': 'ok', 'card': card_dict(new_card)}
 
 if __name__ == "__main__":
     import uvicorn
