@@ -37,8 +37,8 @@ POINTS = {
 }
 
 DROP_WEIGHTS = {
-    'Обычная': 0, 'Необычная': 0, 'Редкая': 0,
-    'Эпическая': 0, 'Легендарная': 0, 'Мифическая': 100,
+    'Обычная': 500, 'Необычная': 250, 'Редкая': 150,
+    'Эпическая': 75, 'Легендарная': 15, 'Мифическая': 10,
 }
 DB = DATA_DIR / 'game.db'
 
@@ -377,11 +377,26 @@ def start_puzzle(body: PuzzleStart = None, authorization: str | None = Header(de
             raise HTTPException(429, 'Пазл пока недоступен')
         
         c.execute('UPDATE sessions SET done=1, started_at=? WHERE user_id=? AND kind=? AND done=0', (time.time(), uid, 'puzzle'))
-        card = c.execute('SELECT * FROM cards WHERE image != "" ORDER BY RANDOM() LIMIT 1').fetchone()
-        if not card: raise HTTPException(404, 'Нет карт с картинками в базе')
+        
+        # 1. Выбираем карту с учетом шансов (как в бесплатных картах)
+        available_cards = c.execute('SELECT * FROM cards WHERE image != ""').fetchall()
+        if not available_cards: 
+            raise HTTPException(404, 'Нет карт с картинками в базе')
             
-        pieces_map = {'Обычная': 3, 'Необычная': 3, 'Редкая': 4, 'Эпическая': 4, 'Легендарная': 5, 'Мифическая': 5}
+        weights = [DROP_WEIGHTS.get(card['rarity'], 1) for card in available_cards]
+        card = random.choices(available_cards, weights=weights, k=1)[0]
+            
+        # 2. Настраиваем сетки и время под них
+        pieces_map = {
+            'Обычная': 3, 
+            'Необычная': 3, 
+            'Редкая': 3,      # 3 на 3
+            'Эпическая': 4,   # 4 на 4
+            'Легендарная': 5, # 5 на 5
+            'Мифическая': 6   # 6 на 6
+        }
         grid_size = pieces_map.get(card['rarity'], 3)
+        
         img_path = BASE / card['image'].lstrip('/')
         if not img_path.exists(): raise HTTPException(404, f"Файл не найден: {card['image']}")
             
@@ -404,7 +419,16 @@ def start_puzzle(body: PuzzleStart = None, authorization: str | None = Header(de
         shuffled_indices = list(range(grid_size * grid_size))
         random.shuffle(shuffled_indices)
         state = {'card_id': card['id'], 'grid_size': grid_size, 'pieces': pieces_b64}
-        time_limit = 30 if grid_size <= 3 else 90
+        
+        # 3. Умный таймер (чтобы 6х6 можно было собрать)
+        if grid_size <= 3:
+            time_limit = 30
+        elif grid_size == 4:
+            time_limit = 60
+        elif grid_size == 5:
+            time_limit = 90
+        else:
+            time_limit = 120  # 2 минуты для 6х6
 
         sid = secrets.token_urlsafe(24)
         now = time.time()
