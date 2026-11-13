@@ -2,31 +2,31 @@
   {
     "name": "Наруто Узумаки",
     "rarity": "Легендарная",
-    "image": "/static/images/naruto.jpg"
+    "image": "/static/images/naruto_naruto.jpg"
   },
   {
     "name": "Сакура Харуно",
     "rarity": "Легендарная",
-    "image": "/static/images/sakura.jpg"
+    "image": "/static/images/naruto_sakura.jpg"
   },
   {
     "name": "Какаши Хатаке",
     "rarity": "Легендарная",
-    "image": "/static/images/kakashi.jpg"
+    "image": "/static/images/naruto_kakashi.jpg"
   },
   {
     "name": "Саске Учиха",
     "rarity": "Легендарная",
-    "image": "/static/images/saske.jpg"
+    "image": "/static/images/naruto_saske.jpg"
   },
   {
     "name": "Итачи Учиха",
     "rarity": "Эпическая",
-    "image": "/static/images/utachi.jpg"
+    "image": "/static/images/naruto_itachi.jpg"
   },
   {
     "name": "Хината Хьюга",
     "rarity": "Необычная",
-    "image": "/static/images/hinata.jpg"
+    "image": "/static/images/naruto_hinata.jpg"
   }
 ]
