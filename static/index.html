@@ -233,6 +233,26 @@
     </div>
   </div>
 
+    <!-- МОДАЛКА ИНФОРМАЦИИ О КАРТЕ -->
+  <div id="card-info-modal" class="modal-overlay" onclick="closeCardInfo(event)">
+    <div class="reward-content" style="max-width: 400px; padding: 20px;" onclick="event.stopPropagation()">
+      <button class="reward-close" onclick="closeCardInfo()">✕</button>
+      <div id="info-card-container" style="width: 100%; display: flex; justify-content: center; margin-bottom: 15px;">
+         <!-- Сюда вставится карта -->
+      </div>
+      <div style="text-align: center; margin-bottom: 15px;">
+        <h2 id="info-card-name" style="margin: 0 0 5px 0; color: #fff; font-size: 22px;">Имя</h2>
+        <div id="info-card-anime" style="color: #b775ff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Аниме</div>
+        <div id="info-card-rarity" style="font-size: 12px; font-weight: bold; display: inline-block; padding: 2px 8px; border-radius: 4px; border: 1px solid currentColor;">Редкость</div>
+      </div>
+      <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #3a304a;">
+        <div class="reward-label" style="margin-bottom: 5px;">О персонаже:</div>
+        <div id="info-card-desc" style="color: #e0dce8; font-size: 14px; line-height: 1.5; font-style: italic;">Описание персонажа...</div>
+      </div>
+      <button onclick="closeCardInfo()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 12px;">Закрыть</button>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0a0c10'); tg.setBackgroundColor('#0a0c10'); }
@@ -344,8 +364,10 @@
       else contentHtml = `${bgHtml}<div class="no-image-text">${esc(c.name)}</div>`;
       const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
       const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
+      
+      // ДОБАВИЛИ onclick="openCardInfo(...)" в тег article
       return `
-        <article class="card ${rarityClass} ${isMissing ? 'missing' : ''}">
+        <article class="card ${rarityClass} ${isMissing ? 'missing' : ''}" onclick="openCardInfo(${c.id})">
           <div class="portrait">${bgHtml}${contentHtml}${holoHtml}</div>
           <div class="info">
             <div class="name">${esc(c.name)}</div>
@@ -607,7 +629,7 @@
             <button onclick="tradesView()" style="background: #1e1a26; border: 1px solid #3a304a; padding: 8px 12px; border-radius: 8px; font-size: 14px;">← Назад</button>
             <h2 style="margin:0;">Новый обмен</h2>
           </div>
-          div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
+          <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px;">
             <label class="reward-label" style="font-size: 11px; display: block; margin-bottom: 8px;">ВВЕДИТЕ @USERNAME</label>
             <div style="display: flex; align-items: center; background: #0a0c10; border: 1px solid #3a304a; border-radius: 12px; padding: 0 14px; transition: border-color 0.2s;" onfocusin="this.style.borderColor='#b775ff'" onfocusout="this.style.borderColor='#3a304a'">
               
@@ -1133,6 +1155,7 @@
       if (hoveredCell) hoveredCell.el.classList.add('highlight');
     }
     function stopDrag() {
+      if (!dragElement) return; // <--- ДОБАВИТЬ ЭТО
       if (!puzzleState) {
         dragElement.remove();
         dragElement = null;
@@ -1229,6 +1252,37 @@
       $('reward-rarity').textContent = c.rarity; $('reward-rarity').style.color = rarityColor;
       $('reward-count').textContent = `${count} шт.`; $('reward-modal').classList.add('active');
     }
+
+    function openCardInfo(cardId) {
+      // Ищем карту в профиле
+      const c = profile.cards.find(x => Number(x.id) === Number(cardId));
+      if (!c) return;
+
+      // Вставляем визуал карты
+      $('info-card-container').innerHTML = card(c);
+      // Убираем клик с карты внутри модалки, чтобы она не открывала саму себя бесконечно
+      $('info-card-container').querySelector('.card').onclick = null;
+      
+      // Заполняем текст
+      const rarityColor = colors[c.rarity] || '#aaa';
+      $('info-card-name').textContent = c.name;
+      $('info-card-anime').textContent = c.anime;
+      $('info-card-rarity').textContent = c.rarity;
+      $('info-card-rarity').style.color = rarityColor;
+      
+      // Выводим описание (если его нет, пишем заглушку)
+      const desc = c.description && c.description.trim() !== '' ? c.description : 'Описание для этого персонажа пока не добавлено.';
+      $('info-card-desc').textContent = desc;
+
+      // Открываем модалку
+      $('card-info-modal').classList.add('active');
+    }
+
+    function closeCardInfo(e) {
+      if (e && e.target !== e.currentTarget) return;
+      $('card-info-modal').classList.remove('active');
+    }
+
     async function closeReward(e) { 
       if (e && e.target !== e.currentTarget) return; 
       $('reward-modal').classList.remove('active'); 

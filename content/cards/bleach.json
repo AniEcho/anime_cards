@@ -2,26 +2,31 @@
   {
     "name": "Ичиго Куросаки",
     "rarity": "Обычная",
-    "image": "/static/images/bleach_ichigo.jpg"
+    "image": "/static/images/bleach_ichigo.jpg",
+    "description": "-"
   },
   {
     "name": "Рукия Кучики",
     "rarity": "Необычная",
-    "image": "/static/images/bleach_rukia.jpg"
+    "image": "/static/images/bleach_rukia.jpg",
+    "description": "-"
   },
   {
     "name": "Рэндзи Абарай",
     "rarity": "Редкая",
-    "image": "/static/images/bleach_renji.jpg"
+    "image": "/static/images/bleach_renji.jpg",
+    "description": "-"
   },
   {
     "name": "Бякуя Кучики",
     "rarity": "Легендарная",
-    "image": "/static/images/bleach_byakuya.jpg"
+    "image": "/static/images/bleach_byakuya.jpg",
+    "description": "-"
   },
   {
     "name": "Кэнпати Зараки",
     "rarity": "Мифическая",
-    "image": "/static/images/bleach_kenpachi.jpg"
+    "image": "/static/images/bleach_kenpachi.jpg",
+    "description": "-"
   }
 ]

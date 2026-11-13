@@ -2,151 +2,181 @@
   {
     "name": "Кен Канеки",
     "rarity": "Мифическая",
-    "image": "/static/images/tokyoghoul_kaneki.jpg"
+    "image": "/static/images/tokyoghoul_kaneki.jpg",
+    "description": "-"
   },
   {
     "name": "Ризе Камиширо",
     "rarity": "Мифическая",
-    "image": "/static/images/tokyoghoul_rize.jpg"
+    "image": "/static/images/tokyoghoul_rize.jpg",
+    "description": "-"
   },
   {
     "name": "Тоука Киришима",
     "rarity": "Легендарная",
-    "image": "/static/images/tokyoghoul_touka.jpg"
+    "image": "/static/images/tokyoghoul_touka.jpg",
+    "description": "-"
   },
   {
     "name": "Кишо Арима",
     "rarity": "Легендарная",
-    "image": "/static/images/tokyoghoul_arima.jpg"
+    "image": "/static/images/tokyoghoul_arima.jpg",
+    "description": "-"
   },
   {
     "name": "Джузо Сузуя",
     "rarity": "Легендарная",
-    "image": "/static/images/tokyoghoul_juzo.jpg"
+    "image": "/static/images/tokyoghoul_juzo.jpg",
+    "description": "-"
   },
   {
     "name": "Это Йошимура",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_yoshimura.jpg"
+    "image": "/static/images/tokyoghoul_yoshimura.jpg",
+    "description": "-"
   },
   {
     "name": "Кузен Йошимура",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_kuzen.jpg"
+    "image": "/static/images/tokyoghoul_kuzen.jpg",
+    "description": "-"
   },
   {
     "name": "Шу Цукияма",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_tsukiyama.jpg"
+    "image": "/static/images/tokyoghoul_tsukiyama.jpg",
+    "description": "-"
   },
   {
     "name": "Якумо Оомори (Джейсон)",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_yamori.jpg"
+    "image": "/static/images/tokyoghoul_yamori.jpg",
+    "description": "-"
   },
   {
     "name": "Котаро Амон",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_amon.jpg"
+    "image": "/static/images/tokyoghoul_amon.jpg",
+    "description": "-"
   },
   {
     "name": "Татара",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_tatara.jpg"
+    "image": "/static/images/tokyoghoul_tatara.jpg",
+    "description": "-"
   },
   {
     "name": "Норо",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_noro.jpg"
+    "image": "/static/images/tokyoghoul_noro.jpg",
+    "description": "-"
   },
   {
     "name": "Ута",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_uta.jpg"
+    "image": "/static/images/tokyoghoul_uta.jpg",
+    "description": "-"
   },
   {
     "name": "Аято Киришима",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_ayato.jpg"
+    "image": "/static/images/tokyoghoul_ayato.jpg",
+    "description": "-"
   },
   {
     "name": "Хинами Фуэгучи",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_hinami.jpg"
+    "image": "/static/images/tokyoghoul_hinami.jpg",
+    "description": "-"
   },
   {
     "name": "Ренджи Йомо",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_yomo.jpg"
+    "image": "/static/images/tokyoghoul_yomo.jpg",
+    "description": "-"
   },
   {
     "name": "Курео Мадо",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_mado.jpg"
+    "image": "/static/images/tokyoghoul_mado.jpg",
+    "description": "-"
   },
   {
     "name": "Нишики Нишио",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_nishiki.jpg"
+    "image": "/static/images/tokyoghoul_nishiki.jpg",
+    "description": "-"
   },
   {
     "name": "Хидейоши Нагачика (Хиде)",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_hide.jpg"
+    "image": "/static/images/tokyoghoul_hide.jpg",
+    "description": "-"
   },
   {
     "name": "Акира Мадо",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_akira.jpg"
+    "image": "/static/images/tokyoghoul_akira.jpg",
+    "description": "-"
   },
   {
     "name": "Наки",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_naki.jpg"
+    "image": "/static/images/tokyoghoul_naki.jpg",
+    "description": "-"
   },
   {
     "name": "Кая Ирими",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_kaya.jpg"
+    "image": "/static/images/tokyoghoul_kaya.jpg",
+    "description": "-"
   },
   {
     "name": "Энджи Кома",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_enji.jpg"
+    "image": "/static/images/tokyoghoul_enji.jpg",
+    "description": "-"
   },
   {
     "name": "Итори",
     "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_itori.jpg"
+    "image": "/static/images/tokyoghoul_itori.jpg",
+    "description": "-"
   },
   {
     "name": "Рёко Фуэгучи",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_ryoko.jpg"
+    "image": "/static/images/tokyoghoul_ryoko.jpg",
+    "description": "-"
   },
   {
     "name": "Пакуо",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_pakuo.jpg"
+    "image": "/static/images/tokyoghoul_pakuo.jpg",
+    "description": "-"
   },
   {
     "name": "Юкинори Шинохара",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_shinohara.jpg"
+    "image": "/static/images/tokyoghoul_shinohara.jpg",
+    "description": "-"
   },
   {
     "name": "Ивао Куроива",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_kuroiwa.jpg"
+    "image": "/static/images/tokyoghoul_kuroiwa.jpg",
+    "description": "-"
   },
   {
     "name": "Биро",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_biiro.jpg"
+    "image": "/static/images/tokyoghoul_biiro.jpg",
+    "description": "-"
   },
   {
     "name": "Косуке Ходжи",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_hoji.jpg"
+    "image": "/static/images/tokyoghoul_hoji.jpg",
+    "description": "-"
   }
 ]

@@ -70,6 +70,14 @@ def initialize():
             pass
 
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
+        all_cards.append({
+                        'id': card_id,
+                        'anime': anime_name,
+                        'name': card['name'],
+                        'rarity': card['rarity'],
+                        'image': card.get('image', ''),
+                        'description': card.get('description', '') # <--- ДОБАВИТЬ ЭТО
+                    })
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
         
@@ -114,7 +122,8 @@ def initialize():
                         'anime': anime_name,
                         'name': card['name'],
                         'rarity': card['rarity'],
-                        'image': card.get('image', '')
+                        'image': card.get('image', ''),
+                        'description': card.get('description', '') # <--- ДОБАВИТЬ ЭТО
                     })
                     card_id += 1
             except Exception as e:
@@ -123,8 +132,8 @@ def initialize():
         # Сохраняем в базу
         for card in all_cards:
             c.execute(
-                'INSERT INTO cards (id, anime, name, rarity, image) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET anime=excluded.anime, name=excluded.name, rarity=excluded.rarity, image=excluded.image',
-                (card['id'], card['anime'], card['name'], card['rarity'], card['image'])
+                'INSERT INTO cards (id, anime, name, rarity, image, description) VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET anime=excluded.anime, name=excluded.name, rarity=excluded.rarity, image=excluded.image, description=excluded.description',
+                (card['id'], card['anime'], card['name'], card['rarity'], card['image'], card['description'])
             )
 
 @asynccontextmanager
