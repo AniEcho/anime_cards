@@ -198,7 +198,7 @@
     <div class="fab-profile-stats"><span class="fab-rating" id="fab-rating">#0 — 0</span><span class="fab-cards" id="fab-cards">0/0</span></div>
   </div>
 
-   <!-- МОДАЛКА НАГРАДЫ -->
+  <!-- МОДАЛКА НАГРАДЫ -->
   <div id="reward-modal" class="modal-overlay" onclick="closeReward(event)">
     <div class="reward-content" onclick="event.stopPropagation()">
       <h2 class="reward-title">Карта получена!</h2>
@@ -207,12 +207,11 @@
         <div class="reward-right">
           <div class="reward-points" id="reward-subtitle" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
           <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div><div class="reward-label">Имя:</div><div class="reward-value" id="reward-name"></div></div>
-          <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div><div class="reward-label">Аниме:</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
+            <div><div class="reward-label">ПЕРСОНАЖ</div><div class="reward-value" id="reward-name"></div></div>
+            <div><div class="reward-label">АНИМЕ</div><div class="reward-value" id="reward-anime" style="color: #b775ff;"></div></div>
             <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;"><div class="reward-label">Редкость:</div><div class="reward-value" id="reward-rarity"></div></div>
-              <div style="flex: 1;"><div class="reward-label">В коллекции:</div><div class="reward-value" id="reward-count"></div></div>
+              <div style="flex: 1;"><div class="reward-label">РЕДКОСТЬ</div><div class="reward-value" id="reward-rarity"></div></div>
+              <div style="flex: 1;"><div class="reward-label">КОЛ-ВО</div><div class="reward-value" id="reward-count"></div></div>
             </div>
           </div>
           <button onclick="closeReward()" class="primary wide" style="margin-top: 10px; padding: 12px; font-size: 15px; border-radius: 12px;">Забрать</button>
@@ -246,16 +245,16 @@
         <div class="reward-right">
           <div class="reward-points" id="info-card-points" style="border: none; padding-bottom: 0; margin-bottom: 5px;"></div>
           <div class="reward-info-block" style="gap: 8px; margin-bottom: 10px;">
-            <div><div class="reward-label">Имя:</div><div class="reward-value" id="info-card-name"></div></div>
-            <div><div class="reward-label">Аниме:</div><div class="reward-value" id="info-card-anime" style="color: #b775ff;"></div></div>
+            <div><div class="reward-label">ПЕРСОНАЖ</div><div class="reward-value" id="info-card-name"></div></div>
+            <div><div class="reward-label">АНИМЕ</div><div class="reward-value" id="info-card-anime" style="color: #b775ff;"></div></div>
             <div style="display: flex; gap: 20px;">
-              <div style="flex: 1;"><div class="reward-label">Редкость:</div><div class="reward-value" id="info-card-rarity"></div></div>
-              <div style="flex: 1;"><div class="reward-label">В коллекции:</div><div class="reward-value" id="info-card-count"></div></div>
+              <div style="flex: 1;"><div class="reward-label">РЕДКОСТЬ</div><div class="reward-value" id="info-card-rarity"></div></div>
+              <div style="flex: 1;"><div class="reward-label">КОЛ-ВО</div><div class="reward-value" id="info-card-count"></div></div>
             </div>
           </div>
 
           <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; margin-bottom: 15px; border: 1px solid #3a304a;">
-            <div class="reward-label" style="margin-bottom: 5px;">О персонаже:</div>
+            <div class="reward-label" style="margin-bottom: 5px;">О ПЕРСОНАЖЕ:</div>
             <div id="info-card-desc" style="color: #e0dce8; font-size: 13px; line-height: 1.4; font-style: italic; max-height: 80px; overflow-y: auto;">Описание...</div>
           </div>
 
@@ -1335,21 +1334,17 @@
 
     function openCardInfo(cardId) {
       const c = profile.cards.find(x => Number(x.id) === Number(cardId));
-      $('info-card-name').textContent = c.name;
       if (!c) return;
 
-      // Вставляем карточку в модалку
       $('info-card-container').innerHTML = card(c);
-      // Убираем клик с карточки, чтобы она не открывала саму себя
       $('info-card-container').querySelector('.card').onclick = null;
       
       const rarityColor = colors[c.rarity] || '#aaa';
       $('info-card-points').innerHTML = `<span style="color:#b775ff; font-weight:bold;">${c.points}</span> рейтинга`;
+      $('info-card-name').textContent = c.name;
       $('info-card-anime').textContent = c.anime;
       $('info-card-rarity').textContent = c.rarity;
       $('info-card-rarity').style.color = rarityColor;
-      
-      // В коллекции пишем 0, если карты нет
       $('info-card-count').textContent = `${c.count} шт.`;
       
       const desc = c.description && c.description.trim() !== '' ? c.description : 'Описание для этого персонажа пока не добавлено.';
