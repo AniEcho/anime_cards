@@ -486,25 +486,31 @@
         if ($('btn-reset-filters')) $('btn-reset-filters').style.display = hasFilters ? 'flex' : 'none';
         if ($('filter-bar')) $('filter-bar').style.display = collectionTab === 'sets' ? 'none' : 'flex';
       }
+      
       if (collectionTab === 'mine') {
         let myCards = profile.cards.filter(c => c.count > 0);
         const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
         myCards.sort((a, b) => { const wA = rarityWeight[a.rarity] || 0; const wB = rarityWeight[b.rarity] || 0; if (wA !== wB) return wB - wA; return a.name.localeCompare(b.name); });
+        
         if (filterAnime) myCards = myCards.filter(c => c.anime === filterAnime);
         if (filterRarity) myCards = myCards.filter(c => c.rarity === filterRarity);
         if (filterDupes) myCards = myCards.filter(c => c.count > 1);
+        
         renderFilterMenus();
+        
         let html = ``;
         if (myCards.length === 0) html += `<p class="muted" style="text-align:center; margin-top:20px;">По выбранным фильтрам ничего не найдено.</p>`;
         else html += `<div class="grid">${myCards.map(card).join('')}</div>`;
         view.innerHTML = html;
         return;
       }
+      
       if (currentAnime) {
         const list = profile.cards.filter(c => c.anime === currentAnime);
         const rarityWeight = { 'Мифическая': 6, 'Легендарная': 5, 'Эпическая': 4, 'Редкая': 3, 'Необычная': 2, 'Обычная': 1 };
         list.sort((a, b) => { const wA = rarityWeight[a.rarity] || 0; const wB = rarityWeight[b.rarity] || 0; if (wA !== wB) return wB - wA; return a.name.localeCompare(b.name); });
         const uniqueCollected = list.filter(c => c.count > 0).length;
+        
         const cardsHtml = list.map(c => {
           const isMissing = c.count === 0;
           const bgHtml = c.image ? `<div class="set-card-bg" style="background-image: url('${esc(c.image)}')"></div>` : '';
@@ -514,27 +520,46 @@
           const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
           const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
           
-          // ДОБАВЛЯЕМ onclick="openCardInfo(...)" СЮДА
+          // ДОБАВИЛИ onclick СЮДА (чтобы работало информирование в сетях)
           return `<div class="set-card ${rarityClass} ${isMissing ? 'missing' : ''}" onclick="openCardInfo(${c.id})"><div class="set-card-img">${bgHtml}${contentHtml}${holoHtml}</div><div class="set-card-info"><div class="set-card-name" style="color:${isMissing ? '#666' : '#eee'}">${esc(c.name)}</div><div class="set-card-points" style="opacity: ${isMissing ? 0.3 : 1}; color: #b775ff;">${c.points}</div><div class="muted" style="font-size:10px; margin-top:2px; font-weight:600; color:${isMissing ? '#555' : '#8a8299'};">В коллекции: ${c.count}</div></div></div>`;
         }).join('');
+        
         view.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;"><button id="back-to-sets" style="padding:8px 12px; font-size:14px;">← Назад</button><div style="font-weight:bold; color:#aaa;">${esc(currentAnime)} · ${uniqueCollected}/${list.length}</div></div><div class="set-grid">${cardsHtml}</div>`;
         $('back-to-sets').onclick = () => { currentAnime = null; collection(); };
         return;
       }
+      
       const sets = {};
       profile.cards.forEach(c => { if (!sets[c.anime]) sets[c.anime] = { total: 0, collected: 0 }; sets[c.anime].total += 1; if (c.count > 0) sets[c.anime].collected += 1; });
       const sortedAnimes = Object.keys(sets).sort((a, b) => a.localeCompare(b));
+      
       const setsHtml = sortedAnimes.map(anime => {
         const data = sets[anime];
         const isCompleted = data.collected === data.total;
         const percent = Math.round((data.collected / data.total) * 100);
         return `<div class="set-row" data-anime="${esc(anime)}" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 16px;"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="set-row-title">${esc(anime)}</div><div class="set-row-progress" style="color:${isCompleted ? '#77cd91' : '#fff'}; font-size: 14px;">${data.collected}/${data.total} <span style="color:#8a8299; font-size:12px;">›</span></div></div><div style="width: 100%; height: 6px; background: #2a2533; border-radius: 3px; overflow: hidden;"><div style="width: ${percent}%; height: 100%; background: ${isCompleted ? '#77cd91' : '#b775ff'}; border-radius: 3px;"></div></div></div>`;
       }).join('');
+      
       view.innerHTML = `<div class="sets-list">${setsHtml}</div>`;
       document.querySelectorAll('.set-row').forEach(el => { el.onclick = () => { currentAnime = el.dataset.anime; collection(); }; });
     }
 
-    function toggleFilterDropdown(type) { const menu = $(type === 'rarity' ? 'menu-rarity' : 'menu-anime'); const other = $(type === 'rarity' ? 'menu-anime' : 'menu-rarity'); if (other) other.classList.remove('active'); if (menu) menu.classList.toggle('active'); }
+    function toggleFilterDropdown(type, event) {
+      if (event) event.stopPropagation(); // Останавливаем клик, чтобы меню не закрывалось сразу
+      const menu = $(type === 'rarity' ? 'menu-rarity' : 'menu-anime');
+      const other = $(type === 'rarity' ? 'menu-anime' : 'menu-rarity');
+      
+      if (other) other.classList.remove('active');
+      if (menu) {
+        const isOpening = !menu.classList.contains('active');
+        menu.classList.toggle('active');
+        if (isOpening) {
+          menu.style.display = 'flex'; // Показываем
+        } else {
+          menu.style.display = 'none'; // Скрываем
+        }
+      }
+    }
     function renderFilterMenus() {
       const rarityMenu = $('menu-rarity');
       if (rarityMenu) {
@@ -584,11 +609,11 @@
       const filtersHtml = `
         <div class="filter-bar" style="margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: wrap;">
           <div class="filter-dropdown-wrap" style="position: relative; flex: 1; min-width: 120px;">
-            <button class="filter-chip" onclick="toggleTradeFilterDropdown('rarity', event)"><span id="trade-label-rarity">${tradeFilterRarity || 'Все редкости'}</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('rarity', event)"><span id="label-rarity">Все редкости</span> ▾</button>
             <div class="filter-menu" id="trade-menu-rarity" style="position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; display: none;"></div>
           </div>
           <div class="filter-dropdown-wrap" style="position: relative; flex: 1; min-width: 120px;">
-            <button class="filter-chip" onclick="toggleTradeFilterDropdown('anime', event)"><span id="trade-label-anime">${tradeFilterAnime || 'Все аниме'}</span> ▾</button>
+            <button class="filter-chip" onclick="toggleFilterDropdown('anime', event)"><span id="label-anime">Все аниме</span> ▾</button>
             <div class="filter-menu" id="trade-menu-anime" style="position: absolute; top: 100%; left: 0; margin-top: 6px; width: 200px; background: #16121c; border: 1px solid #3a304a; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9999; padding: 8px; flex-direction: column; display: none;"></div>
           </div>
           <button id="trade-btn-dupes" class="filter-chip ${tradeFilterDupes ? 'active' : ''}" onclick="toggleTradeDupesFilter()" style="flex: auto; width: auto; justify-content: center;">Только повторки</button>

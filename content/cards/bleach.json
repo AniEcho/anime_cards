@@ -7,24 +7,28 @@
     "description": "-"
   },
   {
+    "anime_title": "Блич",
     "name": "Рукия Кучики",
     "rarity": "Необычная",
     "image": "/static/images/bleach_rukia.jpg",
     "description": "-"
   },
   {
+    "anime_title": "Блич",
     "name": "Рэндзи Абарай",
     "rarity": "Редкая",
     "image": "/static/images/bleach_renji.jpg",
     "description": "-"
   },
   {
+    "anime_title": "Блич",
     "name": "Бякуя Кучики",
     "rarity": "Легендарная",
     "image": "/static/images/bleach_byakuya.jpg",
     "description": "-"
   },
   {
+    "anime_title": "Блич",
     "name": "Кэнпати Зараки",
     "rarity": "Мифическая",
     "image": "/static/images/bleach_kenpachi.jpg",
