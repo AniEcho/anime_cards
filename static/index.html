@@ -513,7 +513,7 @@
           const startIdx = (currentPage - 1) * CARDS_PER_PAGE;
           const pageCards = myCards.slice(startIdx, startIdx + CARDS_PER_PAGE);
           
-          html += `<div class="grid" style="grid-template-columns: repeat(2, 1fr);">${pageCards.map(card).join('')}</div>`;
+          html += `<div class="grid" style="grid-template-columns: repeat(2, 1fr); zoom: 0.8; width: 125%; margin-left: -12.5%;">${pageCards.map(card).join('')}</div>`;
           
           if (totalPages > 1) {
             let pagesHtml = '';
@@ -554,7 +554,7 @@
           return `<div class="set-card ${rarityClass} ${isMissing ? 'missing' : ''}" onclick="openCardInfo(${c.id})"><div class="set-card-img">${bgHtml}${contentHtml}${holoHtml}</div><div class="set-card-info"><div class="set-card-name" style="color:${isMissing ? '#666' : '#eee'}">${esc(c.name)}</div><div class="set-card-points" style="opacity: ${isMissing ? 0.3 : 1}; color: #b775ff;">${c.points}</div><div class="muted" style="font-size:10px; margin-top:2px; font-weight:600; color:${isMissing ? '#555' : '#8a8299'};">В коллекции: ${c.count}</div></div></div>`;
         }).join('');
         
-        view.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;"><button id="back-to-sets" style="padding:8px 12px; font-size:14px;">← Назад</button><div style="font-weight:bold; color:#aaa;">${esc(currentAnime)} · ${uniqueCollected}/${list.length}</div></div><div class="set-grid">${cardsHtml}</div>`;
+        view.innerHTML = `<div style="zoom: 0.8; width: 125%; margin-left: -12.5%;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;"><button id="back-to-sets" style="padding:8px 12px; font-size:14px;">← Назад</button><div style="font-weight:bold; color:#aaa;">${esc(currentAnime)} · ${uniqueCollected}/${list.length}</div></div><div class="set-grid">${cardsHtml}</div></div>`;
         $('back-to-sets').onclick = () => { currentAnime = null; collection(); };
         return;
       }
@@ -570,7 +570,7 @@
         return `<div class="set-row" data-anime="${esc(anime)}" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 16px;"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="set-row-title">${esc(anime)}</div><div class="set-row-progress" style="color:${isCompleted ? '#77cd91' : '#fff'}; font-size: 14px;">${data.collected}/${data.total} <span style="color:#8a8299; font-size:12px;">›</span></div></div><div style="width: 100%; height: 6px; background: #2a2533; border-radius: 3px; overflow: hidden;"><div style="width: ${percent}%; height: 100%; background: ${isCompleted ? '#77cd91' : '#b775ff'}; border-radius: 3px;"></div></div></div>`;
       }).join('');
       
-      view.innerHTML = `<div class="sets-list">${setsHtml}</div>`;
+      view.innerHTML = `<div class="sets-list" style="zoom: 0.8; width: 125%; margin-left: -12.5%;">${setsHtml}</div>`;
       document.querySelectorAll('.set-row').forEach(el => { el.onclick = () => { currentAnime = el.dataset.anime; collection(); }; });
     }
 
