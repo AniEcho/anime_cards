@@ -108,17 +108,19 @@ def initialize():
         
         # Проходим по всем файлам в алфавитном порядке
         for file_path in sorted(cards_dir.glob('*.json')):
-            anime_name = file_path.stem.capitalize() 
+            default_anime_name = file_path.stem.capitalize()
             try:
                 cards_data = json.loads(file_path.read_text(encoding='utf-8'))
                 for card in cards_data:
                     if card['rarity'] not in POINTS:
                         raise ValueError(f"Неизвестная редкость: {card['rarity']} в файле {file_path.name}")
                     
-                    # Собираем карту
+                    # Если в первой карте файла есть поле "anime_title", берем его. Иначе берем имя файла.
+                    final_anime_name = card.get('anime_title', default_anime_name)
+                    
                     all_cards.append({
                         'id': card_id,
-                        'anime': anime_name,
+                        'anime': final_anime_name,  # Используем красивое название
                         'name': card['name'],
                         'rarity': card['rarity'],
                         'image': card.get('image', ''),
