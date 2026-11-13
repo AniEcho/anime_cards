@@ -395,7 +395,7 @@ def start_puzzle(body: PuzzleStart = None, authorization: str | None = Header(de
             'Редкая': 3,      # 3 на 3
             'Эпическая': 4,   # 4 на 4
             'Легендарная': 5, # 5 на 5
-            'Мифическая': 6   # 6 на 6
+            'Мифическая': 5   # <--- ИЗМЕНЕНО НА 5 (как у леги)
         }
         grid_size = pieces_map.get(card['rarity'], 3)
         
@@ -422,15 +422,13 @@ def start_puzzle(body: PuzzleStart = None, authorization: str | None = Header(de
         random.shuffle(shuffled_indices)
         state = {'card_id': card['id'], 'grid_size': grid_size, 'pieces': pieces_b64}
         
-        # 3. Умный таймер (чтобы 6х6 можно было собрать)
+        # 3. Умный таймер
         if grid_size <= 3:
             time_limit = 30
         elif grid_size == 4:
             time_limit = 60
-        elif grid_size == 5:
-            time_limit = 90
         else:
-            time_limit = 120  # 2 минуты для 6х6
+            time_limit = 90  # 90 секунд для 5х5 (и Лега, и Мифик)
 
         sid = secrets.token_urlsafe(24)
         now = time.time()
