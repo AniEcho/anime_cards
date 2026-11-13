@@ -70,14 +70,13 @@ def initialize():
             pass
 
         c.execute('CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY, anime TEXT NOT NULL, name TEXT NOT NULL, rarity TEXT NOT NULL, image TEXT NOT NULL)')
-        all_cards.append({
-                        'id': card_id,
-                        'anime': anime_name,
-                        'name': card['name'],
-                        'rarity': card['rarity'],
-                        'image': card.get('image', ''),
-                        'description': card.get('description', '') # <--- ДОБАВИТЬ ЭТО
-                    })
+        
+        # ДОБАВЛЯЕМ КОЛОНКУ ОПИСАНИЯ В БАЗУ
+        try:
+            c.execute('ALTER TABLE cards ADD COLUMN description TEXT DEFAULT ""')
+        except sqlite3.OperationalError:
+            pass
+
         c.execute('CREATE TABLE IF NOT EXISTS inventory(user_id INTEGER REFERENCES users(id), card_id INTEGER REFERENCES cards(id), count INTEGER NOT NULL, PRIMARY KEY(user_id,card_id))')
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
         
@@ -109,21 +108,21 @@ def initialize():
         
         # Проходим по всем файлам в алфавитном порядке
         for file_path in sorted(cards_dir.glob('*.json')):
-            anime_name = file_path.stem.capitalize() # Имя файла "naruto" станет "Naruto"
+            anime_name = file_path.stem.capitalize() 
             try:
                 cards_data = json.loads(file_path.read_text(encoding='utf-8'))
                 for card in cards_data:
                     if card['rarity'] not in POINTS:
                         raise ValueError(f"Неизвестная редкость: {card['rarity']} в файле {file_path.name}")
                     
-                    # Собираем карту, добавляя ей ID и название аниме
+                    # Собираем карту
                     all_cards.append({
                         'id': card_id,
                         'anime': anime_name,
                         'name': card['name'],
                         'rarity': card['rarity'],
                         'image': card.get('image', ''),
-                        'description': card.get('description', '') # <--- ДОБАВИТЬ ЭТО
+                        'description': card.get('description', '')
                     })
                     card_id += 1
             except Exception as e:
