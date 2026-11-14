@@ -268,10 +268,9 @@
   <!-- МОДАЛКА ПРОМОКОДА -->
   <div id="promo-modal" class="modal-overlay" onclick="closePromoModal(event)">
     <div class="reward-content" style="max-width: 400px; padding: 20px;" onclick="event.stopPropagation()">
-      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 15px;">Успех!</h2>
+      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 15px;">Промокод активирован!</h2>
       
-      <div id="promo-result-message" style="text-align: center; font-size: 14px; margin-bottom: 10px; font-weight: bold; color: #77cd91;"></div>
-      <div id="promo-result-rating" style="text-align: center; font-size: 16px; margin-bottom: 15px; font-weight: bold; color: #fbbf24;"></div>
+      <div id="promo-result-rating" style="text-align: center; font-size: 16px; margin-bottom: 15px; font-weight: bold; color: #fbbf24; display: none;"></div>
       
       <div id="promo-reward-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;"></div>
       
@@ -1557,28 +1556,38 @@
           const res = await api('promo', { code: code });
           await sync();
           
-          $('promo-code-input').value = ''; // Очищаем поле
+          // Очищаем поле ввода
+          $('promo-code-input').value = '';
           
-          // Показываем модалку
+          // Открываем модалку
           $('promo-modal').classList.add('active');
-          $('promo-result-message').textContent = res.message;
           
-          // Отрисовываем полученные карты и считаем рейтинг
+          // Отрисовываем карты
+          const rewardList = $('promo-reward-list');
+          const ratingBlock = $('promo-result-rating');
+          
           if (res.cards && res.cards.length > 0) {
             let totalRating = 0;
-            $('promo-reward-list').innerHTML = res.cards.map(c => {
-              const cardInfo = profile.cards.find(x => x.id === c.id);
-              totalRating += (cardInfo ? cardInfo.points : c.points);
-              return card(cardInfo || c); 
-            }).join('');
-            // Убираем клики с карточек
-            $('promo-reward-list').querySelectorAll('.card').forEach(el => el.onclick = null);
             
-            $('promo-result-rating').innerHTML = `<span style="color:#b775ff;">+${totalRating}</span> рейтинга`;
-            $('promo-result-rating').style.display = 'block';
+            rewardList.innerHTML = res.cards.map(c => {
+              // Берем актуальную инфу о карте из профиля, чтобы правильно посчитать рейтинг
+              const cardInfo = profile.cards.find(x => Number(x.id) === Number(c.id));
+              const points = cardInfo ? cardInfo.points : c.points;
+              totalRating += points;
+              
+              // Используем функцию card() для красивого отображения
+              return card(cardInfo || c, true); 
+            }).join('');
+            
+            // Отключаем клики по картам внутри модалки
+            rewardList.querySelectorAll('.card').forEach(el => el.onclick = null);
+            
+            // Показываем общий рейтинг
+            ratingBlock.innerHTML = `<span style="color:#b775ff;">+${totalRating}</span> рейтинга`;
+            ratingBlock.style.display = 'block';
           } else {
-            $('promo-reward-list').innerHTML = '';
-            $('promo-result-rating').style.display = 'none';
+            rewardList.innerHTML = '';
+            ratingBlock.style.display = 'none';
           }
           
         } catch (e) {
