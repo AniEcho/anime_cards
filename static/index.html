@@ -197,7 +197,6 @@
   <div class="fab-profile" id="fab-profile">
     <div class="fab-profile-name" id="fab-name">Загрузка…</div>
     <div class="fab-profile-stats"><span class="fab-rating" id="fab-rating">#0 — 0</span><span class="fab-cards" id="fab-cards">0/0</span></div>
-    <button onclick="openPromoModal()" style="margin-top: 10px; width: 100%; padding: 6px 10px; font-size: 12px; background: rgba(183,117,255,0.2); border: 1px solid #b775ff; color: #fff; border-radius: 8px; cursor: pointer;">🎁 Ввести промокод</button>
   </div>
 
   <!-- МОДАЛКА НАГРАДЫ -->
@@ -269,18 +268,14 @@
   <!-- МОДАЛКА ПРОМОКОДА -->
   <div id="promo-modal" class="modal-overlay" onclick="closePromoModal(event)">
     <div class="reward-content" style="max-width: 400px; padding: 20px;" onclick="event.stopPropagation()">
-      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 15px;">Активация промокода</h2>
+      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 15px;">Успех!</h2>
       
-      <div id="promo-input-block">
-        <input type="text" id="promo-code-input" placeholder="Введите код..." style="width: 100%; padding: 14px; background: #0a0c10; border: 1px solid #3a304a; border-radius: 10px; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-bottom: 15px; text-align: center; text-transform: uppercase;">
-        <button id="promo-submit-btn" onclick="applyPromoCode()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Активировать</button>
-      </div>
-
-      <div id="promo-result-block" style="display: none;">
-        <div id="promo-result-message" style="text-align: center; font-size: 14px; margin-bottom: 15px; font-weight: bold; color: #77cd91;"></div>
-        <div id="promo-reward-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;"></div>
-        <button onclick="closePromoModal()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Закрыть</button>
-      </div>
+      <div id="promo-result-message" style="text-align: center; font-size: 14px; margin-bottom: 10px; font-weight: bold; color: #77cd91;"></div>
+      <div id="promo-result-rating" style="text-align: center; font-size: 16px; margin-bottom: 15px; font-weight: bold; color: #fbbf24;"></div>
+      
+      <div id="promo-reward-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;"></div>
+      
+      <button onclick="closePromoModal()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Забрать</button>
     </div>
   </div>
 
@@ -1090,6 +1085,12 @@
     function games() {
       if (gameTicker) clearInterval(gameTicker);
       $('view').innerHTML = `
+      <!-- ПАНЕЛЬ ПРОМОКОДА -->
+        <div style="background: #1e1a26; padding: 16px; border-radius: 16px; border: 1px solid #3a304a; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+          <div style="font-size: 15px; font-weight: 700; color: #fff;">Ввести промокод</div>
+          <input type="text" id="promo-code-input" placeholder="Ваш код..." style="width: 100%; padding: 12px; background: #0a0c10; border: 1px solid #3a304a; border-radius: 10px; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; text-align: center; text-transform: uppercase;">
+          <button id="promo-submit-btn" onclick="applyPromoCode()" class="primary wide" style="margin: 0; padding: 10px; border-radius: 10px;">Активировать</button>
+        </div>
         <h2 style="margin-bottom: 20px;">Мини-игры</h2>
         <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
           <div id="free-card-btn" class="game-card" style="background: #1e1a26; border: 1px solid #3a304a; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; transition: transform 0.1s, filter 0.3s, opacity 0.3s;">
@@ -1534,14 +1535,6 @@
       });
     }
 
-     function openPromoModal() {
-      $('promo-modal').classList.add('active');
-      $('promo-input-block').style.display = 'block';
-      $('promo-result-block').style.display = 'none';
-      $('promo-code-input').value = '';
-      $('promo-code-input').focus();
-    }
-
     function closePromoModal(e) {
       if (e && e.target !== e.currentTarget) return;
       $('promo-modal').classList.remove('active');
@@ -1564,22 +1557,28 @@
           const res = await api('promo', { code: code });
           await sync();
           
-          // Скрываем ввод, показываем результат
-          $('promo-input-block').style.display = 'none';
-          $('promo-result-block').style.display = 'block';
+          $('promo-code-input').value = ''; // Очищаем поле
           
+          // Показываем модалку
+          $('promo-modal').classList.add('active');
           $('promo-result-message').textContent = res.message;
           
-          // Отрисовываем полученные карты (если они есть)
+          // Отрисовываем полученные карты и считаем рейтинг
           if (res.cards && res.cards.length > 0) {
+            let totalRating = 0;
             $('promo-reward-list').innerHTML = res.cards.map(c => {
               const cardInfo = profile.cards.find(x => x.id === c.id);
+              totalRating += (cardInfo ? cardInfo.points : c.points);
               return card(cardInfo || c); 
             }).join('');
-            // Убираем клики с карточек в результате
+            // Убираем клики с карточек
             $('promo-reward-list').querySelectorAll('.card').forEach(el => el.onclick = null);
+            
+            $('promo-result-rating').innerHTML = `<span style="color:#b775ff;">+${totalRating}</span> рейтинга`;
+            $('promo-result-rating').style.display = 'block';
           } else {
             $('promo-reward-list').innerHTML = '';
+            $('promo-result-rating').style.display = 'none';
           }
           
         } catch (e) {
