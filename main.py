@@ -91,6 +91,11 @@ def initialize():
         c.execute('CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, user_id INTEGER REFERENCES users(id), kind TEXT NOT NULL, state TEXT NOT NULL, deadline REAL NOT NULL, done INTEGER NOT NULL DEFAULT 0, started_at REAL)')
         
         try:
+            c.execute('ALTER TABLE users ADD COLUMN promo_activated TEXT DEFAULT ""')
+        except sqlite3.OperationalError:
+            pass
+
+        try:
             c.execute('ALTER TABLE sessions ADD COLUMN started_at REAL')
         except sqlite3.OperationalError:
             pass
@@ -629,6 +634,73 @@ def craft(body: CraftRequest, authorization: str | None = Header(default=None)):
         c.execute('INSERT INTO inventory(user_id, card_id, count) VALUES(?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, new_card['id']))
 
         return {'status': 'ok', 'card': card_dict(new_card)}
+
+class PromoRequest(BaseModel):
+    code: str
+
+@app.post('/api/promo')
+def apply_promo(body: PromoRequest, authorization: str | None = Header(default=None)):
+    with db() as c:
+        uid = player(c, authorization)
+        code = body.code.strip().upper()
+        
+        # Читаем файл промокодов
+        promo_path = CONTENT_DIR / 'promos.json'
+        if not promo_path.exists():
+            raise HTTPException(404, 'Промокоды пока не настроены')
+            
+        promos = json.loads(promo_path.read_text(encoding='utf-8'))
+        
+        if code not in promos:
+            raise HTTPException(400, 'Неверный или устаревший промокод')
+            
+        promo_data = promos[code]
+        
+        # Проверяем, не активировал ли уже этот игрок
+        user_row = c.execute('SELECT promo_activated FROM users WHERE id=?', (uid,)).fetchone()
+        activated = str(user_row['promo_activated'] or '').split(',')
+        if code in activated:
+            raise HTTPException(400, 'Вы уже активировали этот промокод')
+            
+        # Проверяем лимит активаций
+        if promo_data.get('max_uses', 0) > 0:
+            uses = c.execute('SELECT COUNT(*) FROM users WHERE promo_activated LIKE ?', (f'%{code}%',)).fetchone()[0]
+            if uses >= promo_data['max_uses']:
+                raise HTTPException(400, 'У этого промокода закончились активации')
+                
+        # Выдаем награды
+        cards_to_give = []
+        
+        # 1. Если указано конкретное аниме, выдаем ВСЕ карты из него
+        if 'anime' in promo_data:
+            target_anime = promo_data['anime']
+            all_cards_of_anime = c.execute('SELECT * FROM cards WHERE anime=?', (target_anime,)).fetchall()
+            
+            for card_row in all_cards_of_anime:
+                # Выдаем по 1 штуке каждой карты из этого аниме
+                c.execute('INSERT INTO inventory(user_id, card_id, count) VALUES(?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, card_row['id']))
+                cards_to_give.append(card_dict(card_row))
+                
+        # 2. Если указаны конкретные редкости (старый способ)
+        elif 'cards' in promo_data:
+            for reward_spec in promo_data['cards']:
+                rarity = reward_spec['rarity']
+                amount = reward_spec['amount']
+                for _ in range(amount):
+                    card_row = c.execute('SELECT * FROM cards WHERE rarity=? ORDER BY RANDOM() LIMIT 1', (rarity,)).fetchone()
+                    if card_row:
+                        c.execute('INSERT INTO inventory(user_id, card_id, count) VALUES(?, ?, 1) ON CONFLICT(user_id, card_id) DO UPDATE SET count = count + 1', (uid, card_row['id']))
+                        cards_to_give.append(card_dict(card_row))
+                        
+        # Обновляем список активированных промокодов игрока
+        activated.append(code)
+        c.execute('UPDATE users SET promo_activated=? WHERE id=?', (','.join(filter(None, activated)), uid))
+        
+        return {
+            'status': 'ok', 
+            'message': 'Промокод успешно активирован!', 
+            'cards': cards_to_give
+        }
 
 if __name__ == "__main__":
     import uvicorn

@@ -57,8 +57,9 @@
     .set-card-name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tag, .set-card-rarity { font-size: 9px; text-transform: uppercase; padding: 2px 6px; border: 1px solid currentColor; border-radius: 4px; align-self: flex-start; font-weight: bold; }
     .points, .set-card-points { color: #fbbf24; margin-top: 2px; font-size: 13px; font-weight: 900; display: flex; align-items: center; gap: 3px; }
-    .missing { opacity: 0.4; }
-    .missing .portrait img, .missing .set-card-img img { filter: grayscale(100%); opacity: 0.2; }
+    .missing { opacity: 0.8; } /* Было 0.4, теперь карта видна лучше */
+    .missing .portrait img, .missing .set-card-img img { filter: grayscale(100%); opacity: 0.5; } /* Было 0.2, теперь картинка видна, но серая */
+    .missing .info, .missing .set-card-info { opacity: 0.6; } /* Текст внутри делаем чуть прозрачнее */
     .rarity-Обычная { border: 1px solid #5a5066; }
     .rarity-Необычная { border: 1px solid #4a7c59; box-shadow: 0 0 8px rgba(74, 124, 89, 0.3); }
     .rarity-Редкая { border: 1px solid #4a6c9c; box-shadow: 0 0 10px rgba(74, 108, 156, 0.4); }
@@ -196,6 +197,7 @@
   <div class="fab-profile" id="fab-profile">
     <div class="fab-profile-name" id="fab-name">Загрузка…</div>
     <div class="fab-profile-stats"><span class="fab-rating" id="fab-rating">#0 — 0</span><span class="fab-cards" id="fab-cards">0/0</span></div>
+    <button onclick="openPromoModal()" style="margin-top: 10px; width: 100%; padding: 6px 10px; font-size: 12px; background: rgba(183,117,255,0.2); border: 1px solid #b775ff; color: #fff; border-radius: 8px; cursor: pointer;">🎁 Ввести промокод</button>
   </div>
 
   <!-- МОДАЛКА НАГРАДЫ -->
@@ -260,6 +262,24 @@
 
           <button onclick="closeCardInfo()" class="primary wide" style="margin: 0; padding: 12px; font-size: 15px; border-radius: 12px;">Закрыть</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ПРОМОКОДА -->
+  <div id="promo-modal" class="modal-overlay" onclick="closePromoModal(event)">
+    <div class="reward-content" style="max-width: 400px; padding: 20px;" onclick="event.stopPropagation()">
+      <h2 class="reward-title" style="color: #b775ff; font-size: 20px; margin-bottom: 15px;">Активация промокода</h2>
+      
+      <div id="promo-input-block">
+        <input type="text" id="promo-code-input" placeholder="Введите код..." style="width: 100%; padding: 14px; background: #0a0c10; border: 1px solid #3a304a; border-radius: 10px; color: #fff; font-family: 'Rajdhani'; font-size: 16px; outline: none; margin-bottom: 15px; text-align: center; text-transform: uppercase;">
+        <button id="promo-submit-btn" onclick="applyPromoCode()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Активировать</button>
+      </div>
+
+      <div id="promo-result-block" style="display: none;">
+        <div id="promo-result-message" style="text-align: center; font-size: 14px; margin-bottom: 15px; font-weight: bold; color: #77cd91;"></div>
+        <div id="promo-reward-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;"></div>
+        <button onclick="closePromoModal()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Закрыть</button>
       </div>
     </div>
   </div>
@@ -375,13 +395,23 @@
       updateCooldowns();
     }
 
-    function card(c) {
+    function card(c, showMissing = false) {
       const isMissing = c.count === 0;
       const rarityColor = colors[c.rarity] || '#aaa';
-      const bgHtml = (c.image && !isMissing) ? `<div class="card-bg" style="background-image: url('${esc(c.image)}')"></div>` : '';
+      
+      // Если карта есть ИЛИ мы просим показать отсутствующую
+      const showImage = c.image && (!isMissing || showMissing);
+      
+      const bgHtml = showImage ? `<div class="card-bg" style="background-image: url('${esc(c.image)}')"></div>` : '';
       let contentHtml = '';
-      if (c.image && !isMissing) contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
-      else contentHtml = `${bgHtml}<div class="no-image-text">${esc(c.name)}</div>`;
+      
+      if (showImage) {
+        // Если карты нет, добавляем класс 'missing-img' для блюра (сам стиль добавим в CSS)
+        contentHtml = `<img loading="lazy" src="${esc(c.image)}" alt="${esc(c.name)}">`;
+      } else {
+        contentHtml = `${bgHtml}<div class="no-image-text">${esc(c.name)}</div>`;
+      }
+      
       const holoHtml = (!isMissing && (c.rarity === 'Легендарная' || c.rarity === 'Мифическая')) ? `<div class="holo-effect"></div>` : '';
       const rarityClass = `rarity-${c.rarity.replace(/\s+/g, '')}`;
       
@@ -1378,7 +1408,7 @@
       const c = profile.cards.find(x => Number(x.id) === Number(cardId));
       if (!c) return;
 
-      $('info-card-container').innerHTML = card(c);
+      $('info-card-container').innerHTML = card(c, true); // Передаем true
       $('info-card-container').querySelector('.card').onclick = null;
       
       const rarityColor = colors[c.rarity] || '#aaa';
@@ -1500,6 +1530,65 @@
         } catch(e) {
           errDiv.textContent = e.message;
           errDiv.style.display = 'block';
+        }
+      });
+    }
+
+     function openPromoModal() {
+      $('promo-modal').classList.add('active');
+      $('promo-input-block').style.display = 'block';
+      $('promo-result-block').style.display = 'none';
+      $('promo-code-input').value = '';
+      $('promo-code-input').focus();
+    }
+
+    function closePromoModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      $('promo-modal').classList.remove('active');
+    }
+
+    async function applyPromoCode() {
+      const code = $('promo-code-input').value.trim();
+      const btn = $('promo-submit-btn');
+      
+      if (!code) {
+        $('notice').hidden = false; $('notice').textContent = 'Введите промокод!'; setTimeout(() => { $('notice').hidden = true; }, 3000);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Загрузка...';
+
+      await run(async () => {
+        try {
+          const res = await api('promo', { code: code });
+          await sync();
+          
+          // Скрываем ввод, показываем результат
+          $('promo-input-block').style.display = 'none';
+          $('promo-result-block').style.display = 'block';
+          
+          $('promo-result-message').textContent = res.message;
+          
+          // Отрисовываем полученные карты (если они есть)
+          if (res.cards && res.cards.length > 0) {
+            $('promo-reward-list').innerHTML = res.cards.map(c => {
+              const cardInfo = profile.cards.find(x => x.id === c.id);
+              return card(cardInfo || c); 
+            }).join('');
+            // Убираем клики с карточек в результате
+            $('promo-reward-list').querySelectorAll('.card').forEach(el => el.onclick = null);
+          } else {
+            $('promo-reward-list').innerHTML = '';
+          }
+          
+        } catch (e) {
+          $('notice').hidden = false;
+          $('notice').textContent = e.message;
+          setTimeout(() => { $('notice').hidden = true; }, 3000);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Активировать';
         }
       });
     }

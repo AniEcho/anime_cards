@@ -1,0 +1,16 @@
+{
+  "TOKYO": {
+    "max_uses": 50,
+    "anime": "Токийский гуль"
+  },
+  "NARUTO": {
+    "max_uses": 0,
+    "anime": "Наруто"
+  },
+  "NEWYEAR": {
+    "max_uses": 100,
+    "cards": [
+      {"rarity": "Легендарная", "amount": 1}
+    ]
+  }
+}
