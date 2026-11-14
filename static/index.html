@@ -273,7 +273,7 @@
       <div id="promo-result-rating" style="text-align: center; font-size: 16px; margin-bottom: 15px; font-weight: bold; color: #fbbf24; display: none;"></div>
       
       <!-- Добавили прокрутку и ограничение высоты -->
-      <div id="promo-reward-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; max-height: 45vh; overflow-y: auto; padding-right: 4px;"></div>
+      <div id="promo-reward-list" style="display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; gap: 8px; max-height: 45vh; overflow-x: auto; overflow-y: hidden; padding-bottom: 8px;"></div>
       
       <button onclick="closePromoModal()" class="primary wide" style="margin: 0; padding: 12px; border-radius: 10px;">Забрать</button>
     </div>
@@ -1557,33 +1557,28 @@
           const res = await api('promo', { code: code });
           await sync();
           
-          // Очищаем поле ввода
-          $('promo-code-input').value = '';
-          
-          // Открываем модалку
+          $('promo-code-input').value = ''; 
           $('promo-modal').classList.add('active');
           
-          // Отрисовываем карты
           const rewardList = $('promo-reward-list');
           const ratingBlock = $('promo-result-rating');
           
           if (res.cards && res.cards.length > 0) {
             let totalRating = 0;
             
+            // Делаем высоту контейнера под 2 карточки, чтобы они влезли в 2 ряда
+            rewardList.style.height = '240px'; 
+            
             rewardList.innerHTML = res.cards.map(c => {
-              // Берем актуальную инфу о карте из профиля, чтобы правильно посчитать рейтинг
               const cardInfo = profile.cards.find(x => Number(x.id) === Number(c.id));
-              const points = cardInfo ? cardInfo.points : c.points;
-              totalRating += points;
+              totalRating += (cardInfo ? cardInfo.points : c.points);
               
-              // Используем функцию card() для красивого отображения
-              return card(cardInfo || c, true); 
+              // Оборачиваем карту в фиксированный контейнер для горизонтального скролла
+              return `<div style="width: 100px; flex-shrink: 0; height: 230px;">${card(cardInfo || c, true)}</div>`;
             }).join('');
             
-            // Отключаем клики по картам внутри модалки
             rewardList.querySelectorAll('.card').forEach(el => el.onclick = null);
             
-            // Показываем общий рейтинг
             ratingBlock.innerHTML = `<span style="color:#b775ff;">+${totalRating}</span> рейтинга`;
             ratingBlock.style.display = 'block';
           } else {
