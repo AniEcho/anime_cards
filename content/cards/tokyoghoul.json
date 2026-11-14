@@ -36,16 +36,16 @@
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Это Йошимура",
-    "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_yoshimura.jpg",
+    "name": "Котаро Амон",
+    "rarity": "Легендарная",
+    "image": "/static/images/tokyoghoul_amon.jpg",
     "description": "-"
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Кузен Йошимура",
-    "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_kuzen.jpg",
+    "name": "Якумо Оомори",
+    "rarity": "Легендарная",
+    "image": "/static/images/tokyoghoul_yamori.jpg",
     "description": "-"
   },
   {
@@ -57,30 +57,23 @@
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Якумо Оомори (Джейсон)",
+    "name": "Курео Мадо",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_yamori.jpg",
+    "image": "/static/images/tokyoghoul_mado.jpg",
     "description": "-"
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Котаро Амон",
+    "name": "Нишики Нишио",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_amon.jpg",
+    "image": "/static/images/tokyoghoul_nishiki.jpg",
     "description": "-"
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Татара",
+    "name": "Хидейоши Нагачика",
     "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_tatara.jpg",
-    "description": "-"
-  },
-  {
-    "anime_title": "Токийский гуль",
-    "name": "Норо",
-    "rarity": "Эпическая",
-    "image": "/static/images/tokyoghoul_noro.jpg",
+    "image": "/static/images/tokyoghoul_hide.jpg",
     "description": "-"
   },
   {
@@ -113,23 +106,16 @@
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Курео Мадо",
+    "name": "Кузен Йошимура",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_mado.jpg",
+    "image": "/static/images/tokyoghoul_kuzen.jpg",
     "description": "-"
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Нишики Нишио",
+    "name": "Норо",
     "rarity": "Редкая",
-    "image": "/static/images/tokyoghoul_nishiki.jpg",
-    "description": "-"
-  },
-  {
-    "anime_title": "Токийский гуль",
-    "name": "Хидейоши Нагачика (Хиде)",
-    "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_hide.jpg",
+    "image": "/static/images/tokyoghoul_noro.jpg",
     "description": "-"
   },
   {
@@ -137,13 +123,6 @@
     "name": "Акира Мадо",
     "rarity": "Необычная",
     "image": "/static/images/tokyoghoul_akira.jpg",
-    "description": "-"
-  },
-  {
-    "anime_title": "Токийский гуль",
-    "name": "Наки",
-    "rarity": "Необычная",
-    "image": "/static/images/tokyoghoul_naki.jpg",
     "description": "-"
   },
   {
@@ -169,16 +148,9 @@
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Рёко Фуэгучи",
+    "name": "Казуичи Банджо",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_ryoko.jpg",
-    "description": "-"
-  },
-  {
-    "anime_title": "Токийский гуль",
-    "name": "Пакуо",
-    "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_pakuo.jpg",
+    "image": "/static/images/tokyoghoul_bandjo.jpg",
     "description": "-"
   },
   {
@@ -197,16 +169,9 @@
   },
   {
     "anime_title": "Токийский гуль",
-    "name": "Биро",
+    "name": "Ицуки Маруде",
     "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_biiro.jpg",
-    "description": "-"
-  },
-  {
-    "anime_title": "Токийский гуль",
-    "name": "Косуке Ходжи",
-    "rarity": "Обычная",
-    "image": "/static/images/tokyoghoul_hoji.jpg",
+    "image": "/static/images/tokyoghoul_marudo.jpg",
     "description": "-"
   }
 ]
