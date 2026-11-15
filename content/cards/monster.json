@@ -1,0 +1,205 @@
+[
+  {
+    "anime_title": "Монстр",
+    "name": "Йохан Либерт",
+    "rarity": "Мифическая",
+    "image": "/static/images/monster_yohan.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Кэндзо Тэнма",
+    "rarity": "Мифическая",
+    "image": "/static/images/monster_tenma.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Анна Либерт",
+    "rarity": "Легендарная",
+    "image": "/static/images/monster_anna.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Вольфганг Гриммер",
+    "rarity": "Легендарная",
+    "image": "/static/images/monster_grimmer.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Генрих Лунге",
+    "rarity": "Легендарная",
+    "image": "/static/images/monster_genryh.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Дитер",
+    "rarity": "Легендарная",
+    "image": "/static/images/monster_duter.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Ева Хайнеман",
+    "rarity": "Эпическая",
+    "image": "/static/images/monster_eva.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Роберто",
+    "rarity": "Эпическая",
+    "image": "/static/images/monster_roberto.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Юлиус Райхвайн",
+    "rarity": "Эпическая",
+    "image": "/static/images/monster_uluys.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Клаус Поппе",
+    "rarity": "Эпическая",
+    "image": "/static/images/monster_poppe.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Отто Хеккель",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_otto.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Карл Нойман",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_karl.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Руди Гиллен",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_rydu.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Ян Сук",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_yan.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Лотта Франк",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_frank.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Ганс Георг Шувальд",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_gans.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Хартман",
+    "rarity": "Редкая",
+    "image": "/static/images/monster_hatrman.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Кристоф Зиверних",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_kristof.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Петер Чапек",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_peter.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Малыш",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_malish.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Милан Колаш",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_milan.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Директор Хайнеман",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_haynma.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Мистер Россо",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_rokko.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Гельмут Вольф",
+    "rarity": "Необычная",
+    "image": "/static/images/monster_volf.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Филип Земан",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_zeman.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Детектив Месснер",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_messner.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Якоб Мауэр",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_mayer.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Фриц Вардеман",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_fritz.jpg",
+    "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Доктор Бойер",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_boyer.jpg",
+    "description": "-"
+  }
+]
