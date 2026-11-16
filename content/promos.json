@@ -3,6 +3,10 @@
     "max_uses": 50,
     "anime": "Токийский гуль"
   },
+  "MONSTR": {
+    "max_uses": 50,
+    "anime": "Монстр"
+  },
   "NARUTO": {
     "max_uses": 0,
     "anime": "Наруто"
