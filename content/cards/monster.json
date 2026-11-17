@@ -201,5 +201,12 @@
     "rarity": "Обычная",
     "image": "/static/images/monster_boyer.jpg",
     "description": "-"
+  },
+  {
+    "anime_title": "Монстр",
+    "name": "Доктор Шуман",
+    "rarity": "Обычная",
+    "image": "/static/images/monster_shyman.jpg",
+    "description": "-"
   }
 ]
